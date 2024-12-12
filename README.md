@@ -1,2 +1,2 @@
-# OpenGL
-OpenGL
+# OpenGLApp
+OpenGLApp
