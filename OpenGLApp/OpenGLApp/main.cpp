@@ -1,3 +1,4 @@
+#include <cmath>
 #include <stdio.h>
 #include <string.h>
 
@@ -10,9 +11,15 @@ const GLint HIGHT = 600;
 
 // Define main variables
 
-GLuint VAO;
-GLuint VBO;
-GLuint ShaderProgram;
+GLuint VAOid;
+GLuint VBOid;
+GLuint ShaderProgram_id;
+GLuint UniformXMoveOffsetVar_id;
+
+bool Direction = true;
+float ShapeOffset = 0.0f;
+float ShapeMaxOffset = 0.6f;
+float ShapeOffsetStep = 0.005f;
 
 // Vertex Shader code
 static const char* VertexShaderCode = R"gl(
@@ -21,9 +28,11 @@ static const char* VertexShaderCode = R"gl(
 
 	layout (location = 0) in vec3 pos;
 
+	uniform float XMoveOffset;
+
 	void main()
 	{
-		gl_Position = vec4(0.4 * pos.x, 0.4 * pos.y, pos.z, 3.0);
+		gl_Position = vec4(0.4 * pos.x - XMoveOffset, 0.4 * pos.y, pos.z, 3.0  + XMoveOffset * 3);
 	}
 
 )gl";
@@ -82,39 +91,42 @@ void AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType
 
 void CompileShaders()
 {
-	ShaderProgram = glCreateProgram();
+	ShaderProgram_id = glCreateProgram();
 
-	if (!ShaderProgram)
+	if (!ShaderProgram_id)
 	{
 		printf("Error creating shader program");
 		return;
 	}
 
-	AddShader(ShaderProgram, VertexShaderCode, GL_VERTEX_SHADER);
-	AddShader(ShaderProgram, FragmentShaderCode, GL_FRAGMENT_SHADER);
+	AddShader(ShaderProgram_id, VertexShaderCode, GL_VERTEX_SHADER);
+	AddShader(ShaderProgram_id, FragmentShaderCode, GL_FRAGMENT_SHADER);
 
 	GLint Result = 0;
 	GLchar eLog[1024] = {0};
 
-	glLinkProgram(ShaderProgram);
-	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Result);
+	glLinkProgram(ShaderProgram_id);
+	glGetProgramiv(ShaderProgram_id, GL_LINK_STATUS, &Result);
 
 	if (!Result)
 	{
-		glGetProgramInfoLog(ShaderProgram, sizeof(eLog), nullptr, eLog);
+		glGetProgramInfoLog(ShaderProgram_id, sizeof(eLog), nullptr, eLog);
 		printf("Error linking program: '%s'\n", eLog);
 		return;
 	}
 
-	glValidateProgram(ShaderProgram);
-	glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Result);
+	glValidateProgram(ShaderProgram_id);
+	glGetProgramiv(ShaderProgram_id, GL_VALIDATE_STATUS, &Result);
 
 	if (!Result)
 	{
-		glGetProgramInfoLog(ShaderProgram, sizeof(eLog), nullptr, eLog);
+		glGetProgramInfoLog(ShaderProgram_id, sizeof(eLog), nullptr, eLog);
 		printf("Error validating program: '%s'\n", eLog);
 		return;
 	}
+
+	// Bind XMoveOffset uniform variable
+	UniformXMoveOffsetVar_id = glGetUniformLocation(ShaderProgram_id, "XMoveOffset");
 }
 
 void CreateTriangle()
@@ -126,11 +138,11 @@ void CreateTriangle()
 		 0.0f,  1.0,  0.0f
 	};
 
-	glGenVertexArrays(1, &VAO); // first param here number of VAOs we are creating
-	glBindVertexArray(VAO);
+	glGenVertexArrays(1, &VAOid); // first param here number of VAOs we are creating
+	glBindVertexArray(VAOid);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenBuffers(1, &VBOid);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOid);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 
 	// With attributes explaining how to use data
@@ -207,14 +219,30 @@ int main()
 		// Get and handle user input events
 		glfwPollEvents();
 
+		if (Direction)
+		{
+			ShapeOffset += ShapeOffsetStep;
+		}
+		else
+		{
+			ShapeOffset -= ShapeOffsetStep;
+		}
+
+		if(abs(ShapeOffset) >= ShapeMaxOffset)
+		{
+			Direction = !Direction;
+		}
+
 		// Clear window with black color
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		///* Draw triangle *///
-		glUseProgram(ShaderProgram);
+		glUseProgram(ShaderProgram_id);
 
-		glBindVertexArray(VAO);
+		glUniform1f(UniformXMoveOffsetVar_id, ShapeOffset);
+
+		glBindVertexArray(VAOid);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
