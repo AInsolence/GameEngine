@@ -10,8 +10,10 @@
 #include <gtc/type_ptr.hpp>
 
 // GL window dimension
-const GLint WIDTH = 800;
-const GLint HIGHT = 600;
+constexpr GLint WIDTH = 800;
+constexpr GLint HIGHT = 600;
+
+constexpr float ToRadians = 3.14159265f / 180.0f;
 
 // Define main variables
 
@@ -19,12 +21,21 @@ GLuint VAOid;
 GLuint VBOid;
 GLuint ShaderProgram_id;
 GLuint UniformXMoveOffsetVar_id;
-GLuint UniformTranslateVar_id;
+GLuint UniformModelMatrix_id;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
 float ShapeMaxOffset = 0.6f;
 float ShapeOffsetStep = 0.005f;
+
+float RotationDegree = 0.0f;
+
+float ScaleRatio = 0.1f;
+float MinScaleRatio = 0.1f;
+float MaxScaleRatio = 0.3f;
+float ScaleRatioStep = 0.001f;
+bool ScaleDirection = true;
+
 
 // Vertex Shader code
 static const char* VertexShaderCode = R"gl(
@@ -34,11 +45,11 @@ static const char* VertexShaderCode = R"gl(
 	layout (location = 0) in vec3 pos;
 
 	uniform float XMoveOffset;
-	uniform mat4 TranslateMatrix;
+	uniform mat4 ModelMatrix;
 
 	void main()
 	{
-		gl_Position = TranslateMatrix * vec4(0.4 * pos.x, 0.4 * pos.y, pos.z, 3.0  + XMoveOffset * 3);
+		gl_Position = ModelMatrix * vec4(pos, 1.0);
 	}
 
 )gl";
@@ -133,7 +144,7 @@ void CompileShaders()
 
 	// Bind XMoveOffset uniform variable
 	UniformXMoveOffsetVar_id = glGetUniformLocation(ShaderProgram_id, "XMoveOffset");
-	UniformTranslateVar_id = glGetUniformLocation(ShaderProgram_id, "TranslateMatrix");
+	UniformModelMatrix_id = glGetUniformLocation(ShaderProgram_id, "ModelMatrix");
 }
 
 void CreateTriangle()
@@ -226,6 +237,7 @@ int main()
 		// Get and handle user input events
 		glfwPollEvents();
 
+		// Translation logic
 		if (Direction)
 		{
 			ShapeOffset += ShapeOffsetStep;
@@ -240,6 +252,29 @@ int main()
 			Direction = !Direction;
 		}
 
+		// Rotation logic
+		RotationDegree += 0.5f;
+
+		if (RotationDegree >= 360.f)
+		{
+			RotationDegree = 0.0f;
+		}
+
+		// Scale logic
+		if (ScaleDirection)
+		{
+			ScaleRatio += ScaleRatioStep;
+		}
+		else
+		{
+			ScaleRatio -= ScaleRatioStep;
+		}
+
+		if (abs(ScaleRatio) <= MinScaleRatio || abs(ScaleRatio) >= MaxScaleRatio)
+		{
+			ScaleDirection = !ScaleDirection;
+		}
+
 		// Clear window with black color
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -249,10 +284,15 @@ int main()
 
 		// Scaling using uniform var for 'w'
 		glUniform1f(UniformXMoveOffsetVar_id, ShapeOffset);
-		// Translation
-		glm::mat4 TranslateMatrix (1.0f); // initialize as identity matrix
-		TranslateMatrix = glm::translate(TranslateMatrix, glm::vec3(ShapeOffset, ShapeOffset, 0));
-		glUniformMatrix4fv(UniformTranslateVar_id, 1, GL_FALSE, glm::value_ptr(TranslateMatrix));
+
+		// Model Translations
+		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, 0)); // set translation
+		ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 0.0f, 1.f)); // set rotation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, 1.0f)); // set scale
+
+		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
 
 		glBindVertexArray(VAOid);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
