@@ -5,6 +5,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
 // GL window dimension
 const GLint WIDTH = 800;
 const GLint HIGHT = 600;
@@ -15,6 +19,7 @@ GLuint VAOid;
 GLuint VBOid;
 GLuint ShaderProgram_id;
 GLuint UniformXMoveOffsetVar_id;
+GLuint UniformTranslateVar_id;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
@@ -29,10 +34,11 @@ static const char* VertexShaderCode = R"gl(
 	layout (location = 0) in vec3 pos;
 
 	uniform float XMoveOffset;
+	uniform mat4 TranslateMatrix;
 
 	void main()
 	{
-		gl_Position = vec4(0.4 * pos.x - XMoveOffset, 0.4 * pos.y, pos.z, 3.0  + XMoveOffset * 3);
+		gl_Position = TranslateMatrix * vec4(0.4 * pos.x, 0.4 * pos.y, pos.z, 3.0  + XMoveOffset * 3);
 	}
 
 )gl";
@@ -127,6 +133,7 @@ void CompileShaders()
 
 	// Bind XMoveOffset uniform variable
 	UniformXMoveOffsetVar_id = glGetUniformLocation(ShaderProgram_id, "XMoveOffset");
+	UniformTranslateVar_id = glGetUniformLocation(ShaderProgram_id, "TranslateMatrix");
 }
 
 void CreateTriangle()
@@ -240,7 +247,12 @@ int main()
 		///* Draw triangle *///
 		glUseProgram(ShaderProgram_id);
 
+		// Scaling using uniform var for 'w'
 		glUniform1f(UniformXMoveOffsetVar_id, ShapeOffset);
+		// Translation
+		glm::mat4 TranslateMatrix (1.0f); // initialize as identity matrix
+		TranslateMatrix = glm::translate(TranslateMatrix, glm::vec3(ShapeOffset, ShapeOffset, 0));
+		glUniformMatrix4fv(UniformTranslateVar_id, 1, GL_FALSE, glm::value_ptr(TranslateMatrix));
 
 		glBindVertexArray(VAOid);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
