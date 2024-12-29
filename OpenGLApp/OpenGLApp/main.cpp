@@ -19,6 +19,7 @@ constexpr float ToRadians = 3.14159265f / 180.0f;
 
 GLuint VAOid;
 GLuint VBOid;
+GLuint IBOid;
 GLuint ShaderProgram_id;
 GLuint UniformXMoveOffsetVar_id;
 GLuint UniformModelMatrix_id;
@@ -153,15 +154,28 @@ void CompileShaders()
 
 void CreateTriangle()
 {
+	// Represents faces created from further represented vertices
+	unsigned int VertexIndices[] = {
+		0, 3, 1,
+		1, 3, 2,
+		2, 3, 0,
+		0, 1, 2
+	};
+
 	// Define triangle's vertices
 	constexpr GLfloat Vertices[] = {
 		-1.0f, -1.0f, 0.0f,
+		 0.0f, -1.0f, 1.0f,
 		 1.0f, -1.0f, 0.0f,
 		 0.0f,  1.0,  0.0f
 	};
 
 	glGenVertexArrays(1, &VAOid); // first param here number of VAOs we are creating
 	glBindVertexArray(VAOid);
+
+	glGenBuffers(1, &IBOid);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOid);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(VertexIndices), VertexIndices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &VBOid);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOid);
@@ -173,6 +187,7 @@ void CreateTriangle()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 int main()
@@ -228,6 +243,8 @@ int main()
 		return 1;
 	}
 	/// * END of GLEW initialization* ///
+
+	glEnable(GL_DEPTH_TEST);
 	
 	// Setup viewport size. It is less then window size and equal to drawing area (FrameBuffer)
 	glViewport(0, 0, bufferWidth, bufferHeight);
@@ -281,7 +298,7 @@ int main()
 
 		// Clear window with black color
 		glClearColor(0.f, 0.f, 0.f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		///* Draw triangle *///
 		glUseProgram(ShaderProgram_id);
@@ -292,15 +309,20 @@ int main()
 		// Model Translations
 		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, 0)); // set translation
-		ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 0.0f, 1.f)); // set rotation
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, 1.0f)); // set scale
+		ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 
 
 		glBindVertexArray(VAOid);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// glDrawArrays(GL_TRIANGLES, 0, 3); //
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOid);
+
+		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
 		glBindVertexArray(0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
 		///* END of draw triangle *///
