@@ -47,9 +47,12 @@ static const char* VertexShaderCode = R"gl(
 	uniform float XMoveOffset;
 	uniform mat4 ModelMatrix;
 
+	noperspective out vec4 VertexColor;
+
 	void main()
 	{
 		gl_Position = ModelMatrix * vec4(pos, 1.0);
+		VertexColor = vec4(clamp(pos, 0.3f, 1.0f), 1.0f);
 	}
 
 )gl";
@@ -59,11 +62,12 @@ static const char* FragmentShaderCode = R"gl(
 
 	#version 330
 
+	in vec4 VertexColor;
 	out vec4 color;
 
 	void main()
 	{
-		color = vec4(1.0, 0.0, 0.0, 1.0);
+		color = VertexColor;
 	}
 
 )gl";
