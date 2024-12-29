@@ -1,13 +1,17 @@
 #include <cmath>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <glm.hpp>
+#include <memory>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+
+#include "Mesh.h"
 
 // GL window dimension
 constexpr GLint WIDTH = 800;
@@ -17,9 +21,8 @@ constexpr float ToRadians = 3.14159265f / 180.0f;
 
 // Define main variables
 
-GLuint VAOid;
-GLuint VBOid;
-GLuint IBOid;
+std::vector<std::shared_ptr<Mesh>> MeshList;
+
 GLuint ShaderProgram_id;
 GLuint UniformXMoveOffsetVar_id;
 GLuint UniformModelMatrix_id;
@@ -158,7 +161,7 @@ void CompileShaders()
 void CreateTriangle()
 {
 	// Represents faces created from further represented vertices
-	unsigned int VertexIndices[] = {
+	unsigned int Indices[] = {
 		0, 3, 1,
 		1, 3, 2,
 		2, 3, 0,
@@ -173,24 +176,9 @@ void CreateTriangle()
 		 0.0f,  1.0,  0.0f
 	};
 
-	glGenVertexArrays(1, &VAOid); // first param here number of VAOs we are creating
-	glBindVertexArray(VAOid);
-
-	glGenBuffers(1, &IBOid);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOid);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(VertexIndices), VertexIndices, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &VBOid);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOid);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-
-	// With attributes explaining how to use data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 12, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 12, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 12, 12));
 }
 
 int main()
@@ -309,24 +297,49 @@ int main()
 
 		// Scaling using uniform var for 'w'
 		glUniform1f(UniformXMoveOffsetVar_id, ShapeOffset);
-
-		// Set Model Translations
-		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, -2.5f)); // set translation
-		ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
-
-		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		// Set Projection matrix
 		glUniformMatrix4fv(UniformProjectionMatrix_id, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 
-		glBindVertexArray(VAOid);
-		// glDrawArrays(GL_TRIANGLES, 0, 3); //
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOid);
+		if (!MeshList.empty())
+		{
+			// Set Model Translations
+			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, -2.5f)); // set translation
+			ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
-		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 
-		glBindVertexArray(0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			MeshList[0]->Render();
+		}
+
+		if (MeshList.size() > 1)
+		{
+			// Set Model Translations
+			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-ShapeOffset, ShapeOffset, -2.5f)); // set translation
+			ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
+
+			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+			MeshList[1]->Render();
+		}
+
+		if (MeshList.size() > 2)
+		{
+			// Set Model Translations
+			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-ShapeOffset, -ShapeOffset, -2.5f)); // set translation
+			ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
+
+			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+			MeshList[2]->Render();
+		}
+
+
 
 		glUseProgram(0);
 		///* END of draw triangle *///
