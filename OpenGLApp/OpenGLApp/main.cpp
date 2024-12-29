@@ -23,6 +23,7 @@ GLuint IBOid;
 GLuint ShaderProgram_id;
 GLuint UniformXMoveOffsetVar_id;
 GLuint UniformModelMatrix_id;
+GLuint UniformProjectionMatrix_id;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
@@ -47,12 +48,13 @@ static const char* VertexShaderCode = R"gl(
 
 	uniform float XMoveOffset;
 	uniform mat4 ModelMatrix;
+	uniform mat4 ProjectionMatrix;
 
 	noperspective out vec4 VertexColor;
 
 	void main()
 	{
-		gl_Position = ModelMatrix * vec4(pos, 1.0);
+		gl_Position = ProjectionMatrix * ModelMatrix * vec4(pos, 1.0);
 		VertexColor = vec4(clamp(pos, 0.3f, 1.0f), 1.0f);
 	}
 
@@ -150,6 +152,7 @@ void CompileShaders()
 	// Bind XMoveOffset uniform variable
 	UniformXMoveOffsetVar_id = glGetUniformLocation(ShaderProgram_id, "XMoveOffset");
 	UniformModelMatrix_id = glGetUniformLocation(ShaderProgram_id, "ModelMatrix");
+	UniformProjectionMatrix_id = glGetUniformLocation(ShaderProgram_id, "ProjectionMatrix");
 }
 
 void CreateTriangle()
@@ -229,7 +232,6 @@ int main()
 	// Set context for GLFW to use (here is the main window)
 	glfwMakeContextCurrent(MainWindow);
 
-
 	///* GLEW initialization *///
 	// Allow experimental (modern) extensions to use
 	glewExperimental = GL_TRUE;
@@ -251,6 +253,8 @@ int main()
 
 	CreateTriangle();
 	CompileShaders();
+
+	glm::mat4 ProjectionMatrix = glm::perspective(45.0f, static_cast<GLfloat>(WIDTH) / static_cast<GLfloat>(HIGHT), 0.1f, 100.0f); // initialize projection matrix
 
 	// Render loop
 	while (!glfwWindowShouldClose(MainWindow))
@@ -306,14 +310,14 @@ int main()
 		// Scaling using uniform var for 'w'
 		glUniform1f(UniformXMoveOffsetVar_id, ShapeOffset);
 
-		// Model Translations
+		// Set Model Translations
 		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, 0)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, -2.5f)); // set translation
 		ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-
+		glUniformMatrix4fv(UniformProjectionMatrix_id, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 
 		glBindVertexArray(VAOid);
 		// glDrawArrays(GL_TRIANGLES, 0, 3); //
