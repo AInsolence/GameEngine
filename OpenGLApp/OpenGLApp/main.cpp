@@ -11,7 +11,9 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include "MainWindow.h"
 #include "Mesh.h"
+#include "Shader.h"
 
 // GL window dimension
 constexpr GLint WIDTH = 800;
@@ -20,13 +22,8 @@ constexpr GLint HIGHT = 600;
 constexpr float ToRadians = 3.14159265f / 180.0f;
 
 // Define main variables
-
 std::vector<std::shared_ptr<Mesh>> MeshList;
-
-GLuint ShaderProgram_id;
-GLuint UniformXMoveOffsetVar_id;
-GLuint UniformModelMatrix_id;
-GLuint UniformProjectionMatrix_id;
+std::vector<std::shared_ptr<Shader>> ShaderList;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
@@ -43,122 +40,12 @@ bool ScaleDirection = true;
 
 
 // Vertex Shader code
-static const char* VertexShaderCode = R"gl(
-
-	#version 330
-
-	layout (location = 0) in vec3 pos;
-
-	uniform float XMoveOffset;
-	uniform mat4 ModelMatrix;
-	uniform mat4 ProjectionMatrix;
-
-	noperspective out vec4 VertexColor;
-
-	void main()
-	{
-		gl_Position = ProjectionMatrix * ModelMatrix * vec4(pos, 1.0);
-		VertexColor = vec4(clamp(pos, 0.3f, 1.0f), 1.0f);
-	}
-
-)gl";
+static const char* VertexShaderPath = "Shaders/shader.vert";
 
 // Fragment Shader code
-static const char* FragmentShaderCode = R"gl(
+static const char* FragmentShaderPath = "Shaders/shader.frag";
 
-	#version 330
-
-	in vec4 VertexColor;
-	out vec4 color;
-
-	void main()
-	{
-		color = VertexColor;
-	}
-
-)gl";
-
-// Function:
-//  1) Created shader from shader source code
-//  2) Compile it and check compilation status
-//  3) Attach it to shader program
-void AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType)
-{
-	// Create shader
-	const GLuint LocalShader = glCreateShader(ShaderType);
-
-	// Type conversion to GL types
-	const GLchar* LocalShaderCode[1];
-	LocalShaderCode[0] = ShaderCode;
-
-	GLint CodeLength [1];
-	CodeLength[0] = strlen(ShaderCode);
-
-	// Set shader source and compile shader
-	glShaderSource(LocalShader, 1, LocalShaderCode, CodeLength);
-	glCompileShader(LocalShader);
-
-	// Check shader compilation status
-	GLint Result = 0;
-	GLchar eLog[1024] = {0};
-
-	glGetShaderiv(LocalShader, GL_COMPILE_STATUS, &Result);
-
-	if (!Result)
-	{
-		glGetShaderInfoLog(LocalShader, sizeof(eLog), nullptr, eLog);
-		printf("Error compiling the %d shader: '%s'\n", ShaderType, eLog);
-		return;
-	}
-	//
-
-	// Attach compiled shader to the shader program
-	glAttachShader(ShaderProgramId, LocalShader);
-}
-
-void CompileShaders()
-{
-	ShaderProgram_id = glCreateProgram();
-
-	if (!ShaderProgram_id)
-	{
-		printf("Error creating shader program");
-		return;
-	}
-
-	AddShader(ShaderProgram_id, VertexShaderCode, GL_VERTEX_SHADER);
-	AddShader(ShaderProgram_id, FragmentShaderCode, GL_FRAGMENT_SHADER);
-
-	GLint Result = 0;
-	GLchar eLog[1024] = {0};
-
-	glLinkProgram(ShaderProgram_id);
-	glGetProgramiv(ShaderProgram_id, GL_LINK_STATUS, &Result);
-
-	if (!Result)
-	{
-		glGetProgramInfoLog(ShaderProgram_id, sizeof(eLog), nullptr, eLog);
-		printf("Error linking program: '%s'\n", eLog);
-		return;
-	}
-
-	glValidateProgram(ShaderProgram_id);
-	glGetProgramiv(ShaderProgram_id, GL_VALIDATE_STATUS, &Result);
-
-	if (!Result)
-	{
-		glGetProgramInfoLog(ShaderProgram_id, sizeof(eLog), nullptr, eLog);
-		printf("Error validating program: '%s'\n", eLog);
-		return;
-	}
-
-	// Bind XMoveOffset uniform variable
-	UniformXMoveOffsetVar_id = glGetUniformLocation(ShaderProgram_id, "XMoveOffset");
-	UniformModelMatrix_id = glGetUniformLocation(ShaderProgram_id, "ModelMatrix");
-	UniformProjectionMatrix_id = glGetUniformLocation(ShaderProgram_id, "ProjectionMatrix");
-}
-
-void CreateTriangle()
+void Create3DObjects()
 {
 	// Represents faces created from further represented vertices
 	unsigned int Indices[] = {
@@ -183,69 +70,15 @@ void CreateTriangle()
 
 int main()
 {
-	///* GLFW initialization *///
-	if (!glfwInit())
-	{
-		printf("GLFW initialization failed");
-		glfwTerminate();
-		return 1;
-	}
+	MainWindow MainWindow (800, 800);
 
-	// Set OpenGL version to 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	Create3DObjects();
+	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
-	// Core profile = No backward compatibility
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-	// Setup GLFW window properties
-	GLFWwindow *MainWindow = glfwCreateWindow(WIDTH,
-											HIGHT,
-											"App window",
-											nullptr,
-											nullptr);
-
-	if (!MainWindow)
-	{
-		printf ("GLFW window creation failed!");
-		glfwTerminate();
-		return 1;
-	}
-
-	// Get buffer size information
-	int bufferWidth, bufferHeight;
-	glfwGetFramebufferSize(MainWindow, &bufferWidth, &bufferHeight);
-
-	// Set context for GLFW to use (here is the main window)
-	glfwMakeContextCurrent(MainWindow);
-
-	///* GLEW initialization *///
-	// Allow experimental (modern) extensions to use
-	glewExperimental = GL_TRUE;
-
-	if(glewInit() != GLEW_OK)
-	{
-		printf ("GLEW initialization failed!");
-		glfwDestroyWindow(MainWindow);
-		glfwTerminate();
-
-		return 1;
-	}
-	/// * END of GLEW initialization* ///
-
-	glEnable(GL_DEPTH_TEST);
-	
-	// Setup viewport size. It is less then window size and equal to drawing area (FrameBuffer)
-	glViewport(0, 0, bufferWidth, bufferHeight);
-
-	CreateTriangle();
-	CompileShaders();
-
-	glm::mat4 ProjectionMatrix = glm::perspective(45.0f, static_cast<GLfloat>(WIDTH) / static_cast<GLfloat>(HIGHT), 0.1f, 100.0f); // initialize projection matrix
+	glm::mat4 ProjectionMatrix = glm::perspective(45.0f, MainWindow.GetBufferWidth() / MainWindow.GetBufferHeight(), 0.1f, 100.0f); // initialize projection matrix
 
 	// Render loop
-	while (!glfwWindowShouldClose(MainWindow))
+	while (!MainWindow.GetShouldClose())
 	{
 		// Get and handle user input events
 		glfwPollEvents();
@@ -293,12 +126,12 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		///* Draw triangle *///
-		glUseProgram(ShaderProgram_id);
+		ShaderList[0]->Use();
 
-		// Scaling using uniform var for 'w'
-		glUniform1f(UniformXMoveOffsetVar_id, ShapeOffset);
 		// Set Projection matrix
-		glUniformMatrix4fv(UniformProjectionMatrix_id, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		// Get Model Matrix location
+		const GLint UniformModelMatrix_id = ShaderList[0]->GetModelLocation();
 
 		if (!MeshList.empty())
 		{
@@ -339,11 +172,9 @@ int main()
 			MeshList[2]->Render();
 		}
 
-
-
 		glUseProgram(0);
 		///* END of draw triangle *///
-		glfwSwapBuffers(MainWindow);
+		MainWindow.SwapBuffers();
 	}
 
 	return 0;
