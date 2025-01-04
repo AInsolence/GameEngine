@@ -5,6 +5,18 @@ MainWindow::MainWindow(GLint WinWidth, GLint WinHeight)
 	Width = WinWidth;
 	Height = WinHeight;
 
+	IsMouseMovedFirst = true;
+
+	LastX = 0.0;
+	LastY = 0.0;
+	OffsetX = 0.0;
+	OffsetY = 0.0;
+
+	for (auto& Key : Keys)
+	{
+		Key = false;
+	}
+
 	Initialize();
 }
 
@@ -52,6 +64,12 @@ int MainWindow::Initialize()
 	// Set context for GLFW to use (here is the main window)
 	glfwMakeContextCurrent(MainWindowPtr);
 
+	// Start Input handling
+	glfwSetKeyCallback(MainWindowPtr, HandleKeys);
+	glfwSetCursorPosCallback(MainWindowPtr, HandleMouse);
+
+	glfwSetInputMode(MainWindowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	///* GLEW initialization *///
 	// Allow experimental (modern) extensions to use
 	glewExperimental = GL_TRUE;
@@ -70,6 +88,10 @@ int MainWindow::Initialize()
 	
 	// Setup viewport size. It is less then window size and equal to drawing area (FrameBuffer)
 	glViewport(0, 0, BufferWidth, BufferHeight);
+
+	glfwSetWindowUserPointer(MainWindowPtr, this);
+
+	return 0;
 }
 
 GLfloat MainWindow::GetBufferWidth() const
@@ -90,4 +112,78 @@ void MainWindow::SwapBuffers()
 bool MainWindow::GetShouldClose()
 {
 	return glfwWindowShouldClose(MainWindowPtr);
+}
+
+bool* MainWindow::GetKeys()
+{
+	return Keys;
+}
+
+GLdouble MainWindow::GetOffsetX()
+{
+	const auto LastOffsetX = OffsetX;
+	OffsetX = 0.0;
+
+	return LastOffsetX;
+}
+
+GLdouble MainWindow::GetOffsetY()
+{
+	const auto LastOffsetY = OffsetY;
+	OffsetY = 0.0;
+
+	return LastOffsetY;
+}
+
+void MainWindow::HandleMouse(GLFWwindow* Window, double XPos, double YPos)
+{
+	const auto AppWindow = static_cast<MainWindow*>(glfwGetWindowUserPointer(Window));
+
+	if (AppWindow)
+	{
+		if (AppWindow->IsMouseMovedFirst)
+		{
+			AppWindow->LastX = XPos;
+			AppWindow->LastY = YPos;
+			AppWindow->IsMouseMovedFirst = false;
+		}
+
+		AppWindow->OffsetX = XPos - AppWindow->LastX;
+		AppWindow->OffsetY = AppWindow->LastY - YPos;
+
+		AppWindow->LastX = XPos;
+		AppWindow->LastY = YPos;
+
+		printf("x: %.6f, y: %.6f\n", AppWindow->OffsetX, AppWindow->OffsetY);
+	}
+}
+
+void MainWindow::HandleKeys(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mode)
+{
+	const auto AppWindow = static_cast<MainWindow*>(glfwGetWindowUserPointer(Window));
+
+	if (AppWindow)
+	{
+		if (Key == GLFW_KEY_ESCAPE && Action == GLFW_PRESS)
+		{
+			glfwSetWindowShouldClose(Window, GL_TRUE);
+		}
+
+		if (Key >= 0 && Key < 1024)
+		{
+			if (Action == GLFW_PRESS)
+			{
+				AppWindow->Keys[Key] = true;
+			}
+			else if (Action == GLFW_RELEASE)
+			{
+				AppWindow->Keys[Key] = false;
+			}
+
+			if (Key == GLFW_KEY_UNKNOWN)
+			{
+				printf("Unknown key pressed with ScanCode: %d\n", ScanCode);
+			}
+		}
+	}
 }

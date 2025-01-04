@@ -15,11 +15,6 @@
 #include "Mesh.h"
 #include "Shader.h"
 
-// GL window dimension
-constexpr GLint WIDTH = 800;
-constexpr GLint HIGHT = 600;
-
-constexpr float ToRadians = 3.14159265f / 180.0f;
 
 // Define main variables
 std::vector<std::shared_ptr<Mesh>> MeshList;
@@ -71,6 +66,7 @@ void Create3DObjects()
 int main()
 {
 	MainWindow MainWindow (800, 800);
+	constexpr float ToRadians = 3.14159265f / 180.0f;
 
 	Create3DObjects();
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
