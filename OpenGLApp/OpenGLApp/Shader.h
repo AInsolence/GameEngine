@@ -18,6 +18,7 @@ public:
 						const char* FragmentShaderPath);
 
 	GLint GetProjectionLocation() const;
+	GLint GetViewLocation() const;
 	GLint GetModelLocation() const;
 
 	void Use();
@@ -25,7 +26,7 @@ public:
 
 private:
 	GLuint Id;
-	GLint UniformProjection, UniformModel;
+	GLint UniformProjection, UniformView, UniformModel;
 
 	void CompileShaders(const char* VertexShaderCode,
 						const char* FragmentShaderCode);

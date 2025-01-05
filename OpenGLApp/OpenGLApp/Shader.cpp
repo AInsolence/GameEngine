@@ -31,6 +31,11 @@ GLint Shader::GetProjectionLocation() const
 	return UniformProjection;
 }
 
+GLint Shader::GetViewLocation() const
+{
+	return UniformView;
+}
+
 GLint Shader::GetModelLocation() const
 {
 	return UniformModel;
@@ -88,8 +93,9 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 	}
 
 	// Bind XMoveOffset uniform variable
-	UniformModel = glGetUniformLocation(Id, "ModelMatrix");
 	UniformProjection = glGetUniformLocation(Id, "ProjectionMatrix");
+	UniformView = glGetUniformLocation(Id, "ViewMatrix");
+	UniformModel = glGetUniformLocation(Id, "ModelMatrix");
 }
 
 void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType)
@@ -110,14 +116,14 @@ void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum Sh
 
 	// Check shader compilation status
 	GLint Result = 0;
-	GLchar eLog[1024] = {0};
+	GLchar ELog[1024] = {0};
 
 	glGetShaderiv(LocalShader, GL_COMPILE_STATUS, &Result);
 
 	if (!Result)
 	{
-		glGetShaderInfoLog(LocalShader, sizeof(eLog), nullptr, eLog);
-		printf("Error compiling the %d shader: '%s'\n", ShaderType, eLog);
+		glGetShaderInfoLog(LocalShader, sizeof(ELog), nullptr, ELog);
+		printf("Error compiling the %d shader: '%s'\n", ShaderType, ELog);
 		return;
 	}
 

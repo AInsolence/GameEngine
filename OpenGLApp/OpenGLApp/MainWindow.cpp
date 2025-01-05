@@ -24,6 +24,8 @@ MainWindow::~MainWindow()
 {
 	glfwDestroyWindow(MainWindowPtr);
 	glfwTerminate();
+
+	MainWindowPtr = nullptr;
 }
 
 int MainWindow::Initialize()

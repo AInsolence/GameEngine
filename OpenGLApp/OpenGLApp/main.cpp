@@ -13,12 +13,17 @@
 
 #include "MainWindow.h"
 #include "Mesh.h"
+#include "Camera.h"
 #include "Shader.h"
 
 
 // Define main variables
 std::vector<std::shared_ptr<Mesh>> MeshList;
 std::vector<std::shared_ptr<Shader>> ShaderList;
+
+// DeltaTime TODO: move to World class
+GLfloat DeltaTime = 0.0;
+GLfloat LastTime = 0.0;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
@@ -66,7 +71,13 @@ void Create3DObjects()
 int main()
 {
 	MainWindow MainWindow (800, 800);
-	constexpr float ToRadians = 3.14159265f / 180.0f;
+	Camera MainCamera(glm::vec3(0.0f, 0.0f, 0.0f), 
+						glm::vec3(0.0f, 1.0f, 0.0f),
+						-90.0f,
+						0.0f,
+						0.0f,
+						5.0f,
+						0.2f);
 
 	Create3DObjects();
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
@@ -76,8 +87,16 @@ int main()
 	// Render loop
 	while (!MainWindow.GetShouldClose())
 	{
+		GLfloat Now = glfwGetTime(); // SDL_GetPerformanceCounter();
+		DeltaTime = Now - LastTime; // (now - LastTime)*1000/SDL_GetPerformanceFrequency();
+		LastTime = Now;
+
 		// Get and handle user input events
 		glfwPollEvents();
+
+		// Transfer inputs from main window to camera
+		MainCamera.KeyControl(MainWindow.GetKeys(), DeltaTime);
+		MainCamera.MouseControl(MainWindow.GetOffsetX(), MainWindow.GetOffsetY());
 
 		// Translation logic
 		if (Direction)
@@ -126,6 +145,8 @@ int main()
 
 		// Set Projection matrix
 		glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		// Set view matrix
+		glUniformMatrix4fv(ShaderList[0]->GetViewLocation(), 1, GL_FALSE, glm::value_ptr(MainCamera.GetViewMatrix()));
 		// Get Model Matrix location
 		const GLint UniformModelMatrix_id = ShaderList[0]->GetModelLocation();
 
@@ -134,7 +155,7 @@ int main()
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, -2.5f)); // set translation
-			ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
@@ -147,7 +168,7 @@ int main()
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-ShapeOffset, ShapeOffset, -2.5f)); // set translation
-			ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
@@ -160,7 +181,7 @@ int main()
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-ShapeOffset, -ShapeOffset, -2.5f)); // set translation
-			ModelMatrix = glm::rotate(ModelMatrix, RotationDegree * ToRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
