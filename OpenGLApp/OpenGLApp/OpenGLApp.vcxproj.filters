@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{1ac7e4db-ded6-44e0-9680-c0874722575a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{3b0ba02f-042c-4a52-b97d-1f356de5e215}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{020d0289-ed35-49e8-a7f7-554198edb26d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,10 +36,13 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,13 +50,19 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="MainWindow.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <cmath>
-#include <stdio.h>
-#include <string.h>
 #include <vector>
 
 #include <GL/glew.h>
@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Texture.h"
 
 
 // Define main variables
@@ -57,15 +58,16 @@ void Create3DObjects()
 
 	// Define triangle's vertices
 	constexpr GLfloat Vertices[] = {
-		-1.0f, -1.0f, 0.0f,
-		 0.0f, -1.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f,
-		 0.0f,  1.0,  0.0f
+	//	  x      y     z     u     v
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 0.0f, -1.0f, 1.0f, 0.5f, 0.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		 0.0f,  1.0,  0.0f, 0.5f, 1.0f
 	};
 
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 12, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 12, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 12, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 20, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 20, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 20, 12));
 }
 
 int main()
@@ -80,6 +82,10 @@ int main()
 						0.2f);
 
 	Create3DObjects();
+	auto BrickTexture = Texture("Content/Textures/brick.jpg");
+	auto RockTexture = Texture("Content/Textures/rock.jpg");
+	auto WaterTexture = Texture("Content/Textures/water.png");
+
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
 	glm::mat4 ProjectionMatrix = glm::perspective(45.0f, MainWindow.GetBufferWidth() / MainWindow.GetBufferHeight(), 0.1f, 100.0f); // initialize projection matrix
@@ -140,7 +146,7 @@ int main()
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		///* Draw triangle *///
+		///* Use shader program *///
 		ShaderList[0]->Use();
 
 		// Set Projection matrix
@@ -159,6 +165,7 @@ int main()
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+			BrickTexture.Apply();
 
 			MeshList[0]->Render();
 		}
@@ -172,6 +179,7 @@ int main()
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+			RockTexture.Apply();
 
 			MeshList[1]->Render();
 		}
@@ -185,6 +193,7 @@ int main()
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+			WaterTexture.Apply();
 
 			MeshList[2]->Render();
 		}

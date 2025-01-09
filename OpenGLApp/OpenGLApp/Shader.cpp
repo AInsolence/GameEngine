@@ -55,8 +55,13 @@ void Shader::Clear()
 	}
 }
 
+GLuint Shader::GetId() const
+{
+	return Id;
+}
+
 void Shader::CompileShaders(const char* VertexShaderCode,
-							const char* FragmentShaderCode)
+                            const char* FragmentShaderCode)
 {
 	Id = glCreateProgram();
 

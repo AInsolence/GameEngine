@@ -24,6 +24,8 @@ public:
 	void Use();
 	void Clear();
 
+	GLuint GetId() const;
+
 private:
 	GLuint Id;
 	GLint UniformProjection, UniformView, UniformModel;

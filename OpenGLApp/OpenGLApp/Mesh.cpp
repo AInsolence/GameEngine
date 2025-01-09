@@ -39,8 +39,10 @@ void Mesh::Create(const GLfloat* Vertices,
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices[0]) * NumOfVertices, Vertices, GL_STATIC_DRAW);
 
 	// With attributes explaining how to use data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 5, nullptr);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 5, reinterpret_cast<void*>(sizeof(Vertices[0]) * 3));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
