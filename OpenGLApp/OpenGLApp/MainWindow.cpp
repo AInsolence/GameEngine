@@ -156,7 +156,7 @@ void MainWindow::HandleMouse(GLFWwindow* Window, double XPos, double YPos)
 		AppWindow->LastX = XPos;
 		AppWindow->LastY = YPos;
 
-		printf("x: %.6f, y: %.6f\n", AppWindow->OffsetX, AppWindow->OffsetY);
+		// printf("x: %.6f, y: %.6f\n", AppWindow->OffsetX, AppWindow->OffsetY);
 	}
 }
 

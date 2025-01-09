@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include "StaticHelper.h"
+
 Texture::Texture(const char* Path)
 {
 	Id = 0;
@@ -37,6 +39,7 @@ void Texture::LoadTexture()
 	//unsigned char dummyData[4] = { 255, 0, 0, 255 }; // Red pixel
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, dummyData); 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, TextureData);
+	StaticHelper::EnsureGLFunction("glTexImage2D");
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -48,6 +51,8 @@ void Texture::Apply() const
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Id);
+
+	StaticHelper::EnsureGLFunction("glBindTexture");
 }
 
 void Texture::ClearTexture()
