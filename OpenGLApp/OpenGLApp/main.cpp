@@ -11,6 +11,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include "BaseLight.h"
 #include "MainWindow.h"
 #include "Mesh.h"
 #include "Camera.h"
@@ -86,6 +87,8 @@ int main()
 	auto RockTexture = Texture("Content/Textures/rock.jpg");
 	auto WaterTexture = Texture("Content/Textures/water.png");
 
+	auto SunLight = BaseLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
 	glm::mat4 ProjectionMatrix = glm::perspective(45.0f, MainWindow.GetBufferWidth() / MainWindow.GetBufferHeight(), 0.1f, 100.0f); // initialize projection matrix
@@ -155,6 +158,11 @@ int main()
 		glUniformMatrix4fv(ShaderList[0]->GetViewLocation(), 1, GL_FALSE, glm::value_ptr(MainCamera.GetViewMatrix()));
 		// Get Model Matrix location
 		const GLint UniformModelMatrix_id = ShaderList[0]->GetModelLocation();
+		// Get DirectionalLight locations
+		const GLint UniformDirectionalLightColor = ShaderList[0]->GetDirectionalLightColorLocation();
+		const GLint UniformDirectionalLightIntensity = ShaderList[0]->GetDirectionalLightIntensityLocation();
+
+		SunLight.Apply(UniformDirectionalLightColor, UniformDirectionalLightIntensity);
 
 		if (!MeshList.empty())
 		{

@@ -5,10 +5,18 @@ out vec4 FragColor;
 in vec2 TexCoord;
 in vec4 VertColor;
 
+struct DirectionalLight
+{
+	vec4 Color;
+	float Intensity;
+};
+
 uniform sampler2D MyTexture;
+uniform DirectionalLight SunLight;
 
 void main()
 {
-	FragColor = texture(MyTexture, TexCoord) * VertColor;
-	//FragColor = vec4(TexCoord.x, TexCoord.y, 0.0, 1.0);
+	vec4 SunLightColor = SunLight.Color * SunLight.Intensity;
+
+	FragColor = texture(MyTexture, TexCoord) * SunLightColor;
 }

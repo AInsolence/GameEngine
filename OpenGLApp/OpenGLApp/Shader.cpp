@@ -41,7 +41,17 @@ GLint Shader::GetModelLocation() const
 	return UniformModel;
 }
 
-void Shader::Use()
+GLint Shader::GetDirectionalLightColorLocation() const
+{
+	return UniformDirectionalLightColor;
+}
+
+GLint Shader::GetDirectionalLightIntensityLocation() const
+{
+	return UniformDirectionalLightIntensity;
+}
+
+void Shader::Use() const
 {
 	glUseProgram(Id);
 }
@@ -97,13 +107,15 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 		return;
 	}
 
-	// Bind XMoveOffset uniform variable
+	// Setup uniform variables
 	UniformProjection = glGetUniformLocation(Id, "ProjectionMatrix");
 	UniformView = glGetUniformLocation(Id, "ViewMatrix");
 	UniformModel = glGetUniformLocation(Id, "ModelMatrix");
+	UniformDirectionalLightColor = glGetUniformLocation(Id, "SunLight.Color");
+	UniformDirectionalLightIntensity = glGetUniformLocation(Id, "SunLight.Intensity");
 }
 
-void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType)
+void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType) const
 {
 	// Create shader
 	const GLuint LocalShader = glCreateShader(ShaderType);
