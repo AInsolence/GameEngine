@@ -1,19 +1,9 @@
 #include "BaseLight.h"
 
-#include <gtc/type_ptr.hpp>
-
-BaseLight::BaseLight(glm::vec4 InitColor, GLfloat InitIntensity)
+BaseLight::BaseLight()
 {
-	Color = InitColor;
-	Intensity = InitIntensity;
-}
-
-BaseLight::~BaseLight()
-{
-}
-
-void BaseLight::Apply(GLint ColorLocation, GLint IntensityLocation)
-{
-	glUniform4fv(ColorLocation, 1, glm::value_ptr(Color));
-	glUniform1f(IntensityLocation, Intensity);
+	Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	AmbientIntensity = 1.0f;
+	DiffuseIntensity = 1.0f;
+	Direction = glm::vec3(1.0f, 1.0f, 1.0f);
 }

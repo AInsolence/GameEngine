@@ -11,11 +11,12 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-#include "BaseLight.h"
 #include "MainWindow.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "DirectionalLight.h"
 #include "Shader.h"
+#include "StaticHelper.h"
 #include "Texture.h"
 
 
@@ -47,8 +48,11 @@ static const char* VertexShaderPath = "Shaders/shader.vert";
 // Fragment Shader code
 static const char* FragmentShaderPath = "Shaders/shader.frag";
 
+
+
 void Create3DObjects()
 {
+	//TODO move to mesh with calculate normals method or use compute shader
 	// Represents faces created from further represented vertices
 	unsigned int Indices[] = {
 		0, 3, 1,
@@ -58,17 +62,19 @@ void Create3DObjects()
 	};
 
 	// Define triangle's vertices
-	constexpr GLfloat Vertices[] = {
-	//	  x      y     z     u     v
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 0.0f, -1.0f, 1.0f, 0.5f, 0.0f,
-		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		 0.0f,  1.0,  0.0f, 0.5f, 1.0f
+	GLfloat Vertices[] = {
+	//	  x      y     z     u     v     nx    ny    nz
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		 0.0f, -1.0f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		 0.0f,  1.0,  0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f
 	};
 
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 20, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 20, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 20, 12));
+	StaticHelper::CalculateAverageNormals(Indices, 12, Vertices, 32, 8, 5);
+
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
 }
 
 int main()
@@ -87,11 +93,14 @@ int main()
 	auto RockTexture = Texture("Content/Textures/rock.jpg");
 	auto WaterTexture = Texture("Content/Textures/water.png");
 
-	auto SunLight = BaseLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+									0.2f, 
+									1.0,
+									glm::vec3(2.0f, -1.0f, -2.0f));
 
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
-	glm::mat4 ProjectionMatrix = glm::perspective(45.0f, MainWindow.GetBufferWidth() / MainWindow.GetBufferHeight(), 0.1f, 100.0f); // initialize projection matrix
+	glm::mat4 ProjectionMatrix = glm::perspective(90.0f, MainWindow.GetBufferWidth() / MainWindow.GetBufferHeight(), 0.1f, 100.0f); // initialize projection matrix
 
 	// Render loop
 	while (!MainWindow.GetShouldClose())
@@ -160,9 +169,14 @@ int main()
 		const GLint UniformModelMatrix_id = ShaderList[0]->GetModelLocation();
 		// Get DirectionalLight locations
 		const GLint UniformDirectionalLightColor = ShaderList[0]->GetDirectionalLightColorLocation();
-		const GLint UniformDirectionalLightIntensity = ShaderList[0]->GetDirectionalLightIntensityLocation();
+		const GLint UniformDirectionalLightAmbientIntensity = ShaderList[0]->GetDirectionalLightAmbientIntensityLocation();
+		const GLint UniformDirectionalLightDiffuseIntensity = ShaderList[0]->GetDirectionalLightDiffuseIntensityLocation();
+		const GLint UniformDirectionalLightDirection = ShaderList[0]->GetDirectionalLightDirectionLocation();
 
-		SunLight.Apply(UniformDirectionalLightColor, UniformDirectionalLightIntensity);
+		SunLight.Apply(UniformDirectionalLightColor,
+						UniformDirectionalLightAmbientIntensity,
+						UniformDirectionalLightDiffuseIntensity,
+						UniformDirectionalLightDirection);
 
 		if (!MeshList.empty())
 		{

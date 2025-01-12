@@ -5,6 +5,8 @@
 #include <sstream>
 #include <fstream>
 #include <ctime>
+#include <geometric.hpp>
+#include <vec3.hpp>
 
 std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 {
@@ -73,4 +75,45 @@ std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 #else
 	return {};
 #endif
+}
+
+void StaticHelper::CalculateAverageNormals(unsigned int* Indices,
+											unsigned int IndiceCount,
+											GLfloat* Vertices,
+											unsigned int VerticesCount,
+											unsigned int VerticesOffset,
+											unsigned int NormalsOffset)
+{
+	std::vector<glm::vec3> VertexNormals(VerticesCount / VerticesOffset, glm::vec3(0.0f));
+
+	for (size_t i = 0; i < IndiceCount; i += 3)
+	{
+		const auto TriangleVert0 = Indices[i] * VerticesOffset;
+		const auto TriangleVert1 = Indices[i + 1] * VerticesOffset;
+		const auto TriangleVert2 = Indices[i + 2] * VerticesOffset;
+
+		glm::vec3 v1(Vertices[TriangleVert1] - Vertices[TriangleVert0],
+					Vertices[TriangleVert1 + 1] - Vertices[TriangleVert0 + 1],
+					Vertices[TriangleVert1 + 2] - Vertices[TriangleVert0 + 2]);
+
+		glm::vec3 v2(Vertices[TriangleVert2] - Vertices[TriangleVert0],
+					Vertices[TriangleVert2 + 1] - Vertices[TriangleVert0 + 1],
+					Vertices[TriangleVert2 + 2] - Vertices[TriangleVert0 + 2]);
+
+		const glm::vec3 Normal = glm::normalize(glm::cross(v1, v2));
+
+		VertexNormals[Indices[i]] += Normal;
+		VertexNormals[Indices[i + 1]] += Normal;
+		VertexNormals[Indices[i + 2]] += Normal;
+	}
+
+	for (size_t i = 0; i < VertexNormals.size(); i++)
+	{
+		const unsigned int Offset = i * VerticesOffset + NormalsOffset;
+		const glm::vec3 normalizedNormal = glm::normalize(VertexNormals[i]);
+
+		Vertices[Offset] = normalizedNormal.x;
+		Vertices[Offset + 1] = normalizedNormal.y;
+		Vertices[Offset + 2] = normalizedNormal.z;
+	}
 }

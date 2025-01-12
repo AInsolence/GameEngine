@@ -6,13 +6,14 @@
 class BaseLight
 {
 public:
-	explicit BaseLight(glm::vec4 InitColor, GLfloat InitIntensity);
-	~BaseLight();
+	BaseLight();
 
-	void Apply(GLint ColorLocation, GLint IntensityLocation);
-
-private:
+protected:
 	glm::vec4 Color;
-	GLfloat Intensity;
+
+	GLfloat AmbientIntensity;
+	GLfloat DiffuseIntensity;
+
+	glm::vec3 Direction;
 };
 

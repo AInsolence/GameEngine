@@ -46,9 +46,19 @@ GLint Shader::GetDirectionalLightColorLocation() const
 	return UniformDirectionalLightColor;
 }
 
-GLint Shader::GetDirectionalLightIntensityLocation() const
+GLint Shader::GetDirectionalLightAmbientIntensityLocation() const
 {
-	return UniformDirectionalLightIntensity;
+	return UniformDirectionalLightAmbientIntensity;
+}
+
+GLint Shader::GetDirectionalLightDiffuseIntensityLocation() const
+{
+	return UniformDirectionalLightDiffuseIntensity;
+}
+
+GLint Shader::GetDirectionalLightDirectionLocation() const
+{
+	return UniformDirectionalLightDirection;
 }
 
 void Shader::Use() const
@@ -71,7 +81,7 @@ GLuint Shader::GetId() const
 }
 
 void Shader::CompileShaders(const char* VertexShaderCode,
-                            const char* FragmentShaderCode)
+							const char* FragmentShaderCode)
 {
 	Id = glCreateProgram();
 
@@ -112,7 +122,9 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 	UniformView = glGetUniformLocation(Id, "ViewMatrix");
 	UniformModel = glGetUniformLocation(Id, "ModelMatrix");
 	UniformDirectionalLightColor = glGetUniformLocation(Id, "SunLight.Color");
-	UniformDirectionalLightIntensity = glGetUniformLocation(Id, "SunLight.Intensity");
+	UniformDirectionalLightAmbientIntensity = glGetUniformLocation(Id, "SunLight.AmbientIntensity");
+	UniformDirectionalLightDiffuseIntensity = glGetUniformLocation(Id, "SunLight.DiffuseIntensity");
+	UniformDirectionalLightDirection = glGetUniformLocation(Id, "SunLight.Direction");
 }
 
 void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType) const

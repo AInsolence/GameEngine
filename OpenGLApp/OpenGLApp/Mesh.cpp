@@ -38,21 +38,25 @@ void Mesh::Create(const GLfloat* Vertices,
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices[0]) * NumOfVertices, Vertices, GL_STATIC_DRAW);
 
-	// With attributes explaining how to use data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 5, nullptr);
+	/// With attributes explaining how to use data
+	// vertices
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 8, nullptr);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 5, reinterpret_cast<void*>(sizeof(Vertices[0]) * 3));
+	// texture coords
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 8, reinterpret_cast<void*>(sizeof(Vertices[0]) * 3));
 	glEnableVertexAttribArray(1);
-
+	// normals
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices[0]) * 8, reinterpret_cast<void*>(sizeof(Vertices[0]) * 5));
+	glEnableVertexAttribArray(2);
+	///
+	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::Render()
 {
 		glBindVertexArray(VAO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 		glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_INT, 0);
 
@@ -62,23 +66,13 @@ void Mesh::Render()
 
 void Mesh::Clear()
 {
-	if (IBO != 0)
-	{
-		glDeleteBuffers(1, &IBO);
-		IBO = 0;
-	}
+	glDeleteBuffers(1, &IBO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 
-	if (VBO != 0)
-	{
-		glDeleteBuffers(1, &VBO);
-		VBO = 0;
-	}
-
-	if (VAO != 0)
-	{
-		glDeleteVertexArrays(1, &VAO);
-		VAO = 0;
-	}
+	VAO = 0;
+	IBO = 0;
+	VBO = 0;
 
 	IndexCount = 0;
 }

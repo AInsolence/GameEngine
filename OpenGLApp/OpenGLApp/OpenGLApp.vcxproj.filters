@@ -57,6 +57,9 @@
     <ClCompile Include="BaseLight.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="BaseLight.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
   </ItemGroup>
