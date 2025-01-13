@@ -11,7 +11,7 @@ public:
 	static void CalculateAverageNormals(const unsigned int* Indices,
 										unsigned int IndexCount,
 										GLfloat* Vertices,
-										unsigned int VerticesCount,
+										unsigned int VertexCount,
 										unsigned int VerticesOffset,
 										unsigned int NormalsOffset);
 };

@@ -80,11 +80,11 @@ std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 void StaticHelper::CalculateAverageNormals(const unsigned int* Indices,
 											unsigned int IndexCount,
 											GLfloat* Vertices,
-											unsigned int VerticesCount,
+											unsigned int VertexCount,
 											unsigned int VerticesOffset,
 											unsigned int NormalsOffset)
 {
-	std::vector<glm::vec3> VertexNormals(VerticesCount / VerticesOffset, glm::vec3(0.0f));
+	std::vector<glm::vec3> VertexNormals(VertexCount / VerticesOffset, glm::vec3(0.0f));
 
 	for (size_t i = 0; i < IndexCount; i += 3)
 	{
@@ -100,7 +100,7 @@ void StaticHelper::CalculateAverageNormals(const unsigned int* Indices,
 					Vertices[TriangleVert2 + 1] - Vertices[TriangleVert0 + 1],
 					Vertices[TriangleVert2 + 2] - Vertices[TriangleVert0 + 2]);
 
-		const glm::vec3 Normal = glm::normalize(glm::cross(v1, v2));
+		const glm::vec3 Normal = glm::length(glm::cross(v1, v2)) > 0.0f ? glm::normalize(glm::cross(v1, v2)) : glm::vec3(0.0f);
 
 		VertexNormals[Indices[i]] += Normal;
 		VertexNormals[Indices[i + 1]] += Normal;
@@ -116,4 +116,15 @@ void StaticHelper::CalculateAverageNormals(const unsigned int* Indices,
 		Vertices[Offset + 1] = normalizedNormal.y;
 		Vertices[Offset + 2] = normalizedNormal.z;
 	}
+
+#if defined (DEBUG) || defined (_DEBUG)
+	for (size_t i = 0; i < VertexCount; i++)
+	{
+		std::cout << "Normal " << i << ": (" << Vertices[i * VerticesOffset + NormalsOffset] << ", "
+					<< Vertices[i * VerticesOffset + NormalsOffset + 1] << ", "
+						<< Vertices[i * VerticesOffset + NormalsOffset + 2] << ")" << std::endl;
+	}
+
+	std::cout << std::endl;
+#endif
 }

@@ -20,12 +20,14 @@ public:
 	GLint GetProjectionLocation() const;
 	GLint GetViewLocation() const;
 	GLint GetModelLocation() const;
+
 	GLint GetDirectionalLightColorLocation() const;
 	GLint GetDirectionalLightAmbientIntensityLocation() const;
 	GLint GetDirectionalLightDiffuseIntensityLocation() const;
 	GLint GetDirectionalLightDirectionLocation() const;
 	GLint GetDirectionalLightSpecularIntensityLocation() const;
 	GLint GetDirectionalLightShininessLocation() const;
+
 	GLint GetUniformCameraPositionLocation() const;
 
 	void Use() const;
