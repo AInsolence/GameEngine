@@ -61,6 +61,21 @@ GLint Shader::GetDirectionalLightDirectionLocation() const
 	return UniformDirectionalLightDirection;
 }
 
+GLint Shader::GetDirectionalLightSpecularIntensityLocation() const
+{
+	return UniformDirectionalLightSpecularIntensity;
+}
+
+GLint Shader::GetDirectionalLightShininessLocation() const
+{
+	return UniformDirectionalLightShininess;
+}
+
+GLint Shader::GetUniformCameraPositionLocation() const
+{
+	return UniformCameraPosition;
+}
+
 void Shader::Use() const
 {
 	glUseProgram(Id);
@@ -125,6 +140,9 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 	UniformDirectionalLightAmbientIntensity = glGetUniformLocation(Id, "SunLight.AmbientIntensity");
 	UniformDirectionalLightDiffuseIntensity = glGetUniformLocation(Id, "SunLight.DiffuseIntensity");
 	UniformDirectionalLightDirection = glGetUniformLocation(Id, "SunLight.Direction");
+	UniformDirectionalLightSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");
+	UniformDirectionalLightShininess = glGetUniformLocation(Id, "Material.Shininess");
+	UniformCameraPosition = glGetUniformLocation(Id, "CameraPosition");
 }
 
 void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType) const

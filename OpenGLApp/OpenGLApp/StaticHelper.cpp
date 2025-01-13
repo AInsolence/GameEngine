@@ -77,8 +77,8 @@ std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 #endif
 }
 
-void StaticHelper::CalculateAverageNormals(unsigned int* Indices,
-											unsigned int IndiceCount,
+void StaticHelper::CalculateAverageNormals(const unsigned int* Indices,
+											unsigned int IndexCount,
 											GLfloat* Vertices,
 											unsigned int VerticesCount,
 											unsigned int VerticesOffset,
@@ -86,7 +86,7 @@ void StaticHelper::CalculateAverageNormals(unsigned int* Indices,
 {
 	std::vector<glm::vec3> VertexNormals(VerticesCount / VerticesOffset, glm::vec3(0.0f));
 
-	for (size_t i = 0; i < IndiceCount; i += 3)
+	for (size_t i = 0; i < IndexCount; i += 3)
 	{
 		const auto TriangleVert0 = Indices[i] * VerticesOffset;
 		const auto TriangleVert1 = Indices[i + 1] * VerticesOffset;

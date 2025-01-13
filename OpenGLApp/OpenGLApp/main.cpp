@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "DirectionalLight.h"
+#include "Material.h"
 #include "Shader.h"
 #include "StaticHelper.h"
 #include "Texture.h"
@@ -64,10 +65,10 @@ void Create3DObjects()
 	// Define triangle's vertices
 	GLfloat Vertices[] = {
 	//	  x      y     z     u     v     nx    ny    nz
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		 0.0f, -1.0f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		 0.0f,  1.0,  0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f
+		-1.0f, -1.0f, -0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		 0.0f, -1.0f,  1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, -0.6f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		 0.0f,  1.0,   0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f
 	};
 
 	StaticHelper::CalculateAverageNormals(Indices, 12, Vertices, 32, 8, 5);
@@ -79,7 +80,7 @@ void Create3DObjects()
 
 int main()
 {
-	MainWindow MainWindow (800, 800);
+	MainWindow MainWindow (1366, 768);
 	Camera MainCamera(glm::vec3(0.0f, 0.0f, 0.0f), 
 						glm::vec3(0.0f, 1.0f, 0.0f),
 						-90.0f,
@@ -89,18 +90,26 @@ int main()
 						0.2f);
 
 	Create3DObjects();
+
 	auto BrickTexture = Texture("Content/Textures/brick.jpg");
 	auto RockTexture = Texture("Content/Textures/rock.jpg");
-	auto WaterTexture = Texture("Content/Textures/water.png");
+	auto MetalTexture = Texture("Content/Textures/metal.jpg");
+	auto SandTexture = Texture("Content/Textures/sand.png");
+
+	auto MetalMaterial = Material(1.0f, 64.0f);
+	auto MatMaterial = Material(0.5f, 1.0f);
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.2f, 
-									1.0,
-									glm::vec3(2.0f, -1.0f, -2.0f));
+									0.3f,
+									glm::normalize(glm::vec3(2.0f, -1.0f, -2.0f)));
 
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
-	glm::mat4 ProjectionMatrix = glm::perspective(90.0f, MainWindow.GetBufferWidth() / MainWindow.GetBufferHeight(), 0.1f, 100.0f); // initialize projection matrix
+	// Initialize projection matrix
+	glm::mat4 ProjectionMatrix = glm::perspective(90.0f,
+									static_cast<float>(MainWindow.GetBufferWidth()) / static_cast<float>(MainWindow.GetBufferHeight()),
+									0.1f, 100.0f);
 
 	// Render loop
 	while (!MainWindow.GetShouldClose())
@@ -161,10 +170,6 @@ int main()
 		///* Use shader program *///
 		ShaderList[0]->Use();
 
-		// Set Projection matrix
-		glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
-		// Set view matrix
-		glUniformMatrix4fv(ShaderList[0]->GetViewLocation(), 1, GL_FALSE, glm::value_ptr(MainCamera.GetViewMatrix()));
 		// Get Model Matrix location
 		const GLint UniformModelMatrix_id = ShaderList[0]->GetModelLocation();
 		// Get DirectionalLight locations
@@ -172,6 +177,16 @@ int main()
 		const GLint UniformDirectionalLightAmbientIntensity = ShaderList[0]->GetDirectionalLightAmbientIntensityLocation();
 		const GLint UniformDirectionalLightDiffuseIntensity = ShaderList[0]->GetDirectionalLightDiffuseIntensityLocation();
 		const GLint UniformDirectionalLightDirection = ShaderList[0]->GetDirectionalLightDirectionLocation();
+		const GLint UniformDirectionalLightSpecularIntensity = ShaderList[0]->GetDirectionalLightSpecularIntensityLocation();
+		const GLint UniformDirectionalLightShininess = ShaderList[0]->GetDirectionalLightShininessLocation();
+		const GLint UniformCameraPosition = ShaderList[0]->GetUniformCameraPositionLocation();
+		
+		// Set Projection matrix
+		glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		// Set view matrix
+		glUniformMatrix4fv(ShaderList[0]->GetViewLocation(), 1, GL_FALSE, glm::value_ptr(MainCamera.GetViewMatrix()));
+		// Set Camera Position
+		glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera.GetPosition()));
 
 		SunLight.Apply(UniformDirectionalLightColor,
 						UniformDirectionalLightAmbientIntensity,
@@ -188,6 +203,7 @@ int main()
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 			BrickTexture.Apply();
+			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[0]->Render();
 		}
@@ -215,7 +231,8 @@ int main()
 			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-			WaterTexture.Apply();
+			MetalTexture.Apply();
+			MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[2]->Render();
 		}

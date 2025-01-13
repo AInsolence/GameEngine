@@ -24,6 +24,9 @@ public:
 	GLint GetDirectionalLightAmbientIntensityLocation() const;
 	GLint GetDirectionalLightDiffuseIntensityLocation() const;
 	GLint GetDirectionalLightDirectionLocation() const;
+	GLint GetDirectionalLightSpecularIntensityLocation() const;
+	GLint GetDirectionalLightShininessLocation() const;
+	GLint GetUniformCameraPositionLocation() const;
 
 	void Use() const;
 	void Clear();
@@ -32,11 +35,17 @@ public:
 
 private:
 	GLuint Id;
+
 	GLint UniformProjection, UniformView, UniformModel;
+
 	GLint UniformDirectionalLightColor;
 	GLint UniformDirectionalLightAmbientIntensity;
 	GLint UniformDirectionalLightDiffuseIntensity;
 	GLint UniformDirectionalLightDirection;
+	GLint UniformDirectionalLightSpecularIntensity;
+	GLint UniformDirectionalLightShininess;
+
+	GLint UniformCameraPosition;
 
 	void CompileShaders(const char* VertexShaderCode,
 						const char* FragmentShaderCode);

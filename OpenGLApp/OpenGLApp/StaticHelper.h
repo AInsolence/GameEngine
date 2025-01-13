@@ -8,8 +8,8 @@ class StaticHelper
 {
 public:
 	static std::vector<GLenum> EnsureGLFunction(const char* FunctionName);
-	static void CalculateAverageNormals(unsigned int* Indices,
-										unsigned int IndiceCount,
+	static void CalculateAverageNormals(const unsigned int* Indices,
+										unsigned int IndexCount,
 										GLfloat* Vertices,
 										unsigned int VerticesCount,
 										unsigned int VerticesOffset,

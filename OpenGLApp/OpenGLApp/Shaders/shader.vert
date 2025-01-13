@@ -7,6 +7,7 @@ layout (location = 2) in vec3 VertNormal;
 out vec2 TexCoord;
 out vec4 Color;
 out vec3 Normal;
+out vec3 VertexPosition;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
@@ -21,4 +22,6 @@ void main()
 	TexCoord = VertTexture;
 
 	Normal = mat3(transpose(inverse(ModelMatrix))) * VertNormal;
+
+	VertexPosition = (ModelMatrix * vec4(VertPosition, 1.0)).xyz;
 }
