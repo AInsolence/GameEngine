@@ -13,7 +13,4 @@ protected:
 
 	GLfloat AmbientIntensity;
 	GLfloat DiffuseIntensity;
-
-	glm::vec3 Direction;
 };
-

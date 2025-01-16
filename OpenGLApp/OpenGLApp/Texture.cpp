@@ -1,5 +1,8 @@
 #include "Texture.h"
 
+#include <iostream>
+#include <ostream>
+
 #include "StaticHelper.h"
 
 Texture::Texture(const char* Path)

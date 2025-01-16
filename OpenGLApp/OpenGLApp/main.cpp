@@ -15,10 +15,12 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "DirectionalLight.h"
+#include "PointLight.h"
 #include "Material.h"
 #include "Shader.h"
-#include "StaticHelper.h"
 #include "Texture.h"
+
+#include "StaticHelper.h"
 
 
 // Define main variables
@@ -31,7 +33,7 @@ GLfloat LastTime = 0.0;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
-float ShapeMaxOffset = 0.6f;
+float ShapeMaxOffset = 1.5f;
 float ShapeOffsetStep = 0.005f;
 
 float RotationDegree = 0.0f;
@@ -53,6 +55,20 @@ static const char* FragmentShaderPath = "Shaders/shader.frag";
 
 void Create3DObjects()
 {
+	// Define floor vertices
+	GLfloat FloorVertices[] = {
+	//	   x      y      z      u      v     nx     ny    nz
+		-10.0f, 0.0f, -10.0f,  0.0f,  0.0f, 0.0f, -1.0f, 0.0f,
+		 10.0f, 0.0f, -10.0f, 10.0f,  0.0f, 0.0f, -1.0f, 0.0f,
+		-10.0f, 0.0f,  10.0f,  0.0f, 10.0f, 0.0f, -1.0f, 0.0f,
+		 10.0f, 0.0f,  10.0f, 10.0f, 10.0f, 0.0f, -1.0f, 0.0f
+	};
+
+	unsigned int FloorIndices[] = {
+		0, 2, 1,
+		1, 2, 3
+	};
+
 	//TODO move to mesh with calculate normals method or use compute shader
 	// Represents faces created from further represented vertices
 	unsigned int Indices[] = {
@@ -64,7 +80,7 @@ void Create3DObjects()
 
 	// Define triangle's vertices
 	GLfloat Vertices[] = {
-	//	  x      y     z     u     v     nx    ny    nz
+	//	  x      y      z     u     v     nx    ny    nz
 		-1.0f, -1.0f, -0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 		 0.0f, -1.0f,  1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
 		 1.0f, -1.0f, -0.6f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -76,6 +92,7 @@ void Create3DObjects()
 	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
 	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
 	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
+	MeshList.emplace_back(std::make_shared<Mesh>(FloorVertices, FloorIndices, 32, 6));
 }
 
 int main()
@@ -95,19 +112,33 @@ int main()
 	auto RockTexture = Texture("Content/Textures/rock.jpg");
 	auto MetalTexture = Texture("Content/Textures/metal.jpg");
 	auto SandTexture = Texture("Content/Textures/sand.png");
+	auto GoldTexture = Texture("Content/Textures/gold.jpg");
+	auto WhiteTexture = Texture("Content/Textures/white.png");
 
-	auto MetalMaterial = Material(1.0f, 64.0f);
+	auto MetalMaterial = Material(5.0f, 128.0f);
 	auto MatMaterial = Material(0.5f, 1.0f);
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-									0.2f, 
-									0.3f,
-									glm::normalize(glm::vec3(2.0f, -1.0f, -2.0f)));
+									0.3f, 
+									0.8f,
+									glm::normalize(glm::vec3(5.0f, 10.0f, 0.0f)));
+
+	std::vector<PointLight> PointLights;
+
+	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+							0.3f, 1.0f,
+							glm::vec3(0.0f, 0.8f, 3.0f),
+							0.3f, 0.2f, 0.1f);
+
+	PointLights.emplace_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+							0.1f, 1.0f,
+							glm::vec3(10.0f, 0.8f, 3.0f),
+							0.3f, 0.2f, 0.1f);
 
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
 	// Initialize projection matrix
-	glm::mat4 ProjectionMatrix = glm::perspective(90.0f,
+	glm::mat4 ProjectionMatrix = glm::perspective(45.0f,
 									static_cast<float>(MainWindow.GetBufferWidth()) / static_cast<float>(MainWindow.GetBufferHeight()),
 									0.1f, 100.0f);
 
@@ -173,10 +204,6 @@ int main()
 		// Get Model Matrix location
 		const GLint UniformModelMatrix_id = ShaderList[0]->GetModelLocation();
 		// Get DirectionalLight locations
-		const GLint UniformDirectionalLightColor = ShaderList[0]->GetDirectionalLightColorLocation();
-		const GLint UniformDirectionalLightAmbientIntensity = ShaderList[0]->GetDirectionalLightAmbientIntensityLocation();
-		const GLint UniformDirectionalLightDiffuseIntensity = ShaderList[0]->GetDirectionalLightDiffuseIntensityLocation();
-		const GLint UniformDirectionalLightDirection = ShaderList[0]->GetDirectionalLightDirectionLocation();
 		const GLint UniformDirectionalLightSpecularIntensity = ShaderList[0]->GetDirectionalLightSpecularIntensityLocation();
 		const GLint UniformDirectionalLightShininess = ShaderList[0]->GetDirectionalLightShininessLocation();
 		const GLint UniformCameraPosition = ShaderList[0]->GetUniformCameraPositionLocation();
@@ -188,22 +215,20 @@ int main()
 		// Set Camera Position
 		glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera.GetPosition()));
 
-		SunLight.Apply(UniformDirectionalLightColor,
-						UniformDirectionalLightAmbientIntensity,
-						UniformDirectionalLightDiffuseIntensity,
-						UniformDirectionalLightDirection);
+		ShaderList[0]->SetDirectionalLight(SunLight);
+		ShaderList[0]->SetPointLights(PointLights);
 
 		if (!MeshList.empty())
 		{
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(ShapeOffset, ShapeOffset, -2.5f)); // set translation
-			ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
-			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, 0.0f, 0.0f)); // set translation
+			//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			//ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 			BrickTexture.Apply();
-			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+			MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[0]->Render();
 		}
@@ -212,12 +237,13 @@ int main()
 		{
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-ShapeOffset, ShapeOffset, -2.5f)); // set translation
-			ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
-			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, ShapeOffset, 0.0f)); // set translation
+			//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
+			//ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 			RockTexture.Apply();
+			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[1]->Render();
 		}
@@ -226,15 +252,28 @@ int main()
 		{
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-ShapeOffset, -ShapeOffset, -2.5f)); // set translation
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(8.0f, 0.0f, 0.0f)); // set translation
 			ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
-			ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
+			//ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 			MetalTexture.Apply();
 			MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[2]->Render();
+		}
+
+		if (MeshList.size() > 3)
+		{
+			// Set Model Translations
+			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, -1.0f, 0.0f)); // set translation
+			
+			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+			SandTexture.Apply();
+			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+
+			MeshList[3]->Render();
 		}
 
 		glUseProgram(0);

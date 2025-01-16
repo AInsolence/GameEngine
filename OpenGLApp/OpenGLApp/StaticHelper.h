@@ -7,6 +7,9 @@
 class StaticHelper
 {
 public:
+
+	static constexpr int MAX_POINT_LIGHTS = 10;
+
 	static std::vector<GLenum> EnsureGLFunction(const char* FunctionName);
 	static void CalculateAverageNormals(const unsigned int* Indices,
 										unsigned int IndexCount,

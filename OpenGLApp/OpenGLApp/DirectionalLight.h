@@ -12,6 +12,9 @@ public:
 	void Apply (GLint ColorLocation,
 				GLint AmbientIntensityLocation,
 				GLint DiffuseIntensityLocation,
-				GLint DirectionLocation);
+				GLint DirectionLocation) const;
+
+private:
+	glm::vec3 Direction;
 };
 

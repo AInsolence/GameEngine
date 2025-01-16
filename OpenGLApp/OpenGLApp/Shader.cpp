@@ -1,6 +1,11 @@
 #include "Shader.h"
 
+#include <iostream>
 #include <sstream>
+
+#include "DirectionalLight.h"
+#include "PointLight.h"
+#include "StaticHelper.h"
 
 Shader::Shader(const char* VertexShaderPath,
                const char* FragmentShaderPath)
@@ -41,39 +46,47 @@ GLint Shader::GetModelLocation() const
 	return UniformModel;
 }
 
-GLint Shader::GetDirectionalLightColorLocation() const
-{
-	return UniformDirectionalLightColor;
-}
-
-GLint Shader::GetDirectionalLightAmbientIntensityLocation() const
-{
-	return UniformDirectionalLightAmbientIntensity;
-}
-
-GLint Shader::GetDirectionalLightDiffuseIntensityLocation() const
-{
-	return UniformDirectionalLightDiffuseIntensity;
-}
-
-GLint Shader::GetDirectionalLightDirectionLocation() const
-{
-	return UniformDirectionalLightDirection;
-}
-
 GLint Shader::GetDirectionalLightSpecularIntensityLocation() const
 {
-	return UniformDirectionalLightSpecularIntensity;
+	return UniformMaterialSpecularIntensity;
 }
 
 GLint Shader::GetDirectionalLightShininessLocation() const
 {
-	return UniformDirectionalLightShininess;
+	return UniformMaterialShininess;
 }
 
 GLint Shader::GetUniformCameraPositionLocation() const
 {
 	return UniformCameraPosition;
+}
+
+void Shader::SetDirectionalLight(const DirectionalLight& DirectionalLight) const
+{
+	DirectionalLight.Apply(DirectionalLightUniforms.Color,
+							DirectionalLightUniforms.AmbientIntensity,
+							DirectionalLightUniforms.DiffuseIntensity,
+							DirectionalLightUniforms.Direction);
+}
+
+void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
+{
+	const int PointLightsCount = PointLights.size() > StaticHelper::MAX_POINT_LIGHTS
+											? StaticHelper::MAX_POINT_LIGHTS
+											: PointLights.size();
+
+	glUniform1i(UniformPointLightsCount, PointLightsCount);
+
+	for (int PointLightIndex = 0; PointLightIndex < PointLightsCount; PointLightIndex++)
+	{
+		PointLights[PointLightIndex].Apply(PointLightsUniforms[PointLightIndex].Color,
+											PointLightsUniforms[PointLightIndex].AmbientIntensity,
+											PointLightsUniforms[PointLightIndex].DiffuseIntensity,
+											PointLightsUniforms[PointLightIndex].Position,
+											PointLightsUniforms[PointLightIndex].Exponent,
+											PointLightsUniforms[PointLightIndex].Linear,
+											PointLightsUniforms[PointLightIndex].Constant);
+	}
 }
 
 void Shader::Use() const
@@ -136,12 +149,42 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 	UniformProjection = glGetUniformLocation(Id, "ProjectionMatrix");
 	UniformView = glGetUniformLocation(Id, "ViewMatrix");
 	UniformModel = glGetUniformLocation(Id, "ModelMatrix");
-	UniformDirectionalLightColor = glGetUniformLocation(Id, "SunLight.Color");
-	UniformDirectionalLightAmbientIntensity = glGetUniformLocation(Id, "SunLight.AmbientIntensity");
-	UniformDirectionalLightDiffuseIntensity = glGetUniformLocation(Id, "SunLight.DiffuseIntensity");
-	UniformDirectionalLightDirection = glGetUniformLocation(Id, "SunLight.Direction");
-	UniformDirectionalLightSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");
-	UniformDirectionalLightShininess = glGetUniformLocation(Id, "Material.Shininess");
+
+	DirectionalLightUniforms.Color = glGetUniformLocation(Id, "SunLight.Base.Color");
+	DirectionalLightUniforms.AmbientIntensity = glGetUniformLocation(Id, "SunLight.Base.AmbientIntensity");
+	DirectionalLightUniforms.DiffuseIntensity = glGetUniformLocation(Id, "SunLight.Base.DiffuseIntensity");
+	DirectionalLightUniforms.Direction = glGetUniformLocation(Id, "SunLight.Direction");
+
+	UniformPointLightsCount = glGetUniformLocation(Id, "PointLightsCount");
+
+	for (int PointLightIndex = 0; PointLightIndex < StaticHelper::MAX_POINT_LIGHTS; PointLightIndex++)
+	{
+		char LocationsBuffer[100] = { '\0' };
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Base.Color", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Color = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Base.AmbientIntensity", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].AmbientIntensity = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Base.DiffuseIntensity", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].DiffuseIntensity = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Position", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Position = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Exponent", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Exponent = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Linear", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Linear = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Constant", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Constant = glGetUniformLocation(Id, LocationsBuffer);
+	}
+
+	UniformMaterialSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");
+	UniformMaterialShininess = glGetUniformLocation(Id, "Material.Shininess");
 	UniformCameraPosition = glGetUniformLocation(Id, "CameraPosition");
 }
 

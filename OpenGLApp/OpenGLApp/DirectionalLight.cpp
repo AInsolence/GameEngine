@@ -16,7 +16,7 @@ DirectionalLight::DirectionalLight(glm::vec4 InitColor,
 void DirectionalLight::Apply(GLint ColorLocation,
 							GLint AmbientIntensityLocation,
 							GLint DiffuseIntensityLocation,
-							GLint DirectionLocation)
+							GLint DirectionLocation) const
 {
 	glUniform4fv(ColorLocation, 1, glm::value_ptr(Color));
 	glUniform1f(AmbientIntensityLocation, AmbientIntensity);

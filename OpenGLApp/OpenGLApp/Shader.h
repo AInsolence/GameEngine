@@ -1,11 +1,36 @@
 #pragma once
 
-#include <stdio.h>
 #include <string>
-#include <iostream>
 #include <fstream>
+#include <vector>
+#include <array>
 
 #include <GL/glew.h>
+
+#include "StaticHelper.h"
+
+class PointLight;
+class DirectionalLight;
+
+struct DirectionalLightUniforms
+{
+	GLint Color;
+	GLint AmbientIntensity;
+	GLint DiffuseIntensity;
+	GLint Direction;
+};
+
+struct PointLightUniforms
+{
+	GLint Color;
+	GLint AmbientIntensity;
+	GLint DiffuseIntensity;
+	GLint Position;
+
+	GLint Exponent;
+	GLint Linear;
+	GLint Constant;
+};
 
 class Shader
 {
@@ -21,14 +46,13 @@ public:
 	GLint GetViewLocation() const;
 	GLint GetModelLocation() const;
 
-	GLint GetDirectionalLightColorLocation() const;
-	GLint GetDirectionalLightAmbientIntensityLocation() const;
-	GLint GetDirectionalLightDiffuseIntensityLocation() const;
-	GLint GetDirectionalLightDirectionLocation() const;
 	GLint GetDirectionalLightSpecularIntensityLocation() const;
 	GLint GetDirectionalLightShininessLocation() const;
 
 	GLint GetUniformCameraPositionLocation() const;
+
+	void SetDirectionalLight(const DirectionalLight& DirectionalLight) const;
+	void SetPointLights(const std::vector<PointLight>& PointLights) const;
 
 	void Use() const;
 	void Clear();
@@ -39,15 +63,16 @@ private:
 	GLuint Id;
 
 	GLint UniformProjection, UniformView, UniformModel;
+	
+	DirectionalLightUniforms DirectionalLightUniforms;
+	std::array<PointLightUniforms, StaticHelper::MAX_POINT_LIGHTS> PointLightsUniforms;
+	GLint UniformPointLightsCount;
 
-	GLint UniformDirectionalLightColor;
-	GLint UniformDirectionalLightAmbientIntensity;
-	GLint UniformDirectionalLightDiffuseIntensity;
-	GLint UniformDirectionalLightDirection;
-	GLint UniformDirectionalLightSpecularIntensity;
-	GLint UniformDirectionalLightShininess;
+	GLint UniformMaterialSpecularIntensity;
+	GLint UniformMaterialShininess;
 
 	GLint UniformCameraPosition;
+
 
 	void CompileShaders(const char* VertexShaderCode,
 						const char* FragmentShaderCode);
