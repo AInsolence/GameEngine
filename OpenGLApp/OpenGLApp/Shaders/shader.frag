@@ -78,36 +78,39 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
 
 vec4 CalculatePointLightColor()
 {
-	vec4 PointLightColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	vec4 PointLightColor = vec4(0.0f);
 
-	for (int PointLightIndex = 0; PointLightIndex < PointLightsCount; PointLightIndex++)
+	int LightsToProcess = min(PointLightsCount, MAX_POINT_LIGHTS);
+
+	for (int PointLightIndex = 0; PointLightIndex < LightsToProcess; PointLightIndex++)
 	{
-		vec3 Direction = FragmentPosition - PointLights[PointLightIndex].Position;
-		float Distance = length(Direction);
-		Direction = normalize(Direction);
+		vec3 VectorToLight = FragmentPosition - PointLights[PointLightIndex].Position;
+		float Distance = length(VectorToLight);
+		vec3 Direction = normalize(VectorToLight);
 
 		float InnerRadius = max(PointLights[PointLightIndex].InnerRadius, 0.0f);
 		float OuterRadius = max(PointLights[PointLightIndex].OuterRadius, 0.0f);
-		// check Inner radius always less then Outer
 		InnerRadius = min(InnerRadius, OuterRadius);
+		OuterRadius = max(OuterRadius, InnerRadius + 0.001f);
 
-		
-		float Attenuation = PointLights[PointLightIndex].Exponent * Distance * Distance +
-							PointLights[PointLightIndex].Linear * Distance +
-							PointLights[PointLightIndex].Constant;
+		float Attenuation = max(PointLights[PointLightIndex].Exponent * Distance * Distance +
+								PointLights[PointLightIndex].Linear * Distance +
+								PointLights[PointLightIndex].Constant,
+								0.0001f);
 
-		//if (InnerRadius == OuterRadius)
-		//{
-			//vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
-			//PointLightColor += (Color / Attenuation);
-			//continue;
-		//}
+		if (InnerRadius == OuterRadius)
+		{
+			vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
+			PointLightColor += (Color / Attenuation);
+			continue;
+		}
 
-		float SmoothEdgeAttenuation = 1.0f / (1.0f + exp((Distance - OuterRadius) * PointLights[PointLightIndex].RadiusSharpness));
+		float ScaledSharpness = PointLights[PointLightIndex].RadiusSharpness / OuterRadius;
+		float SmoothEdgeAttenuation = 1.0f / (1.0f + exp((Distance - OuterRadius) * ScaledSharpness));
+
 		//float SmoothEdgeAttenuation = clamp(1.0 - (Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0, 1.0);
 
 		vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
-
 		PointLightColor += ((Color / Attenuation) * SmoothEdgeAttenuation);
 	}
 
