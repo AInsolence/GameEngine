@@ -120,7 +120,7 @@ void main()
 	vec4 PointLightColor = CalculatePointLightColor();
 
 	FragColor = texture(Texture, TexCoord) * (DirectionalLightColor + PointLightColor);
-
+	//FragColor = vec4(normalize(Normal) * 0.5 + 0.5, 1.0);
 	float gamma = 1.0;
 	FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma));
 }

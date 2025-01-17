@@ -33,7 +33,7 @@ GLfloat LastTime = 0.0;
 
 bool Direction = true;
 float ShapeOffset = 0.0f;
-float ShapeMaxOffset = 1.5f;
+float ShapeMaxOffset = 3.5f;
 float ShapeOffsetStep = 0.005f;
 
 float RotationDegree = 0.0f;
@@ -119,21 +119,21 @@ int main()
 	auto MatMaterial = Material(0.5f, 1.0f);
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-									0.3f, 
-									0.8f,
+									0.1f, 
+									0.3f,
 									glm::normalize(glm::vec3(5.0f, 10.0f, 0.0f)));
 
 	std::vector<PointLight> PointLights;
 
 	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-							0.3f, 1.0f,
+							0.0f, 1.0f,
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							0.3f, 0.2f, 0.1f,
 							3.0f, 15.0f, 10.0f);
 
 	PointLights.emplace_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-							0.1f, 1.0f,
-							glm::vec3(10.0f, 0.8f, 3.0f),
+							0.0f, 1.0f,
+							glm::vec3(8.0f, 0.8f, 3.0f),
 							0.3f, 0.2f, 0.1f,
 							5.0f, 5.0f, 15.0f);
 
@@ -239,13 +239,13 @@ int main()
 		{
 			// Set Model Translations
 			glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, ShapeOffset, 0.0f)); // set translation
+			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f + ShapeOffset, 2.0f, 0.0f)); // set translation
 			//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
 			//ModelMatrix = glm::scale(ModelMatrix, glm::vec3(ScaleRatio, ScaleRatio, ScaleRatio)); // set scale
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 			RockTexture.Apply();
-			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+			MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[1]->Render();
 		}
