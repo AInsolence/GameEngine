@@ -32,6 +32,10 @@ struct FPointLight
 	float Exponent;
 	float Linear;
 	float Constant;
+
+	float InnerRadius;
+	float OuterRadius;
+	float RadiusSharpness;
 };
 
 struct FMaterial
@@ -82,13 +86,29 @@ vec4 CalculatePointLightColor()
 		float Distance = length(Direction);
 		Direction = normalize(Direction);
 
-		vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
+		float InnerRadius = max(PointLights[PointLightIndex].InnerRadius, 0.0f);
+		float OuterRadius = max(PointLights[PointLightIndex].OuterRadius, 0.0f);
+		// check Inner radius always less then Outer
+		InnerRadius = min(InnerRadius, OuterRadius);
 
+		
 		float Attenuation = PointLights[PointLightIndex].Exponent * Distance * Distance +
 							PointLights[PointLightIndex].Linear * Distance +
 							PointLights[PointLightIndex].Constant;
 
-		PointLightColor += (Color / Attenuation);
+		//if (InnerRadius == OuterRadius)
+		//{
+			//vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
+			//PointLightColor += (Color / Attenuation);
+			//continue;
+		//}
+
+		float SmoothEdgeAttenuation = 1.0f / (1.0f + exp((Distance - OuterRadius) * PointLights[PointLightIndex].RadiusSharpness));
+		//float SmoothEdgeAttenuation = clamp(1.0 - (Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0, 1.0);
+
+		vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
+
+		PointLightColor += ((Color / Attenuation) * SmoothEdgeAttenuation);
 	}
 
 	return PointLightColor;

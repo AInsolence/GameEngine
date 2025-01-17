@@ -30,6 +30,10 @@ struct PointLightUniforms
 	GLint Exponent;
 	GLint Linear;
 	GLint Constant;
+
+	GLint InnerRadius;
+	GLint OuterRadius;
+	GLint RadiusSharpness;
 };
 
 class Shader

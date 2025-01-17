@@ -85,7 +85,10 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
 											PointLightsUniforms[PointLightIndex].Position,
 											PointLightsUniforms[PointLightIndex].Exponent,
 											PointLightsUniforms[PointLightIndex].Linear,
-											PointLightsUniforms[PointLightIndex].Constant);
+											PointLightsUniforms[PointLightIndex].Constant,
+											PointLightsUniforms[PointLightIndex].InnerRadius,
+											PointLightsUniforms[PointLightIndex].OuterRadius,
+											PointLightsUniforms[PointLightIndex].RadiusSharpness);
 	}
 }
 
@@ -181,6 +184,15 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 
 		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Constant", PointLightIndex);
 		PointLightsUniforms[PointLightIndex].Constant = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].InnerRadius", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].InnerRadius = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].OuterRadius", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].OuterRadius = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].RadiusSharpness", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].RadiusSharpness = glGetUniformLocation(Id, LocationsBuffer);
 	}
 
 	UniformMaterialSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");

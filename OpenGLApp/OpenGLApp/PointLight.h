@@ -9,7 +9,10 @@ public:
 				glm::vec3 InitPosition,
 				GLfloat InitExponent,
 				GLfloat InitLinear,
-				GLfloat InitConstant = 1.0f);
+				GLfloat InitConstant = 1.0f,
+				GLfloat InitInnerRadius = 1.0f,
+				GLfloat InitOuterRadius = 1.0f,
+				GLfloat InitRadiusSharpness = 5.0f);
 
 	void Apply(GLint ColorLocation,
 				GLint AmbientIntensityLocation,
@@ -17,8 +20,12 @@ public:
 				GLint PositionLocation,
 				GLint ExponentLocation,
 				GLint LinearLocation,
-				GLint ConstantLocation) const;
+				GLint ConstantLocation,
+				GLint InnerRadiusLocation,
+				GLint OuterRadiusLocation,
+				GLint RadiusSharpnessLocation) const;
 private:
 	glm::vec3 Position;
-	GLfloat  Exponent, Linear, Constant;
+	GLfloat Exponent, Linear, Constant;
+	GLfloat InnerRadius, OuterRadius, RadiusSharpness;
 };
