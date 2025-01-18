@@ -9,6 +9,7 @@
 
 #include "StaticHelper.h"
 
+class SpotLight;
 class PointLight;
 class DirectionalLight;
 
@@ -26,6 +27,25 @@ struct PointLightUniforms
 	GLint AmbientIntensity;
 	GLint DiffuseIntensity;
 	GLint Position;
+
+	GLint Exponent;
+	GLint Linear;
+	GLint Constant;
+
+	GLint InnerRadius;
+	GLint OuterRadius;
+	GLint RadiusSharpness;
+};
+
+struct SpotLightUniforms
+{
+	GLint Color;
+	GLint AmbientIntensity;
+	GLint DiffuseIntensity;
+	GLint Position;
+	GLint Direction;
+
+	GLint CutOffAngleCos;
 
 	GLint Exponent;
 	GLint Linear;
@@ -57,6 +77,7 @@ public:
 
 	void SetDirectionalLight(const DirectionalLight& DirectionalLight) const;
 	void SetPointLights(const std::vector<PointLight>& PointLights) const;
+	void SetSpotLights(const std::vector<SpotLight>& SpotLights) const;
 
 	void Use() const;
 	void Clear();
@@ -69,8 +90,12 @@ private:
 	GLint UniformProjection, UniformView, UniformModel;
 	
 	DirectionalLightUniforms DirectionalLightUniforms;
+
 	std::array<PointLightUniforms, StaticHelper::MAX_POINT_LIGHTS> PointLightsUniforms;
 	GLint UniformPointLightsCount;
+
+	std::array<SpotLightUniforms, StaticHelper::MAX_SPOT_LIGHTS> SpotLightsUniforms;
+	GLint UniformSpotLightsCount;
 
 	GLint UniformMaterialSpecularIntensity;
 	GLint UniformMaterialShininess;

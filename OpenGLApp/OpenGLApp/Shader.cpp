@@ -5,6 +5,7 @@
 
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 #include "StaticHelper.h"
 
 Shader::Shader(const char* VertexShaderPath,
@@ -89,6 +90,31 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
 											PointLightsUniforms[PointLightIndex].InnerRadius,
 											PointLightsUniforms[PointLightIndex].OuterRadius,
 											PointLightsUniforms[PointLightIndex].RadiusSharpness);
+	}
+}
+
+void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
+{
+	const int SpotLightsCount = SpotLights.size() > StaticHelper::MAX_SPOT_LIGHTS
+											? StaticHelper::MAX_SPOT_LIGHTS
+											: SpotLights.size();
+
+	glUniform1i(UniformSpotLightsCount, SpotLightsCount);
+
+	for (int SpotLightIndex = 0; SpotLightIndex < SpotLightsCount; SpotLightIndex++)
+	{
+		SpotLights[SpotLightIndex].Apply(SpotLightsUniforms[SpotLightIndex].Color,
+											SpotLightsUniforms[SpotLightIndex].AmbientIntensity,
+											SpotLightsUniforms[SpotLightIndex].DiffuseIntensity,
+											SpotLightsUniforms[SpotLightIndex].Position,
+											SpotLightsUniforms[SpotLightIndex].Direction,
+											SpotLightsUniforms[SpotLightIndex].CutOffAngleCos,
+											SpotLightsUniforms[SpotLightIndex].Exponent,
+											SpotLightsUniforms[SpotLightIndex].Linear,
+											SpotLightsUniforms[SpotLightIndex].Constant,
+											SpotLightsUniforms[SpotLightIndex].InnerRadius,
+											SpotLightsUniforms[SpotLightIndex].OuterRadius,
+											SpotLightsUniforms[SpotLightIndex].RadiusSharpness);
 	}
 }
 
@@ -193,6 +219,49 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 
 		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].RadiusSharpness", PointLightIndex);
 		PointLightsUniforms[PointLightIndex].RadiusSharpness = glGetUniformLocation(Id, LocationsBuffer);
+	}
+
+	UniformSpotLightsCount = glGetUniformLocation(Id, "SpotLightsCount");
+
+	for (int SpotLightIndex = 0; SpotLightIndex < StaticHelper::MAX_SPOT_LIGHTS; SpotLightIndex++)
+	{
+		char LocationsBuffer[100] = { '\0' };
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Base.Color", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Color = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Base.AmbientIntensity", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].AmbientIntensity = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Base.DiffuseIntensity", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].DiffuseIntensity = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Position", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Position = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].Direction", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Direction = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].CutOffAngleCos", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].CutOffAngleCos = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Exponent", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Exponent = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Linear", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Linear = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Constant", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Constant = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.InnerRadius", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].InnerRadius = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.OuterRadius", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].OuterRadius = glGetUniformLocation(Id, LocationsBuffer);
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.RadiusSharpness", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].RadiusSharpness = glGetUniformLocation(Id, LocationsBuffer);
 	}
 
 	UniformMaterialSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");

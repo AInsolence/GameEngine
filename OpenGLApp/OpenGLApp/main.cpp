@@ -16,6 +16,7 @@
 #include "Camera.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 #include "Material.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -137,6 +138,16 @@ int main()
 							0.3f, 0.2f, 0.1f,
 							5.0f, 5.0f, 15.0f);
 
+	std::vector<SpotLight> SpotLights;
+
+	SpotLights.emplace_back(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+							0.0f, 1.0f,
+							glm::vec3(0.0f, 0.8f, 3.0f),
+							glm::vec3(0.0f, 0.8f, 3.0f),
+							20.0f,
+							0.3f, 0.2f, 0.1f,
+							3.0f, 15.0f, 10.0f);;
+
 	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
 
 	// Initialize projection matrix
@@ -217,8 +228,14 @@ int main()
 		// Set Camera Position
 		glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera.GetPosition()));
 
+
+		glm::vec3 HandsPosition = MainCamera.GetPosition();
+		HandsPosition.y -= 0.1f;
+		SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
+
 		ShaderList[0]->SetDirectionalLight(SunLight);
 		ShaderList[0]->SetPointLights(PointLights);
+		ShaderList[0]->SetSpotLights(SpotLights);
 
 		if (!MeshList.empty())
 		{
@@ -230,7 +247,7 @@ int main()
 
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 			BrickTexture.Apply();
-			MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[0]->Render();
 		}

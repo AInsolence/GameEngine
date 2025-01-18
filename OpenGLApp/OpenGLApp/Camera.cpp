@@ -33,6 +33,11 @@ glm::vec3 Camera::GetPosition()
 	return Position;
 }
 
+glm::vec3 Camera::GetDirection()
+{
+	return glm::normalize(Direction);
+}
+
 glm::mat4 Camera::GetViewMatrix()
 {
 	return glm::lookAt(Position, Position + Direction, UpVector);
