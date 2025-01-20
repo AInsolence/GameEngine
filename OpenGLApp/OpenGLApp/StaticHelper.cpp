@@ -101,7 +101,7 @@ void StaticHelper::CalculateAverageNormals(const std::vector<unsigned>& Indices,
 					Vertices.at(TriangleVert1 + 1) - Vertices.at(TriangleVert0 + 1),
 					Vertices.at(TriangleVert1 + 2) - Vertices.at(TriangleVert0 + 2));
 
-		const glm::vec3 Normal = -(glm::length(glm::cross(v1, v2)) > 0.0f ? glm::normalize(glm::cross(v1, v2)) : glm::vec3(0.0f));
+		const glm::vec3 Normal = glm::length(glm::cross(v1, v2)) > 0.0f ? glm::normalize(glm::cross(v1, v2)) : glm::vec3(0.0f);
 
 		VertexNormals.at(Indices.at(i)) += Normal;
 		VertexNormals.at(Indices.at(i + 1)) += Normal;

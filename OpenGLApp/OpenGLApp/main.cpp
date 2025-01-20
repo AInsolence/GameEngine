@@ -237,7 +237,7 @@ int main()
 
 		glm::vec3 HandsPosition = MainCamera.GetPosition();
 		HandsPosition.y -= 0.1f;
-		//SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
+		SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
 
 		ShaderList[0]->SetDirectionalLight(SunLight);
 		ShaderList[0]->SetPointLights(PointLights);
@@ -249,8 +249,6 @@ int main()
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		XWing.Render();
-		//SandTexture.Apply();
-		//MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 		if (!MeshList.empty())
 		{
