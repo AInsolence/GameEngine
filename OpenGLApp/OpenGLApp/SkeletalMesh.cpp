@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 
 #include "Mesh.h"
+#include "StaticHelper.h"
 #include "Texture.h"
 
 SkeletalMesh::SkeletalMesh(const std::string& FilePath)
@@ -74,24 +75,29 @@ void SkeletalMesh::LoadMesh(const aiMesh* InitMesh, const aiScene* Scene)
 	std::vector<GLfloat> Vertices;
 	std::vector<unsigned int> Indices;
 
+	Vertices.reserve(InitMesh->mNumVertices * 8);
+	Indices.reserve(InitMesh->mNumFaces * 3);
+
 	for (unsigned int Index = 0; Index < InitMesh->mNumVertices; ++Index)
 	{
-		Vertices.insert(Vertices.end(), {InitMesh->mVertices[Index].x,
-														InitMesh->mVertices[Index].y,
-														InitMesh->mVertices[Index].z});
+		Vertices.push_back(InitMesh->mVertices[Index].x);
+		Vertices.push_back(InitMesh->mVertices[Index].y);
+		Vertices.push_back(InitMesh->mVertices[Index].z);
+
 		if (InitMesh->mTextureCoords[0])
 		{
-			Vertices.insert(Vertices.end(), {InitMesh->mTextureCoords[0][Index].x,
-															InitMesh->mTextureCoords[0][Index].y});
+			Vertices.push_back(InitMesh->mTextureCoords[0][Index].x);
+			Vertices.push_back(InitMesh->mTextureCoords[0][Index].y);
 		}
 		else
 		{
-			Vertices.insert(Vertices.end(), {0.0f, 0.0f});
+			Vertices.push_back(0.0f);
+			Vertices.push_back(0.0f);
 		}
 
-		Vertices.insert(Vertices.end(), {InitMesh->mNormals[Index].x,
-														InitMesh->mNormals[Index].y,
-														InitMesh->mNormals[Index].z});
+		Vertices.push_back(InitMesh->mNormals[Index].x);
+		Vertices.push_back(InitMesh->mNormals[Index].y);
+		Vertices.push_back(InitMesh->mNormals[Index].z);
 	}
 
 	for (unsigned int FaceIndex = 0; FaceIndex < InitMesh->mNumFaces; ++FaceIndex)
@@ -111,6 +117,7 @@ void SkeletalMesh::LoadMesh(const aiMesh* InitMesh, const aiScene* Scene)
 void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 {
 	TextureUnits.clear();
+	TextureUnits.reserve(Scene->mNumMaterials);
 
 	for (unsigned int MaterialIndex = 0; MaterialIndex < Scene->mNumMaterials; ++MaterialIndex)
 	{
@@ -124,7 +131,7 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 			{
 				printf("Original texture path: %s", Path.C_Str());
 
-				const size_t Index = std::string(Path.C_Str()).rfind("\\");
+				const size_t Index = std::string(Path.C_Str()).rfind("/\\");
 				std::string FilePath = std::string(Path.C_Str()).substr(Index + 1);
 
 				std::string TexturePath = "Content/Textures/" + FilePath;
@@ -133,7 +140,7 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 
 				if (!LoadedTexture->LoadTexture_RGBA() && !LoadedTexture->LoadTexture_RGB())
 				{
-					TextureUnits.emplace_back(std::make_shared<Texture>("Content/Textures/plain.jpg"));
+					TextureUnits.emplace_back(PlaceholderTexture);
 				}
 				else
 				{
@@ -142,12 +149,12 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 			}
 			else
 			{// load placeholder
-				TextureUnits.emplace_back(std::make_shared<Texture>("Content/Textures/plain.jpg"));
+				TextureUnits.emplace_back(PlaceholderTexture);
 			}
 		}
 		else
 		{// load placeholder
-			TextureUnits.emplace_back(std::make_shared<Texture>("Content/Textures/plain.jpg"));
+			TextureUnits.emplace_back(PlaceholderTexture);
 		}
 	}
 }

@@ -109,7 +109,8 @@ int main()
 						0.2f);
 
 	Create3DObjects();
-	auto XWing = SkeletalMesh("Content/Meshes/star wars x-wing.obj");
+	auto Model = SkeletalMesh("Content/Meshes/Pony_cartoon.obj");
+	//auto Model_2 = SkeletalMesh("Content/Meshes/geo_dead.obj");
 
 	auto BrickTexture = Texture("Content/Textures/brick.jpg");
 	BrickTexture.LoadTexture_RGBA();
@@ -126,20 +127,20 @@ int main()
 	auto MatMaterial = Material(0.5f, 1.0f);
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-									0.1f, 
-									0.3f,
-									glm::normalize(glm::vec3(5.0f, -10.0f, 0.0f)));
+									0.2f, 
+									0.8f,
+									glm::normalize(glm::vec3(2.0f, 1.0f, 0.0f)));
 
 	std::vector<PointLight> PointLights;
 
 	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-							0.0f, 1.0f,
+							0.0f, 2.0f,
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							0.3f, 0.2f, 0.1f,
 							3.0f, 15.0f, 10.0f);
 
 	PointLights.emplace_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-							0.0f, 1.0f,
+							0.0f, 2.0f,
 							glm::vec3(8.0f, 0.8f, 3.0f),
 							0.3f, 0.2f, 0.1f,
 							5.0f, 5.0f, 15.0f);
@@ -243,12 +244,12 @@ int main()
 		ShaderList[0]->SetPointLights(PointLights);
 		ShaderList[0]->SetSpotLights(SpotLights);
 
-		// Set Model Translations
+		//// Set Model Translations
 		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, 0.0f, -2.0f)); // set translation
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(4.0f, -1.05f, 3.0f)); // set translation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		XWing.Render();
+		Model.Render();
 
 		if (!MeshList.empty())
 		{

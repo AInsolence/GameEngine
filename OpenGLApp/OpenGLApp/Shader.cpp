@@ -319,7 +319,7 @@ std::string Shader::ReadFile(const char* FilePath)
 
 	FileStream.close();
 
-	std::cout << "File Content (" << FilePath << "):\n\n" << Content << std::endl;
+	//std::cout << "File Content (" << FilePath << "):\n\n" << Content << std::endl;
 
 	return Content;
 }
