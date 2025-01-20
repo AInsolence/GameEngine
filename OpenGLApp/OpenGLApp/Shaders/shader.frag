@@ -8,7 +8,6 @@ in vec4 VertColor;
 in vec3 FragmentPosition;
 
 const int MAX_POINT_LIGHTS = 10;
-const int MAX_SPOT_LIGHTS = 10;
 
 struct FBaseLight
 {
@@ -39,14 +38,6 @@ struct FPointLight
 	float RadiusSharpness;
 };
 
-struct FSpotLight
-{
-	FPointLight PointLight;
-
-	vec3 Direction;
-	float CutOffAngleCos;
-};
-
 struct FMaterial
 {
 	float SpecularIntensity;
@@ -55,9 +46,7 @@ struct FMaterial
 
 uniform FDirectionalLight SunLight;
 uniform FPointLight PointLights [MAX_POINT_LIGHTS];
-uniform FSpotLight SpotLights [MAX_SPOT_LIGHTS];
 uniform int PointLightsCount;
-uniform int SpotLightsCount;
 
 uniform sampler2D Texture;
 uniform FMaterial Material;
@@ -68,9 +57,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
 {
 	vec4 AmbientColor = Base.Color * Base.AmbientIntensity;
 
-	vec3 NormalizedDirection = normalize(Direction);
-
-	float DiffuseFactor = max(dot(normalize(Normal), NormalizedDirection), 0.0f); // dot(A, B) = |A|*|B|*cos(angle), with normalized it is equal to == cos(angle)
+	float DiffuseFactor = max(dot(normalize(Normal), normalize(Direction)),  0.0f); // dot(A, B) = |A|*|B|*cos(angle), with normalized it is equal to == cos(angle)
 	vec4 DiffuseColor = Base.Color * Base.DiffuseIntensity * DiffuseFactor;
 	
 	vec4 SpecularColor = vec4(0.0f );
@@ -78,7 +65,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
 	if(DiffuseFactor > 0.0f)
 	{
 		vec3 VertexToCameraVector = normalize(CameraPosition - FragmentPosition);
-		vec3 ReflectionVector = normalize(reflect(NormalizedDirection, normalize(Normal)));
+		vec3 ReflectionVector = normalize(reflect(Direction, normalize(Normal)));
 
 		float SpecularFactor = max(dot(VertexToCameraVector, ReflectionVector), 0.0f);
 		
@@ -89,55 +76,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
 	return (AmbientColor + DiffuseColor + SpecularColor);
 }
 
-vec4 CalculatePointLightColor(FPointLight PointLight)
-{
-	vec3 VectorToLight = FragmentPosition - PointLight.Position;
-	float Distance = length(VectorToLight);
-	vec3 Direction = normalize(VectorToLight);
-
-	float InnerRadius = max(PointLight.InnerRadius, 0.0f);
-	float OuterRadius = max(PointLight.OuterRadius, 0.0f);
-	InnerRadius = min(InnerRadius, OuterRadius);
-	OuterRadius = max(OuterRadius, InnerRadius + 0.001f);
-
-	float Attenuation = max(PointLight.Exponent * Distance * Distance +
-							PointLight.Linear * Distance +
-							PointLight.Constant,
-							0.0001f);
-
-	if (InnerRadius == OuterRadius)
-	{
-		vec4 Color = CalculateLightByDirection(PointLight.Base, Direction);
-		return (Color / Attenuation);
-	}
-
-	float ScaledSharpness = PointLight.RadiusSharpness / OuterRadius;
-	float SmoothEdgeAttenuation = 1.0f / (1.0f + exp((Distance - OuterRadius) * ScaledSharpness));
-
-	//float SmoothEdgeAttenuation = clamp(1.0 - (Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0, 1.0);
-
-	vec4 Color = CalculateLightByDirection(PointLight.Base, Direction);
-
-	return ((Color / Attenuation) * SmoothEdgeAttenuation);
-}
-
-vec4 CalculateSpotLightColor (FSpotLight SpotLight)
-{
-	vec3 Direction = normalize(FragmentPosition - SpotLight.PointLight.Position);
-
-	float SpotLightFactor = dot(Direction, normalize(SpotLight.Direction));
-
-	if (SpotLightFactor <= SpotLight.CutOffAngleCos)
-	{
-		return vec4(0.0f);
-	}
-
-	vec4 Color = CalculatePointLightColor(SpotLight.PointLight);
-
-	return Color * (1.0f - (1.0f - SpotLightFactor) * (1.0f / (1.0f - SpotLight.CutOffAngleCos)));
-}
-
-vec4 CalculateAllPointLightsColor()
+vec4 CalculatePointLightColor()
 {
 	vec4 PointLightColor = vec4(0.0f);
 
@@ -145,35 +84,46 @@ vec4 CalculateAllPointLightsColor()
 
 	for (int PointLightIndex = 0; PointLightIndex < LightsToProcess; PointLightIndex++)
 	{
-		PointLightColor += CalculatePointLightColor(PointLights[PointLightIndex]);
+		vec3 VectorToLight = FragmentPosition - PointLights[PointLightIndex].Position;
+		float Distance = length(VectorToLight);
+		vec3 Direction = normalize(VectorToLight);
+
+		float InnerRadius = max(PointLights[PointLightIndex].InnerRadius, 0.0f);
+		float OuterRadius = max(PointLights[PointLightIndex].OuterRadius, 0.0f);
+		InnerRadius = min(InnerRadius, OuterRadius);
+		OuterRadius = max(OuterRadius, InnerRadius + 0.001f);
+
+		float Attenuation = max(PointLights[PointLightIndex].Exponent * Distance * Distance +
+								PointLights[PointLightIndex].Linear * Distance +
+								PointLights[PointLightIndex].Constant,
+								0.0001f);
+
+		if (InnerRadius == OuterRadius)
+		{
+			vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
+			PointLightColor += (Color / Attenuation);
+			continue;
+		}
+
+		float ScaledSharpness = PointLights[PointLightIndex].RadiusSharpness / OuterRadius;
+		float SmoothEdgeAttenuation = 1.0f / (1.0f + exp((Distance - OuterRadius) * ScaledSharpness));
+
+		//float SmoothEdgeAttenuation = clamp(1.0 - (Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0, 1.0);
+
+		vec4 Color = CalculateLightByDirection(PointLights[PointLightIndex].Base, Direction);
+		PointLightColor += ((Color / Attenuation) * SmoothEdgeAttenuation);
 	}
 
 	return PointLightColor;
 }
 
-vec4 CalculateAllSpotLightsColor()
-{
-	vec4 SpotLightColor = vec4(0.0f);
-
-	int LightsToProcess = min(SpotLightsCount, MAX_SPOT_LIGHTS);
-
-	for (int SpotLightIndex = 0; SpotLightIndex < LightsToProcess; SpotLightIndex++)
-	{
-		SpotLightColor += CalculateSpotLightColor(SpotLights[SpotLightIndex]);
-	}
-
-	return SpotLightColor;
-}
-
 void main()
 {
-	vec4 DirectionalLightColor = CalculateLightByDirection(SunLight.Base, normalize(SunLight.Direction));
-	vec4 PointLightColor = CalculateAllPointLightsColor();
-	vec4 SpotLightColor = CalculateAllSpotLightsColor();
+	vec4 DirectionalLightColor = CalculateLightByDirection(SunLight.Base, SunLight.Direction);
+	vec4 PointLightColor = CalculatePointLightColor();
 
-	FragColor = texture(Texture, TexCoord) * (DirectionalLightColor + PointLightColor + SpotLightColor);
-	//FragColor = vec4(normalize(Normal) * 0.5 + 0.5, 1.0); // normals debug line
-
+	FragColor = texture(Texture, TexCoord) * (DirectionalLightColor + PointLightColor);
+	//FragColor = vec4(normalize(Normal) * 0.5 + 0.5, 1.0);
 	float gamma = 1.0;
 	FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma));
 }

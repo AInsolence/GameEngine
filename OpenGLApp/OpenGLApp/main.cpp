@@ -19,14 +19,15 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Shader.h"
+#include "SkeletalMesh.h"
 #include "Texture.h"
 
 #include "StaticHelper.h"
 
 
 // Define main variables
-std::vector<std::shared_ptr<Mesh>> MeshList;
-std::vector<std::shared_ptr<Shader>> ShaderList;
+std::vector<std::unique_ptr<Mesh>> MeshList;
+std::vector<std::unique_ptr<Shader>> ShaderList;
 
 // DeltaTime TODO: move to World class
 GLfloat DeltaTime = 0.0;
@@ -57,22 +58,22 @@ static const char* FragmentShaderPath = "Shaders/shader.frag";
 void Create3DObjects()
 {
 	// Define floor vertices
-	GLfloat FloorVertices[] = {
+	std::vector<GLfloat> FloorVertices = {
 	//	   x      y      z      u      v     nx     ny    nz
-		-10.0f, 0.0f, -10.0f,  0.0f,  0.0f, 0.0f, -1.0f, 0.0f,
-		 10.0f, 0.0f, -10.0f, 10.0f,  0.0f, 0.0f, -1.0f, 0.0f,
-		-10.0f, 0.0f,  10.0f,  0.0f, 10.0f, 0.0f, -1.0f, 0.0f,
-		 10.0f, 0.0f,  10.0f, 10.0f, 10.0f, 0.0f, -1.0f, 0.0f
+		-10.0f, 0.0f, -10.0f,  0.0f,  0.0f, 0.0f, 1.0f, 0.0f,
+		 10.0f, 0.0f, -10.0f, 10.0f,  0.0f, 0.0f, 1.0f, 0.0f,
+		-10.0f, 0.0f,  10.0f,  0.0f, 10.0f, 0.0f, 1.0f, 0.0f,
+		 10.0f, 0.0f,  10.0f, 10.0f, 10.0f, 0.0f, 1.0f, 0.0f
 	};
 
-	unsigned int FloorIndices[] = {
+	std::vector<unsigned int> FloorIndices = {
 		0, 2, 1,
 		1, 2, 3
 	};
 
 	//TODO move to mesh with calculate normals method or use compute shader
 	// Represents faces created from further represented vertices
-	unsigned int Indices[] = {
+	std::vector<unsigned int> Indices = {
 		0, 3, 1,
 		1, 3, 2,
 		2, 3, 0,
@@ -80,7 +81,7 @@ void Create3DObjects()
 	};
 
 	// Define triangle's vertices
-	GLfloat Vertices[] = {
+	std::vector<GLfloat> Vertices = {
 	//	  x      y      z     u     v     nx    ny    nz
 		-1.0f, -1.0f, -0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 		 0.0f, -1.0f,  1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -88,12 +89,12 @@ void Create3DObjects()
 		 0.0f,  1.0,   0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f
 	};
 
-	StaticHelper::CalculateAverageNormals(Indices, 12, Vertices, 32, 8, 5);
+	StaticHelper::CalculateAverageNormals(Indices, Vertices, 8, 5);
 
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices, 32, 12));
-	MeshList.emplace_back(std::make_shared<Mesh>(FloorVertices, FloorIndices, 32, 6));
+	MeshList.emplace_back(std::make_unique<Mesh>(Vertices, Indices));
+	MeshList.emplace_back(std::make_unique<Mesh>(Vertices, Indices));
+	MeshList.emplace_back(std::make_unique<Mesh>(Vertices, Indices));
+	MeshList.emplace_back(std::make_unique<Mesh>(FloorVertices, FloorIndices));
 }
 
 int main()
@@ -108,13 +109,18 @@ int main()
 						0.2f);
 
 	Create3DObjects();
+	auto XWing = SkeletalMesh("Content/Meshes/star wars x-wing.obj");
 
 	auto BrickTexture = Texture("Content/Textures/brick.jpg");
+	BrickTexture.LoadTexture_RGBA();
 	auto RockTexture = Texture("Content/Textures/rock.jpg");
+	RockTexture.LoadTexture_RGBA();
 	auto MetalTexture = Texture("Content/Textures/metal.jpg");
+	MetalTexture.LoadTexture_RGBA();
 	auto SandTexture = Texture("Content/Textures/sand.png");
+	SandTexture.LoadTexture_RGBA();
 	auto GoldTexture = Texture("Content/Textures/gold.jpg");
-	auto WhiteTexture = Texture("Content/Textures/white.png");
+	GoldTexture.LoadTexture_RGBA();
 
 	auto MetalMaterial = Material(5.0f, 128.0f);
 	auto MatMaterial = Material(0.5f, 1.0f);
@@ -122,7 +128,7 @@ int main()
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.1f, 
 									0.3f,
-									glm::normalize(glm::vec3(5.0f, 10.0f, 0.0f)));
+									glm::normalize(glm::vec3(5.0f, -10.0f, 0.0f)));
 
 	std::vector<PointLight> PointLights;
 
@@ -148,7 +154,7 @@ int main()
 							0.3f, 0.2f, 0.1f,
 							3.0f, 15.0f, 10.0f);;
 
-	ShaderList.emplace_back(std::make_shared<Shader>(VertexShaderPath, FragmentShaderPath));
+	ShaderList.emplace_back(std::make_unique<Shader>(VertexShaderPath, FragmentShaderPath));
 
 	// Initialize projection matrix
 	glm::mat4 ProjectionMatrix = glm::perspective(45.0f,
@@ -231,11 +237,20 @@ int main()
 
 		glm::vec3 HandsPosition = MainCamera.GetPosition();
 		HandsPosition.y -= 0.1f;
-		SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
+		//SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
 
 		ShaderList[0]->SetDirectionalLight(SunLight);
 		ShaderList[0]->SetPointLights(PointLights);
 		ShaderList[0]->SetSpotLights(SpotLights);
+
+		// Set Model Translations
+		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, 0.0f, -2.0f)); // set translation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
+		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		XWing.Render();
+		//SandTexture.Apply();
+		//MetalMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 		if (!MeshList.empty())
 		{

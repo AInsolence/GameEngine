@@ -1,17 +1,15 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh(const GLfloat* Vertices,
-		const unsigned* Indices,
-		const unsigned NumOfVertices,
-		const unsigned NumOfIndices)
+Mesh::Mesh(const std::vector<GLfloat>& Vertices,
+			const std::vector<unsigned int>& Indices)
 {
 	VAO = 0;
 	VBO = 0;
 	IBO = 0;
 	IndexCount = 0;
 
-	Create(Vertices, Indices, NumOfVertices, NumOfIndices);
+	Create(Vertices, Indices);
 }
 
 Mesh::~Mesh()
@@ -20,23 +18,21 @@ Mesh::~Mesh()
 }
 
 
-void Mesh::Create(const GLfloat* Vertices,
-					const unsigned* Indices,
-					const unsigned NumOfVertices,
-					const unsigned NumOfIndices)
+void Mesh::Create(const std::vector<GLfloat>& Vertices,
+					const std::vector<unsigned int>& Indices)
 {
-	IndexCount = NumOfIndices;
+	IndexCount = Indices.size();
 
 	glGenVertexArrays(1, &VAO); // first param here number of VAOs we are creating
 	glBindVertexArray(VAO);
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices[0]) * NumOfIndices, Indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices[0]) * Indices.size(), Indices.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices[0]) * NumOfVertices, Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices[0]) * Vertices.size(), Vertices.data(), GL_STATIC_DRAW);
 
 	/// With attributes explaining how to use data
 	// vertices
@@ -54,7 +50,7 @@ void Mesh::Create(const GLfloat* Vertices,
 	glBindVertexArray(0);
 }
 
-void Mesh::Render()
+void Mesh::Render() const
 {
 		glBindVertexArray(VAO);
 

@@ -77,52 +77,55 @@ std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 #endif
 }
 
-void StaticHelper::CalculateAverageNormals(const unsigned int* Indices,
-											unsigned int IndexCount,
-											GLfloat* Vertices,
-											unsigned int VertexCount,
-											unsigned int VerticesOffset,
-											unsigned int NormalsOffset)
+void StaticHelper::CalculateAverageNormals(const std::vector<unsigned>& Indices,
+											std::vector<GLfloat>& Vertices,
+											unsigned VerticesOffset,
+											unsigned NormalsOffset)
 {
+	const unsigned int VertexCount = Vertices.size();
+	const unsigned int IndexCount = Indices.size();
+
 	std::vector<glm::vec3> VertexNormals(VertexCount / VerticesOffset, glm::vec3(0.0f));
 
 	for (size_t i = 0; i < IndexCount; i += 3)
 	{
-		const auto TriangleVert0 = Indices[i] * VerticesOffset;
-		const auto TriangleVert1 = Indices[i + 1] * VerticesOffset;
-		const auto TriangleVert2 = Indices[i + 2] * VerticesOffset;
+		const auto TriangleVert0 = Indices.at(i) * VerticesOffset;
+		const auto TriangleVert1 = Indices.at(i + 1) * VerticesOffset;
+		const auto TriangleVert2 = Indices.at(i + 2) * VerticesOffset;
 
-		glm::vec3 v1(Vertices[TriangleVert1] - Vertices[TriangleVert0],
-					Vertices[TriangleVert1 + 1] - Vertices[TriangleVert0 + 1],
-					Vertices[TriangleVert1 + 2] - Vertices[TriangleVert0 + 2]);
+		glm::vec3 v1(Vertices.at(TriangleVert2) - Vertices.at(TriangleVert0),
+					Vertices.at(TriangleVert2 + 1) - Vertices.at(TriangleVert0 + 1),
+					Vertices.at(TriangleVert2 + 2) - Vertices.at(TriangleVert0 + 2));
+		
+		glm::vec3 v2(Vertices.at(TriangleVert1) - Vertices.at(TriangleVert0),
+					Vertices.at(TriangleVert1 + 1) - Vertices.at(TriangleVert0 + 1),
+					Vertices.at(TriangleVert1 + 2) - Vertices.at(TriangleVert0 + 2));
 
-		glm::vec3 v2(Vertices[TriangleVert2] - Vertices[TriangleVert0],
-					Vertices[TriangleVert2 + 1] - Vertices[TriangleVert0 + 1],
-					Vertices[TriangleVert2 + 2] - Vertices[TriangleVert0 + 2]);
+		const glm::vec3 Normal = -(glm::length(glm::cross(v1, v2)) > 0.0f ? glm::normalize(glm::cross(v1, v2)) : glm::vec3(0.0f));
 
-		const glm::vec3 Normal = glm::length(glm::cross(v1, v2)) > 0.0f ? glm::normalize(glm::cross(v1, v2)) : glm::vec3(0.0f);
-
-		VertexNormals[Indices[i]] += Normal;
-		VertexNormals[Indices[i + 1]] += Normal;
-		VertexNormals[Indices[i + 2]] += Normal;
+		VertexNormals.at(Indices.at(i)) += Normal;
+		VertexNormals.at(Indices.at(i + 1)) += Normal;
+		VertexNormals.at(Indices.at(i + 2)) += Normal;
 	}
 
 	for (size_t i = 0; i < VertexNormals.size(); i++)
 	{
 		const unsigned int Offset = i * VerticesOffset + NormalsOffset;
-		const glm::vec3 normalizedNormal = glm::normalize(VertexNormals[i]);
+		const glm::vec3 normalizedNormal = glm::normalize(VertexNormals.at(i));
 
-		Vertices[Offset] = normalizedNormal.x;
-		Vertices[Offset + 1] = normalizedNormal.y;
-		Vertices[Offset + 2] = normalizedNormal.z;
+		Vertices.at(Offset) = normalizedNormal.x;
+		Vertices.at(Offset + 1) = normalizedNormal.y;
+		Vertices.at(Offset + 2) = normalizedNormal.z;
 	}
 
 #if defined (DEBUG) || defined (_DEBUG)
-	for (size_t i = 0; i < VertexCount; i++)
+	for (size_t i = 0; i < VertexNormals.size(); i++)
 	{
-		std::cout << "Normal " << i << ": (" << Vertices[i * VerticesOffset + NormalsOffset] << ", "
-					<< Vertices[i * VerticesOffset + NormalsOffset + 1] << ", "
-						<< Vertices[i * VerticesOffset + NormalsOffset + 2] << ")" << std::endl;
+		std::cout << "Normal " << i << ": (" << Vertices.at(i * VerticesOffset + NormalsOffset)
+					<< ", "
+						<< Vertices.at(i * VerticesOffset + NormalsOffset + 1) << ", "
+							<< Vertices.at(i * VerticesOffset + NormalsOffset + 2) << ")"
+								<< std::endl;
 	}
 
 	std::cout << std::endl;

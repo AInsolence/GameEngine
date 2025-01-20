@@ -12,10 +12,9 @@ public:
 	static constexpr int MAX_SPOT_LIGHTS = 10;
 
 	static std::vector<GLenum> EnsureGLFunction(const char* FunctionName);
-	static void CalculateAverageNormals(const unsigned int* Indices,
-										unsigned int IndexCount,
-										GLfloat* Vertices,
-										unsigned int VertexCount,
+
+	static void CalculateAverageNormals(const std::vector <unsigned int>& Indices,
+										std::vector<GLfloat>& Vertices,
 										unsigned int VerticesOffset,
 										unsigned int NormalsOffset);
 };

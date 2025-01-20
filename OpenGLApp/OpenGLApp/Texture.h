@@ -1,17 +1,21 @@
 #pragma once
 
+#include <string>
 #include <GL/glew.h>
-#include "stb_image.h"
 
 class Texture
 {
 public:
 	explicit Texture(const char* Path);
+	explicit Texture(std::string&& Path);
+	explicit Texture(const std::string& Path);
+
 	~Texture();
 
-	void LoadTexture();
+	bool LoadTexture_RGB();
+	bool LoadTexture_RGBA();
 	void Apply() const;
-	void ClearTexture();
+	void ClearTexture() const;
 
 private:
 	GLuint Id;
@@ -20,6 +24,6 @@ private:
 	int Height;
 	int BitDepth;
 
-	const char* FilePath;
+	std::string FilePath;
 };
 

@@ -1,27 +1,24 @@
 #pragma once
 
+#include <vector>
 #include <GL/glew.h>
 
 class Mesh
 {
 public:
-	Mesh(const GLfloat* Vertices,
-		const unsigned int* Indices,
-		const unsigned int NumOfVertices,
-		const unsigned int NumOfIndices);
+	Mesh(const std::vector<GLfloat>& Vertices,
+			const std::vector<unsigned int>& Indices);
 
 	~Mesh();
 
-	void Create(const GLfloat* Vertices,
-					const unsigned int* Indices,
-					const unsigned int NumOfVertices,
-					const unsigned int NumOfIndices);
+	void Create(const std::vector<GLfloat>& Vertices,
+				const std::vector<unsigned int>& Indices);
 
-	void Render();
+	void Render() const;
 	void Clear();
 
 private:
 	GLuint VAO, VBO, IBO;
-	GLsizei IndexCount;
+	unsigned int IndexCount;
 };
 
