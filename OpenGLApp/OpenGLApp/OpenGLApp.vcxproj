@@ -148,6 +148,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="StaticHelper.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="StaticHelper.h" />
