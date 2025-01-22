@@ -1,8 +1,19 @@
 #include "BaseLight.h"
 
-BaseLight::BaseLight()
+#include <ext/matrix_clip_space.hpp>
+
+BaseLight::BaseLight(glm::vec4 InitColor,
+					GLfloat InitAmbientIntensity,
+					GLfloat InitDiffuseIntensity,
+					GLint InitShadowWidth,
+					GLint InitShadowHeight)
 {
-	Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	AmbientIntensity = 1.0f;
-	DiffuseIntensity = 1.0f;
+	Color = InitColor;
+	AmbientIntensity = InitAmbientIntensity;
+	DiffuseIntensity = InitDiffuseIntensity;
+
+	ShadowMapTex = std::make_unique<ShadowMap>();
+	ShadowMapTex->Init(InitShadowWidth, InitShadowHeight);
+
+	LightProjectionMatrix = glm::ortho(5.0f, 5.0f, 5.0f, 5.0f, 0.1f, 30.0f);
 }

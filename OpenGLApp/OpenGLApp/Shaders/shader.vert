@@ -8,10 +8,12 @@ out vec2 TexCoord;
 out vec4 Color;
 out vec3 Normal;
 out vec3 FragmentPosition;
+out vec4 DirectionalLightSpacePosition;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
+uniform mat4 DirectionalLightSpaceTransform;
 
 void main()
 {
@@ -24,4 +26,6 @@ void main()
 	Normal = mat3(transpose(inverse(ModelMatrix))) * VertNormal;
 
 	FragmentPosition = (ModelMatrix * vec4(VertPosition, 1.0)).xyz;
+
+	DirectionalLightSpacePosition = DirectionalLightSpaceTransform * ModelMatrix * vec4(VertPosition, 1.0f);
 }

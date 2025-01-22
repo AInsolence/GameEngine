@@ -12,11 +12,10 @@ PointLight::PointLight(glm::vec4 InitColor,
 						GLfloat InitInnerRadius,
 						GLfloat InitOuterRadius,
 						GLfloat InitRadiusSharpness)
+	: BaseLight(InitColor,
+				InitAmbientIntensity,
+				InitDiffuseIntensity)
 {
-	Color = InitColor;
-	AmbientIntensity = InitAmbientIntensity;
-	DiffuseIntensity = InitDiffuseIntensity;
-
 	Position = InitPosition;
 	Exponent = InitExponent;
 	Linear = InitLinear;

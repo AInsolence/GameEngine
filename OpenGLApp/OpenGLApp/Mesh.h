@@ -19,6 +19,6 @@ public:
 
 private:
 	GLuint VAO, VBO, IBO;
-	unsigned int IndexCount;
+	int IndexCount;
 };
 

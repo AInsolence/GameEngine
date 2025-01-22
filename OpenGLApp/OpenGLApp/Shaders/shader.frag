@@ -6,6 +6,7 @@ in vec2 TexCoord;
 in vec3 Normal; 
 in vec4 VertColor;
 in vec3 FragmentPosition;
+in vec4 DirectionalLightSpacePosition;
 
 const int MAX_POINT_LIGHTS = 10;
 const int MAX_SPOT_LIGHTS = 10;
@@ -54,17 +55,36 @@ struct FMaterial
 };
 
 uniform FDirectionalLight SunLight;
+
 uniform FPointLight PointLights [MAX_POINT_LIGHTS];
 uniform FSpotLight SpotLights [MAX_SPOT_LIGHTS];
 uniform int PointLightsCount;
 uniform int SpotLightsCount;
 
 uniform sampler2D Texture;
+uniform sampler2D DirectionalShadowMap;
 uniform FMaterial Material;
 
 uniform vec3 CameraPosition;
 
-vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
+float CalculateDirLightShadowFactor(FDirectionalLight DirectionalLight)
+{
+	vec3 ProjCoords = DirectionalLightSpacePosition.xyz / DirectionalLightSpacePosition.w;
+	ProjCoords = (ProjCoords + 0.5f) + 0.5f; // translate from (-1, 1) to (0, 1)
+
+	float CurrentDepth = ProjCoords.z;
+
+	if(CurrentDepth > 1.0f)
+	{ // no shadows
+		return 0.0f;
+	}
+
+	float ClosestDepth = texture(DirectionalShadowMap, ProjCoords.xy).r;
+
+	return CurrentDepth > ClosestDepth ? 1.0f : 0.0f;
+}
+
+vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFactor)
 {
 	vec4 AmbientColor = Base.Color * Base.AmbientIntensity;
 
@@ -73,7 +93,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
 	float DiffuseFactor = max(dot(normalize(Normal), NormalizedDirection), 0.0f); // dot(A, B) = |A|*|B|*cos(angle), with normalized it is equal to == cos(angle)
 	vec4 DiffuseColor = Base.Color * Base.DiffuseIntensity * DiffuseFactor;
 	
-	vec4 SpecularColor = vec4(0.0f );
+	vec4 SpecularColor = vec4(0.0f);
 
 	if(DiffuseFactor > 0.0f)
 	{
@@ -86,7 +106,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction)
 		SpecularColor = vec4(Base.Color * Material.SpecularIntensity * SpecularFactor);
 	}
 
-	return (AmbientColor + DiffuseColor + SpecularColor);
+	return (AmbientColor + (1.0f - ShadowFactor) * (DiffuseColor + SpecularColor));
 }
 
 vec4 CalculatePointLightColor(FPointLight PointLight)
@@ -107,7 +127,7 @@ vec4 CalculatePointLightColor(FPointLight PointLight)
 
 	if (InnerRadius == OuterRadius)
 	{
-		vec4 Color = CalculateLightByDirection(PointLight.Base, Direction);
+		vec4 Color = CalculateLightByDirection(PointLight.Base, Direction, 0.0f);
 		return (Color / Attenuation);
 	}
 
@@ -116,7 +136,7 @@ vec4 CalculatePointLightColor(FPointLight PointLight)
 
 	//float SmoothEdgeAttenuation = clamp(1.0 - (Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0, 1.0);
 
-	vec4 Color = CalculateLightByDirection(PointLight.Base, Direction);
+	vec4 Color = CalculateLightByDirection(PointLight.Base, Direction, 0.0f);
 
 	return ((Color / Attenuation) * SmoothEdgeAttenuation);
 }
@@ -165,9 +185,16 @@ vec4 CalculateAllSpotLightsColor()
 	return SpotLightColor;
 }
 
+vec4 CalculateDirectionalLight()
+{
+	float ShadowFactor = CalculateDirLightShadowFactor(SunLight);
+	return CalculateLightByDirection(SunLight.Base, normalize(SunLight.Direction), ShadowFactor);
+}
+
 void main()
 {
-	vec4 DirectionalLightColor = CalculateLightByDirection(SunLight.Base, normalize(SunLight.Direction));
+	vec4 DirectionalLightColor = CalculateDirectionalLight();
+	
 	vec4 PointLightColor = CalculateAllPointLightsColor();
 	vec4 SpotLightColor = CalculateAllSpotLightsColor();
 

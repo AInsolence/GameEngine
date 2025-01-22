@@ -5,11 +5,15 @@
 DirectionalLight::DirectionalLight(glm::vec4 InitColor,
 									GLfloat InitAmbientIntensity,
 									GLfloat InitDiffuseIntensity,
-									glm::vec3 InitDirection)
+									glm::vec3 InitDirection,
+									GLint InitShadowWidth,
+									GLint InitShadowHeight)
+	: BaseLight(InitColor,
+				InitAmbientIntensity,
+				InitDiffuseIntensity,
+				InitShadowWidth,
+				InitShadowHeight)
 {
-	Color = InitColor;
-	AmbientIntensity = InitAmbientIntensity;
-	DiffuseIntensity = InitDiffuseIntensity;
 	Direction = InitDirection;
 }
 
@@ -22,4 +26,11 @@ void DirectionalLight::Apply(GLint ColorLocation,
 	glUniform1f(AmbientIntensityLocation, AmbientIntensity);
 	glUniform1f(DiffuseIntensityLocation, DiffuseIntensity);
 	glUniform3fv(DirectionLocation, 1, glm::value_ptr(Direction));
+}
+
+glm::mat4 DirectionalLight::CalculateLightSpaceTransform()
+{
+	return LightProjectionMatrix * glm::lookAt(-Direction,
+												glm::vec3(0.0f, 0.0f, 0.0f),
+														glm::vec3(0.0f, 1.0f, 0.0f));
 }

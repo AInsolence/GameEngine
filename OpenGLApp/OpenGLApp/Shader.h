@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <array>
+#include <fwd.hpp>
 
 #include <GL/glew.h>
 
@@ -79,6 +80,10 @@ public:
 	void SetPointLights(const std::vector<PointLight>& PointLights) const;
 	void SetSpotLights(const std::vector<SpotLight>& SpotLights) const;
 
+	void SetTextureUnit(GLint TextureUnit);
+	void SetDirectionalShadowMap(GLint TextureUnit);
+	void SetDirectionalLightSpaceTransform(const glm::mat4& Transform);
+
 	void Use() const;
 	void Clear();
 
@@ -101,6 +106,11 @@ private:
 	GLint UniformMaterialShininess;
 
 	GLint UniformCameraPosition;
+
+	// Shadows
+	GLint UniformTexture;
+	GLint UniformDirectionalShadowMap;
+	GLint UniformDirectionalLightSpaceTransform;
 
 
 	void CompileShaders(const char* VertexShaderCode,

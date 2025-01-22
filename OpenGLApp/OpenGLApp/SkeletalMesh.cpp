@@ -129,7 +129,7 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 
 			if (Material->GetTexture(aiTextureType_DIFFUSE, 0, &Path) == AI_SUCCESS)
 			{
-				printf("Original texture path: %s", Path.C_Str());
+				// printf("Original texture path: %s", Path.C_Str());
 
 				const size_t Index = std::string(Path.C_Str()).rfind("/\\");
 				std::string FilePath = std::string(Path.C_Str()).substr(Index + 1);

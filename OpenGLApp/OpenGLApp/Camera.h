@@ -18,10 +18,10 @@ public:
 
 	~Camera();
 
-	glm::vec3 GetPosition();
-	glm::vec3 GetDirection();
+	glm::vec3 GetPosition() const;
+	glm::vec3 GetDirection() const;
 
-	glm::mat4 GetViewMatrix();
+	glm::mat4 GetViewMatrix() const;
 
 	void KeyControl(bool* Keys, GLfloat DeltaTime);
 	void MouseControl(GLfloat OffsetX, GLfloat OffsetY);

@@ -28,17 +28,17 @@ Camera::~Camera()
 
 }
 
-glm::vec3 Camera::GetPosition()
+glm::vec3 Camera::GetPosition() const
 {
 	return Position;
 }
 
-glm::vec3 Camera::GetDirection()
+glm::vec3 Camera::GetDirection() const
 {
 	return glm::normalize(Direction);
 }
 
-glm::mat4 Camera::GetViewMatrix()
+glm::mat4 Camera::GetViewMatrix() const
 {
 	return glm::lookAt(Position, Position + Direction, UpVector);
 }

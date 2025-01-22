@@ -12,8 +12,8 @@ public:
 	virtual void Write();
 	virtual void Read(GLenum TextureUnit);
 
-	GLuint GetShadowWidth() const { return ShadowWidth; }
-	GLuint GetShadowHeight() const { return ShadowHeight; }
+	GLint GetShadowWidth() const { return ShadowWidth; }
+	GLint GetShadowHeight() const { return ShadowHeight; }
 
 protected:
 

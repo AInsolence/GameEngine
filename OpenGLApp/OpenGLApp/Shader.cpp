@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <gtc/type_ptr.hpp>
 
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -116,6 +117,23 @@ void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
 											SpotLightsUniforms[SpotLightIndex].OuterRadius,
 											SpotLightsUniforms[SpotLightIndex].RadiusSharpness);
 	}
+}
+
+void Shader::SetTextureUnit(GLint TextureUnit)
+{
+	glUniform1i(UniformTexture, TextureUnit);
+}
+
+void Shader::SetDirectionalShadowMap(GLint TextureUnit)
+{
+	glUniform1i(UniformDirectionalShadowMap, TextureUnit);
+}
+
+void Shader::SetDirectionalLightSpaceTransform(const glm::mat4& Transform)
+{
+	glUniformMatrix4fv(UniformDirectionalLightSpaceTransform, 
+						1, GL_FALSE, 
+						glm::value_ptr(Transform));
 }
 
 void Shader::Use() const
@@ -264,9 +282,14 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 		SpotLightsUniforms[SpotLightIndex].RadiusSharpness = glGetUniformLocation(Id, LocationsBuffer);
 	}
 
-	UniformMaterialSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");
-	UniformMaterialShininess = glGetUniformLocation(Id, "Material.Shininess");
 	UniformCameraPosition = glGetUniformLocation(Id, "CameraPosition");
+
+	UniformMaterialShininess = glGetUniformLocation(Id, "Material.Shininess");
+	UniformMaterialSpecularIntensity = glGetUniformLocation(Id, "Material.SpecularIntensity");
+
+	UniformTexture = glGetUniformLocation(Id, "Texture");
+	UniformDirectionalShadowMap = glGetUniformLocation(Id, "DirectionalShadowMap");
+	UniformDirectionalLightSpaceTransform = glGetUniformLocation(Id, "DirectionalLightSpaceTransform");
 }
 
 void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType) const
