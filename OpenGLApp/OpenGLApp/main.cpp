@@ -110,7 +110,7 @@ int main()
 
 	Create3DObjects();
 	auto Model = SkeletalMesh("Content/Meshes/Pony_cartoon.obj");
-	//auto Model_2 = SkeletalMesh("Content/Meshes/geo_dead.obj");
+	//auto Model_2 = SkeletalMesh("Content/Meshes/Westen_pacific_713_fixed_UVs.fbx");
 
 	auto BrickTexture = Texture("Content/Textures/brick.jpg");
 	BrickTexture.LoadTexture_RGBA();
@@ -122,6 +122,9 @@ int main()
 	SandTexture.LoadTexture_RGBA();
 	auto GoldTexture = Texture("Content/Textures/gold.jpg");
 	GoldTexture.LoadTexture_RGBA();
+	auto GridTexture = Texture("Content/Textures/small_grid.png");
+	GridTexture.LoadTexture_RGBA();
+	PlaceholderTexture->LoadTexture_RGBA();
 
 	auto MetalMaterial = Material(5.0f, 128.0f);
 	auto MatMaterial = Material(0.5f, 1.0f);
@@ -244,12 +247,19 @@ int main()
 		ShaderList[0]->SetPointLights(PointLights);
 		ShaderList[0]->SetSpotLights(SpotLights);
 
-		//// Set Model Translations
+		// Set Model Translations
 		glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(4.0f, -1.05f, 3.0f)); // set translation
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		Model.Render();
+
+		// Set Model Translations
+		//ModelMatrix = (1.0f); // initialize module matrix as identity matrix
+		//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -1.05f, 3.0f)); // set translation
+		//ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.04f, 0.04f, 0.04f)); // set scale
+		//glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		//Model_2.Render();
 
 		if (!MeshList.empty())
 		{
@@ -303,7 +313,7 @@ int main()
 			ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, -1.0f, 0.0f)); // set translation
 			
 			glUniformMatrix4fv(UniformModelMatrix_id, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-			SandTexture.Apply();
+			GridTexture.Apply();
 			MatMaterial.Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
 			MeshList[3]->Render();

@@ -140,6 +140,7 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 
 				if (!LoadedTexture->LoadTexture_RGBA() && !LoadedTexture->LoadTexture_RGB())
 				{
+					PlaceholderTexture->LoadTexture_RGBA();
 					TextureUnits.emplace_back(PlaceholderTexture);
 				}
 				else
@@ -149,11 +150,13 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 			}
 			else
 			{// load placeholder
+				PlaceholderTexture->LoadTexture_RGBA();
 				TextureUnits.emplace_back(PlaceholderTexture);
 			}
 		}
 		else
 		{// load placeholder
+			PlaceholderTexture->LoadTexture_RGBA();
 			TextureUnits.emplace_back(PlaceholderTexture);
 		}
 	}

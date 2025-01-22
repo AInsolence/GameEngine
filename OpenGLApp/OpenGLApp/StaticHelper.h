@@ -8,6 +8,7 @@
 
 static const auto PlaceholderTexture = std::make_shared<Texture>("Content/Textures/plain.png");
 
+
 class StaticHelper
 {
 public:
