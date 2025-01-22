@@ -10,28 +10,25 @@ ShadowMap::ShadowMap()
 
 ShadowMap::~ShadowMap()
 {
-	if (FBO)
-	{
-		glDeleteFramebuffers(1, &FBO);
-	}
-	if (Id)
-	{
-		glDeleteTextures(1, &Id);
-	}
+	Clear();
 }
 
 bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 {
+	Clear();
+
 	ShadowWidth = InitWidth;
 	ShadowHeight = InitHeight;
 
-	glGenBuffers(1, &FBO);
+	glGenFramebuffers(1, &FBO);
 	glGenTextures(1, &Id);
 	glBindTexture(GL_TEXTURE_2D, Id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowWidth, ShadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	constexpr GLfloat borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -45,7 +42,7 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	const GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (Status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("Framebuffer error: %i/n", Status);
+		printf("Framebuffer error: %i\n", Status);
 		return false;
 	}
 
@@ -55,7 +52,7 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 }
 
 void ShadowMap::Write()
-{
+{// TODO should be unbind
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
 
@@ -63,4 +60,16 @@ void ShadowMap::Read(GLenum TextureUnit)
 {
 	glActiveTexture(TextureUnit);
 	glBindTexture(GL_TEXTURE_2D, Id);
+}
+
+void ShadowMap::Clear() const
+{
+	if (FBO != 0)
+	{
+		glDeleteFramebuffers(1, &FBO);
+	}
+	if (Id != 0)
+	{
+		glDeleteTextures(1, &Id);
+	}
 }

@@ -6,7 +6,7 @@ class ShadowMap
 {
 public:
 	ShadowMap();
-	~ShadowMap();
+	virtual ~ShadowMap();
 
 	virtual bool Init(GLint InitWidth, GLint InitHeight);
 	virtual void Write();
@@ -16,6 +16,8 @@ public:
 	GLuint GetShadowHeight() const { return ShadowHeight; }
 
 protected:
+
+	void Clear() const;
 	GLuint FBO, Id;
 	GLint ShadowWidth, ShadowHeight;
 };
