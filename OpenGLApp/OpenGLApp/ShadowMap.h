@@ -10,7 +10,7 @@ public:
 
 	virtual bool Init(GLint InitWidth, GLint InitHeight);
 	virtual void Write();
-	virtual void Read(GLenum TextureUnit);
+	virtual void Read(GLenum TextureUnit) const;
 
 	GLint GetShadowWidth() const { return ShadowWidth; }
 	GLint GetShadowHeight() const { return ShadowHeight; }

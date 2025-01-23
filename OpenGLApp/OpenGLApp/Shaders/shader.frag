@@ -70,7 +70,7 @@ uniform vec3 CameraPosition;
 float CalculateDirLightShadowFactor(FDirectionalLight DirectionalLight)
 {
 	vec3 ProjCoords = DirectionalLightSpacePosition.xyz / DirectionalLightSpacePosition.w;
-	ProjCoords = (ProjCoords + 0.5f) + 0.5f; // translate from (-1, 1) to (0, 1)
+	ProjCoords = (ProjCoords * 0.5f) + 0.5f; // translate from (-1, 1) to (0, 1)
 
 	float CurrentDepth = ProjCoords.z;
 
@@ -81,7 +81,11 @@ float CalculateDirLightShadowFactor(FDirectionalLight DirectionalLight)
 
 	float ClosestDepth = texture(DirectionalShadowMap, ProjCoords.xy).r;
 
-	return CurrentDepth > ClosestDepth ? 1.0f : 0.0f;
+	vec3 NormalizedNormal = normalize(Normal);
+	vec3 NormalizedDirection = normalize(DirectionalLight.Direction);
+	float Bias = max(0.0005f * (1 - dot(NormalizedNormal, NormalizedDirection)), 0.0005f);
+
+	return CurrentDepth - Bias > ClosestDepth ? 1.0f : 0.0f;
 }
 
 vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFactor)
@@ -111,7 +115,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFact
 
 vec4 CalculatePointLightColor(FPointLight PointLight)
 {
-	vec3 VectorToLight = PointLight.Position - FragmentPosition;
+	vec3 VectorToLight = FragmentPosition - PointLight.Position;
 	float Distance = length(VectorToLight);
 	vec3 Direction = normalize(VectorToLight);
 
@@ -203,4 +207,9 @@ void main()
 
 	float gamma = 1.0;
 	FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma));
+
+	/// Shadow map debug
+	//vec3 ProjCoords = DirectionalLightSpacePosition.xyz / DirectionalLightSpacePosition.w;
+	//ProjCoords = (ProjCoords * 0.5f) + 0.5f; // translate from (-1, 1) to (0, 1)
+	//FragColor = vec4(texture(DirectionalShadowMap, ProjCoords.xy).rrr, 1.0);
 }

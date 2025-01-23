@@ -2,6 +2,8 @@
 
 #include <cstdio>
 
+#include "StaticHelper.h"
+
 ShadowMap::ShadowMap()
 {
 	FBO = 0;
@@ -21,6 +23,8 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	ShadowHeight = InitHeight;
 
 	glGenFramebuffers(1, &FBO);
+	StaticHelper::EnsureGLFunction("glGenFramebuffers");
+
 	glGenTextures(1, &Id);
 	glBindTexture(GL_TEXTURE_2D, Id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowWidth, ShadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -33,8 +37,9 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Id, 0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
+	StaticHelper::EnsureGLFunction("glBindFramebuffer");
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Id, 0);
 
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
@@ -52,14 +57,22 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 }
 
 void ShadowMap::Write()
-{// TODO should be unbind
+{// should be unbind
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	StaticHelper::EnsureGLFunction("glBindFramebuffer");
+
+	const GLenum FramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (FramebufferStatus != GL_FRAMEBUFFER_COMPLETE) {
+		printf("Framebuffer is not complete: %x\n", FramebufferStatus);
+	}
 }
 
-void ShadowMap::Read(GLenum TextureUnit)
+void ShadowMap::Read(GLenum TextureUnit) const
 {
 	glActiveTexture(TextureUnit);
 	glBindTexture(GL_TEXTURE_2D, Id);
+	StaticHelper::EnsureGLFunction("glBindTexture");
 }
 
 void ShadowMap::Clear() const

@@ -87,7 +87,23 @@ int MainWindow::Initialize()
 	/// * END of GLEW initialization* ///
 
 	glEnable(GL_DEPTH_TEST);
-	
+
+#if defined (DEBUG) || defined (_DEBUG)
+	// Error handling
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+	glDebugMessageCallback([](GLuint source,
+		GLuint type,
+		GLuint id,
+		GLuint severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* userParam) {
+		printf("OpenGL Debug Message: %s\n", message);
+	}, nullptr);
+#endif
+
 	// Setup viewport size. It is less then window size and equal to drawing area (FrameBuffer)
 	glViewport(0, 0, BufferWidth, BufferHeight);
 

@@ -32,6 +32,9 @@ std::vector<std::unique_ptr<SkeletalMesh>> SkeletalMeshList;
 std::vector<std::unique_ptr<Shader>> ShaderList;
 std::unique_ptr<Shader> DirectionalShadowShader;
 
+std::vector<PointLight> PointLights;
+std::vector<SpotLight> SpotLights;
+
 std::map<const char*, std::unique_ptr<Texture>> Textures;
 std::map<const char*, std::unique_ptr<Material>> Materials;
 
@@ -140,7 +143,7 @@ void Create3DObjects()
 	SkeletalMeshList.emplace_back(std::make_unique<SkeletalMesh>("Content/Meshes/Pony_cartoon.obj"));
 }
 
-void Render()
+void RenderScene()
 {
 	// Translation logic
 	if (Direction)
@@ -180,11 +183,6 @@ void Render()
 		ScaleDirection = !ScaleDirection;
 	}
 
-	// Clear window with black color
-	glClearColor(0.f, 0.f, 0.f, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 	// Set Model Translations
 	glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 
@@ -202,7 +200,7 @@ void Render()
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f;
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, 0.0f, 0.0f)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -0.05f, 0.0f)); // set translation
 
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		Textures.at("Brick")->Apply();
@@ -266,15 +264,51 @@ void DirectionalShadowMapPass(DirectionalLight& SunLight)
 
 	DirectionalShadowShader->SetDirectionalLightSpaceTransform(SunLight.CalculateLightSpaceTransform());
 
-	Render();
+	RenderScene();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderPass(glm::mat4 ProjectionMatrix, glm::mat4 ViewMatrix)
+void Render(const MainWindow& MainWindow,
+			const Camera& MainCamera,
+			DirectionalLight& SunLight,
+			const glm::mat4& ProjectionMatrix)
 {
+	///* Use shader program *///
 	ShaderList[0]->Use();
+	glViewport(0, 0, MainWindow.GetBufferWidth(), MainWindow.GetBufferHeight());
+	
+	UniformDirectionalLightSpecularIntensity = ShaderList[0]->GetDirectionalLightSpecularIntensityLocation();
+	UniformDirectionalLightShininess = ShaderList[0]->GetDirectionalLightShininessLocation();
+	UniformModelMatrix = ShaderList[0]->GetModelLocation();
+	UniformCameraPosition = ShaderList[0]->GetUniformCameraPositionLocation();
+	
+	// Clear window with black color
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// Set Projection matrix
+	glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+	// Set view matrix
+	glUniformMatrix4fv(ShaderList[0]->GetViewLocation(), 1, GL_FALSE, glm::value_ptr(MainCamera.GetViewMatrix()));
+	// Set Camera Position
+	glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera.GetPosition()));
+	
+	ShaderList[0]->SetDirectionalLight(SunLight);
+	ShaderList[0]->SetSpotLights(SpotLights);
+	ShaderList[0]->SetPointLights(PointLights);
+	ShaderList[0]->SetDirectionalLightSpaceTransform(SunLight.CalculateLightSpaceTransform());
+
+	SunLight.GetShadowMap()->Read(GL_TEXTURE1);
+	ShaderList.at(0)->SetTextureUnit(0);
+	ShaderList.at(0)->SetDirectionalShadowMap(1);
+
+	glm::vec3 HandsPosition = MainCamera.GetPosition();
+	HandsPosition.y -= 0.1f;
+
+	SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
+
+	RenderScene();
 }
 
 int main()
@@ -296,11 +330,10 @@ int main()
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.2f, 
-									0.8f,
-									glm::normalize(glm::vec3(2.0f, 1.0f, 0.0f)),
-									32, 32);
+									1.8f,
+									glm::normalize(glm::vec3(2.0f, -1.0f, 0.3f)),
+									2048, 2048);
 
-	std::vector<PointLight> PointLights;
 
 	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
 							0.0f, 2.0f,
@@ -314,7 +347,6 @@ int main()
 							0.3f, 0.2f, 0.1f,
 							5.0f, 5.0f, 15.0f);
 
-	std::vector<SpotLight> SpotLights;
 
 	SpotLights.emplace_back(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 							0.0f, 1.0f,
@@ -324,24 +356,11 @@ int main()
 							0.3f, 0.2f, 0.1f,
 							3.0f, 15.0f, 10.0f);;
 
-
-
-	UniformDirectionalLightSpecularIntensity = ShaderList[0]->GetDirectionalLightSpecularIntensityLocation();
-	UniformDirectionalLightShininess = ShaderList[0]->GetDirectionalLightShininessLocation();
-	UniformModelMatrix = ShaderList[0]->GetModelLocation();
-	UniformCameraPosition = ShaderList[0]->GetUniformCameraPositionLocation();
-
-	ShaderList[0]->Use();
-	ShaderList[0]->SetDirectionalLight(SunLight);
-	ShaderList[0]->SetPointLights(PointLights);
-
 	// Initialize projection matrix
 	glm::mat4 ProjectionMatrix = glm::perspective(45.0f,
-									static_cast<float>(MainWindow.GetBufferWidth()) / static_cast<float>(MainWindow.GetBufferHeight()),
-									0.1f, 100.0f);
-	// Set Projection matrix
-	glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
-
+										static_cast<float>(MainWindow.GetBufferWidth()) / 
+													static_cast<float>(MainWindow.GetBufferHeight()),
+										0.1f, 100.0f);
 	// Render loop
 	while (!MainWindow.GetShouldClose())
 	{
@@ -356,21 +375,9 @@ int main()
 		MainCamera.KeyControl(MainWindow.GetKeys(), DeltaTime);
 		MainCamera.MouseControl(MainWindow.GetOffsetX(), MainWindow.GetOffsetY());
 
-		///* Use shader program *///
-		ShaderList[0]->Use();
-		ShaderList[0]->SetSpotLights(SpotLights);
+		DirectionalShadowMapPass(SunLight);
 
-		// Set view matrix
-		glUniformMatrix4fv(ShaderList[0]->GetViewLocation(), 1, GL_FALSE, glm::value_ptr(MainCamera.GetViewMatrix()));
-		// Set Camera Position
-		glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera.GetPosition()));
-
-		glm::vec3 HandsPosition = MainCamera.GetPosition();
-		HandsPosition.y -= 0.1f;
-
-		SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
-
-		Render();
+		Render(MainWindow, MainCamera, SunLight, ProjectionMatrix);
 
 		glUseProgram(0);
 		///* END of draw triangle *///
