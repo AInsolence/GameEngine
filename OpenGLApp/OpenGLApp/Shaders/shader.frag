@@ -79,13 +79,25 @@ float CalculateDirLightShadowFactor(FDirectionalLight DirectionalLight)
 		return 0.0f;
 	}
 
-	float ClosestDepth = texture(DirectionalShadowMap, ProjCoords.xy).r;
+	float Shadow = 0.0;
 
 	vec3 NormalizedNormal = normalize(Normal);
 	vec3 NormalizedDirection = normalize(DirectionalLight.Direction);
 	float Bias = max(0.0005f * (1 - dot(NormalizedNormal, NormalizedDirection)), 0.0005f);
 
-	return CurrentDepth - Bias > ClosestDepth ? 1.0f : 0.0f;
+	vec2 TexelSize = 1.0 / textureSize(DirectionalShadowMap, 0);
+	for(int x = -2; x <= 2; ++x)
+	{
+		for(int y = -2; y <=2; ++y)
+		{
+			float PCFdepth = texture(DirectionalShadowMap, ProjCoords.xy + vec2(x, y) * TexelSize).r;
+			Shadow += CurrentDepth - Bias > PCFdepth ? 1.0f : 0.0f;
+		}
+	}
+
+	Shadow /= 25.0f;
+
+	return Shadow;
 }
 
 vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFactor)

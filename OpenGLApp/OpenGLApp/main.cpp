@@ -313,7 +313,7 @@ void Render(const MainWindow& MainWindow,
 
 int main()
 {
-	MainWindow MainWindow (1366, 768);
+	MainWindow MainWindow (2400, 1350);
 	Camera MainCamera(glm::vec3(0.0f, 0.0f, 0.0f), 
 						glm::vec3(0.0f, 1.0f, 0.0f),
 						-90.0f,
