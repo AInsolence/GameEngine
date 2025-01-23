@@ -330,7 +330,7 @@ int main()
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.2f, 
-									1.8f,
+									0.8f,
 									glm::normalize(glm::vec3(2.0f, -1.0f, 0.3f)),
 									2048, 2048);
 

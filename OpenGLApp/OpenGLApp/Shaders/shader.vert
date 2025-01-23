@@ -20,7 +20,7 @@ void main()
 
 	TexCoord = VertTexture;
 
-	Normal = - (mat3(transpose(inverse(ModelMatrix))) * VertNormal);
+	Normal = (mat3(transpose(inverse(ModelMatrix))) * VertNormal);
 
 	FragmentPosition = (ModelMatrix * vec4(VertPosition, 1.0)).xyz;
 

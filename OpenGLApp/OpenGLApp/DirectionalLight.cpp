@@ -14,7 +14,7 @@ DirectionalLight::DirectionalLight(glm::vec4 InitColor,
 				InitShadowWidth,
 				InitShadowHeight)
 {
-	Direction = InitDirection;
+	Direction = -InitDirection;
 }
 
 void DirectionalLight::Apply(GLint ColorLocation,
@@ -30,7 +30,7 @@ void DirectionalLight::Apply(GLint ColorLocation,
 
 glm::mat4 DirectionalLight::CalculateLightSpaceTransform()
 {
-	return LightProjectionMatrix * glm::lookAt(-Direction,
+	return LightProjectionMatrix * glm::lookAt(Direction,
 												glm::vec3(0.0f, 0.0f, 0.0f),
 														glm::vec3(0.0f, 1.0f, 0.0f));
 }

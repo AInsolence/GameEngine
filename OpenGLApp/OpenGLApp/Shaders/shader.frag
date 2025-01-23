@@ -115,7 +115,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFact
 
 vec4 CalculatePointLightColor(FPointLight PointLight)
 {
-	vec3 VectorToLight = FragmentPosition - PointLight.Position;
+	vec3 VectorToLight = PointLight.Position - FragmentPosition;
 	float Distance = length(VectorToLight);
 	vec3 Direction = normalize(VectorToLight);
 
