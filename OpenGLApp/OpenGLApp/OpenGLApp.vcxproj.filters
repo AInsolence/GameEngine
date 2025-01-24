@@ -76,7 +76,7 @@
       <Filter>Source Files\Render</Filter>
     </ClCompile>
     <ClCompile Include="OmniDirShadowMap.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,7 +123,7 @@
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="OmniDirShadowMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

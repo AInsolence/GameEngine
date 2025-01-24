@@ -62,9 +62,18 @@ class Shader
 public:
 	Shader(const char* VertexShaderPath,
 			const char* FragmentShaderPath);
+
+	Shader(const char* VertexShaderPath,
+			const char* GeometryShaderPath,
+			const char* FragmentShaderPath);
+
 	~Shader();
 
 	void CreateFromFile(const char* VertexShaderPath,
+						const char* FragmentShaderPath);
+
+	void CreateFromFile(const char* VertexShaderPath,
+						const char* GeometryShaderPath,
 						const char* FragmentShaderPath);
 
 	GLint GetProjectionLocation() const;
@@ -75,14 +84,17 @@ public:
 	GLint GetDirectionalLightShininessLocation() const;
 
 	GLint GetUniformCameraPositionLocation() const;
+	GLint GetUniformOmniLightPositionLocation() const;
+	GLint GetUniformFarPlaneLocation() const;
 
 	void SetDirectionalLight(const DirectionalLight& DirectionalLight) const;
 	void SetPointLights(const std::vector<PointLight>& PointLights) const;
 	void SetSpotLights(const std::vector<SpotLight>& SpotLights) const;
 
-	void SetTextureUnit(GLint TextureUnit);
-	void SetDirectionalShadowMap(GLint TextureUnit);
-	void SetDirectionalLightSpaceTransform(const glm::mat4& Transform);
+	void SetTextureUnit(GLint TextureUnit) const;
+	void SetDirectionalShadowMap(GLint TextureUnit) const;
+	void SetDirectionalLightSpaceTransform(const glm::mat4& Transform) const;
+	void SetLightMatrices(const std::array<glm::mat4, 6>& LightMatrices) const;
 
 	void Use() const;
 	void Clear();
@@ -112,8 +124,17 @@ private:
 	GLint UniformDirectionalShadowMap;
 	GLint UniformDirectionalLightSpaceTransform;
 
+	GLint UniformOmniLightPosition;
+	GLint UniformFarPlane;
+	std::array<GLint, 6> UniformLightMatrices;
+
+	void CompileProgram();
 
 	void CompileShaders(const char* VertexShaderCode,
+						const char* FragmentShaderCode);
+
+	void CompileShaders(const char* VertexShaderCode,
+						const char* GeometryShaderCode,
 						const char* FragmentShaderCode);
 
 	/*  1) Created shader from shader source code

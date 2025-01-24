@@ -10,7 +10,7 @@
 #include "StaticHelper.h"
 
 Shader::Shader(const char* VertexShaderPath,
-               const char* FragmentShaderPath)
+				const char* FragmentShaderPath)
 {
 	Id = 0;
 	UniformModel = 0;
@@ -19,9 +19,33 @@ Shader::Shader(const char* VertexShaderPath,
 	CreateFromFile(VertexShaderPath, FragmentShaderPath);
 }
 
+Shader::Shader(const char* VertexShaderPath,
+				const char* GeometryShaderPath,
+				const char* FragmentShaderPath)
+{
+	Id = 0;
+	UniformModel = 0;
+	UniformProjection = 0;
+
+	CreateFromFile(VertexShaderPath, GeometryShaderPath, FragmentShaderPath);
+}
+
 Shader::~Shader()
 {
 	Clear();
+}
+
+void Shader::CreateFromFile(const char* VertexShaderPath,
+							const char* GeometryShaderPath,
+							const char* FragmentShaderPath)
+{
+	const std::string VertexShaderCode = ReadFile(VertexShaderPath);
+	const std::string GeometryShaderCode = ReadFile(GeometryShaderPath);
+	const std::string FragmentShaderCode = ReadFile(FragmentShaderPath);
+
+	CompileShaders(VertexShaderCode.c_str(),
+					GeometryShaderCode.c_str(),
+					FragmentShaderCode.c_str());
 }
 
 void Shader::CreateFromFile(const char* VertexShaderPath, const char* FragmentShaderPath)
@@ -61,6 +85,16 @@ GLint Shader::GetDirectionalLightShininessLocation() const
 GLint Shader::GetUniformCameraPositionLocation() const
 {
 	return UniformCameraPosition;
+}
+
+GLint Shader::GetUniformOmniLightPositionLocation() const
+{
+	return UniformOmniLightPosition;
+}
+
+GLint Shader::GetUniformFarPlaneLocation() const
+{
+	return UniformFarPlane;
 }
 
 void Shader::SetDirectionalLight(const DirectionalLight& DirectionalLight) const
@@ -119,21 +153,32 @@ void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
 	}
 }
 
-void Shader::SetTextureUnit(GLint TextureUnit)
+void Shader::SetTextureUnit(GLint TextureUnit) const
 {
 	glUniform1i(UniformTexture, TextureUnit);
 }
 
-void Shader::SetDirectionalShadowMap(GLint TextureUnit)
+void Shader::SetDirectionalShadowMap(GLint TextureUnit) const
 {
 	glUniform1i(UniformDirectionalShadowMap, TextureUnit);
 }
 
-void Shader::SetDirectionalLightSpaceTransform(const glm::mat4& Transform)
+void Shader::SetDirectionalLightSpaceTransform(const glm::mat4& Transform) const
 {
 	glUniformMatrix4fv(UniformDirectionalLightSpaceTransform, 
 						1, GL_FALSE, 
 						glm::value_ptr(Transform));
+}
+
+void Shader::SetLightMatrices(const std::array<glm::mat4, 6>& LightMatrices) const
+{
+	for (int Face = 0; Face < 6; ++Face)
+	{
+		glUniformMatrix4fv(UniformLightMatrices[Face],
+							1,
+							GL_FALSE,
+							glm::value_ptr(LightMatrices.at(Face)));
+	}
 }
 
 void Shader::Use() const
@@ -155,20 +200,8 @@ GLuint Shader::GetId() const
 	return Id;
 }
 
-void Shader::CompileShaders(const char* VertexShaderCode,
-							const char* FragmentShaderCode)
+void Shader::CompileProgram()
 {
-	Id = glCreateProgram();
-
-	if (!Id)
-	{
-		printf("Error creating shader program");
-		return;
-	}
-
-	AddShader(Id, VertexShaderCode, GL_VERTEX_SHADER);
-	AddShader(Id, FragmentShaderCode, GL_FRAGMENT_SHADER);
-
 	GLint Result = 0;
 	GLchar ELog[1024] = {0};
 
@@ -290,6 +323,53 @@ void Shader::CompileShaders(const char* VertexShaderCode,
 	UniformTexture = glGetUniformLocation(Id, "Texture");
 	UniformDirectionalShadowMap = glGetUniformLocation(Id, "DirectionalShadowMap");
 	UniformDirectionalLightSpaceTransform = glGetUniformLocation(Id, "DirectionalLightSpaceTransform");
+
+	UniformOmniLightPosition = glGetUniformLocation(Id, "LightPosition");
+	UniformFarPlane = glGetUniformLocation(Id, "FarPlane");
+
+	for (int Face = 0; Face < 6; ++Face)
+	{
+		char LocationsBuffer[100] = { '\0' };
+
+		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "LightMatrices[%d]", Face);
+		UniformLightMatrices[Face] = glGetUniformLocation(Id, LocationsBuffer);
+	}
+}
+
+void Shader::CompileShaders(const char* VertexShaderCode,
+							const char* FragmentShaderCode)
+{
+	Id = glCreateProgram();
+
+	if (!Id)
+	{
+		printf("Error creating shader program %s %i", __FILE__, __LINE__);
+		return;
+	}
+
+	AddShader(Id, VertexShaderCode, GL_VERTEX_SHADER);
+	AddShader(Id, FragmentShaderCode, GL_FRAGMENT_SHADER);
+
+	CompileProgram();
+}
+
+void Shader::CompileShaders(const char* VertexShaderCode,
+							const char* GeometryShaderCode,
+							const char* FragmentShaderCode)
+{
+	Id = glCreateProgram();
+
+	if (!Id)
+	{
+		printf("Error creating shader program %s %i", __FILE__, __LINE__);
+		return;
+	}
+
+	AddShader(Id, VertexShaderCode, GL_VERTEX_SHADER);
+	AddShader(Id, GeometryShaderCode, GL_GEOMETRY_SHADER);
+	AddShader(Id, FragmentShaderCode, GL_FRAGMENT_SHADER);
+
+	CompileProgram();
 }
 
 void Shader::AddShader(GLuint ShaderProgramId, const char* ShaderCode, GLenum ShaderType) const

@@ -6,14 +6,23 @@
 
 #include "ShadowMap.h"
 
+struct BaseLightParams
+{
+	glm::vec4 InitColor {1.0f};
+	GLfloat InitAmbientIntensity = 0.1f;
+	GLfloat InitDiffuseIntensit = 1.0f;
+	GLint InitShadowWidth = 1024;
+	GLint InitShadowHeight = 1024;
+};
+
 class BaseLight
 {
 public:
 	BaseLight(glm::vec4 InitColor,
 				GLfloat InitAmbientIntensity,
 				GLfloat InitDiffuseIntensity,
-				GLint InitShadowWidth = 32,
-				GLint InitShadowHeight = 32);
+				GLint InitShadowWidth,
+				GLint InitShadowHeight);
 
 	const std::unique_ptr<ShadowMap>& GetShadowMap() const { return ShadowMapTex; }
 

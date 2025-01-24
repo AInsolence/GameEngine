@@ -31,6 +31,7 @@ std::vector<std::unique_ptr<Mesh>> MeshList;
 std::vector<std::unique_ptr<SkeletalMesh>> SkeletalMeshList;
 std::vector<std::unique_ptr<Shader>> ShaderList;
 std::unique_ptr<Shader> DirectionalShadowShader;
+std::unique_ptr<Shader> OmniDirectionalShadowShader;
 
 std::vector<PointLight> PointLights;
 std::vector<SpotLight> SpotLights;
@@ -62,18 +63,29 @@ static const char* FragmentShaderPath = "Shaders/shader.frag";
 // Shadow Shader code
 static const char* VertDirShadowShaderPath = "Shaders/directional_shadow_map_shader.vert";
 static const char* FragDirShadowShaderPath = "Shaders/directional_shadow_map_shader.frag";
+// Omni Shadow shader
+static const char* VertOmniDirShadowShaderPath = "Shaders/omni_shadow_map_shader.vert";
+static const char* GeomOmniDirShadowShaderPath = "Shaders/omni_shadow_map_shader.geom";
+static const char* FragOmniDirShadowShaderPath = "Shaders/omni_shadow_map_shader.frag";
 
 GLint UniformModelMatrix;
 GLint UniformDirectionalLightSpecularIntensity;
 GLint UniformDirectionalLightShininess;
 GLint UniformCameraPosition;
+GLint UniformOmniLightPosition;
+GLint UniformFarPlane;
 		
 
 void CreateShaders()
 {
 	ShaderList.emplace_back(std::make_unique<Shader>(VertexShaderPath, FragmentShaderPath));
 
-	DirectionalShadowShader = std::make_unique<Shader>(VertDirShadowShaderPath, FragDirShadowShaderPath);
+	DirectionalShadowShader = std::make_unique<Shader>(VertDirShadowShaderPath, 
+														FragDirShadowShaderPath);
+
+	OmniDirectionalShadowShader = std::make_unique<Shader>(VertOmniDirShadowShaderPath, 
+															GeomOmniDirShadowShaderPath, 
+															FragOmniDirShadowShaderPath);
 }
 
 void LoadTextures()
@@ -269,6 +281,29 @@ void DirectionalShadowMapPass(DirectionalLight& SunLight)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void OmniDirectionalShadowMapPass(PointLight& Light)
+{
+	OmniDirectionalShadowShader->Use();
+
+	glViewport(0, 0, Light.GetShadowMap()->GetShadowWidth(), Light.GetShadowMap()->GetShadowHeight());
+
+	Light.GetShadowMap()->Write();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	UniformModelMatrix = OmniDirectionalShadowShader->GetModelLocation();
+	UniformOmniLightPosition = OmniDirectionalShadowShader->GetUniformOmniLightPositionLocation();
+	UniformFarPlane = OmniDirectionalShadowShader->GetUniformFarPlaneLocation();
+
+	glUniform1f(UniformFarPlane, Light.GetFarPlane());
+	glUniform3fv(UniformOmniLightPosition, 1, glm::value_ptr(Light.GetPosition()));
+
+	OmniDirectionalShadowShader->SetLightMatrices(Light.CalculateLightSpaceTransform());
+
+	RenderScene();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Render(const MainWindow& MainWindow,
 			const Camera& MainCamera,
 			DirectionalLight& SunLight,
@@ -357,10 +392,10 @@ int main()
 							3.0f, 15.0f, 10.0f);;
 
 	// Initialize projection matrix
-	glm::mat4 ProjectionMatrix = glm::perspective(45.0f,
+	glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(60.0f),
 										static_cast<float>(MainWindow.GetBufferWidth()) / 
 													static_cast<float>(MainWindow.GetBufferHeight()),
-										0.1f, 100.0f);
+													0.1f, 100.0f);
 	// Render loop
 	while (!MainWindow.GetShouldClose())
 	{
@@ -376,6 +411,16 @@ int main()
 		MainCamera.MouseControl(MainWindow.GetOffsetX(), MainWindow.GetOffsetY());
 
 		DirectionalShadowMapPass(SunLight);
+
+		for (auto& PointLight : PointLights)
+		{
+			OmniDirectionalShadowMapPass(PointLight);
+		}
+
+		for (auto& PointLight : SpotLights)
+		{
+			OmniDirectionalShadowMapPass(PointLight);
+		}
 
 		Render(MainWindow, MainCamera, SunLight, ProjectionMatrix);
 

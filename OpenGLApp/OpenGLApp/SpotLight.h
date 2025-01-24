@@ -14,7 +14,11 @@ public:
 				GLfloat InitConstant = 1.0f,
 				GLfloat InitInnerRadius = 1.0f,
 				GLfloat InitOuterRadius = 1.0f,
-				GLfloat InitRadiusSharpness = 5.0f);
+				GLfloat InitRadiusSharpness = 5.0f,
+				GLint InitShadowWidth = 1024,
+				GLint InitShadowHeight = 1024,
+				GLfloat Near = 0,
+				GLfloat Far = 1);
 
 	void Apply(GLint ColorLocation,
 				GLint AmbientIntensityLocation,
