@@ -61,7 +61,7 @@ bool Texture::LoadTexture_RGB()
 	//unsigned char dummyData[4] = { 255, 0, 0, 255 }; // Red pixel
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, dummyData); 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, TextureData);
-	StaticHelper::EnsureGLFunction("glTexImage2D");
+	ENSURE_GL("glTexImage2D");
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -77,7 +77,7 @@ bool Texture::LoadTexture_RGBA()
 
 	if (!TextureData)
 	{
-		printf("Failed to load RGBA texture from path: %s\n ", FilePath.c_str());
+		printf("[Texture.cpp] Failed to load RGBA texture from path: %s\n ", FilePath.c_str());
 		return false;
 	}
 
@@ -93,7 +93,7 @@ bool Texture::LoadTexture_RGBA()
 	//unsigned char dummyData[4] = { 255, 0, 0, 255 }; // Red pixel
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, dummyData); 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, TextureData);
-	StaticHelper::EnsureGLFunction("glTexImage2D");
+	ENSURE_GL("glTexImage2D");
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -108,7 +108,7 @@ void Texture::Apply() const
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Id);
 
-	StaticHelper::EnsureGLFunction("glBindTexture");
+	ENSURE_GL("glBindTexture");
 }
 
 void Texture::ClearTexture() const

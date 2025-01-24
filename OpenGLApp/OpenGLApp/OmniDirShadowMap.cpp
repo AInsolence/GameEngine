@@ -1,21 +1,8 @@
-#include "ShadowMap.h"
-
-#include <cstdio>
+#include "OmniDirShadowMap.h"
 
 #include "StaticHelper.h"
 
-ShadowMap::ShadowMap()
-{
-	FBO = 0;
-	Id = 0;
-}
-
-ShadowMap::~ShadowMap()
-{
-	Clear();
-}
-
-bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
+bool OmniDirShadowMap::Init(GLint InitWidth, GLint InitHeight)
 {
 	Clear();
 
@@ -23,25 +10,26 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	ShadowHeight = InitHeight;
 
 	glGenFramebuffers(1, &FBO);
-	ENSURE_GL("glGenFramebuffers");
 
 	glGenTextures(1, &Id);
-	glBindTexture(GL_TEXTURE_2D, Id);
-	ENSURE_GL("glBindTexture");
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowWidth, ShadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-	ENSURE_GL("glTexImage2D");
+	glBindTexture(GL_TEXTURE_CUBE_MAP, Id);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	constexpr GLfloat borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	for (int i = 0; i < 6; ++i)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
+						ShadowWidth, ShadowHeight, 0,
+						GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	}
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
 	ENSURE_GL("glBindFramebuffer");
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Id, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, Id, 0);
 
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
@@ -58,9 +46,10 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	return true;
 }
 
-void ShadowMap::Write()
+void OmniDirShadowMap::Write()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO); // should be unbind
+
 	ENSURE_GL("glBindFramebuffer");
 
 	const GLenum FramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -69,21 +58,9 @@ void ShadowMap::Write()
 	}
 }
 
-void ShadowMap::Read(GLenum TextureUnit) const
+void OmniDirShadowMap::Read(GLenum TextureUnit) const
 {
 	glActiveTexture(TextureUnit);
-	glBindTexture(GL_TEXTURE_2D, Id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, Id);
 	ENSURE_GL("glBindTexture");
-}
-
-void ShadowMap::Clear() const
-{
-	if (FBO != 0)
-	{
-		glDeleteFramebuffers(1, &FBO);
-	}
-	if (Id != 0)
-	{
-		glDeleteTextures(1, &Id);
-	}
 }

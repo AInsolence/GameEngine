@@ -8,7 +8,7 @@
 #include <geometric.hpp>
 #include <vec3.hpp>
 
-std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
+std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* GL_FunctionName)
 {
 #if defined (DEBUG) || defined (_DEBUG)
 	GLenum Error;
@@ -26,7 +26,8 @@ std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 
 		char TimeStr[26];
 		ctime_s(TimeStr, sizeof(TimeStr), &CurrentTime);
-		ErrorMessages << "[" << TimeStr << "] OpenGL error in " << FunctionName << ": ";
+
+		ErrorMessages << "[" << TimeStr << "] OpenGL error in " << GL_FunctionName << ": ";
 
 		switch (Error)
 		{
@@ -56,7 +57,7 @@ std::vector<GLenum> StaticHelper::EnsureGLFunction(const char* FunctionName)
 				break;
 		}
 
-		ErrorMessages << std::endl;
+		ErrorMessages << " (File: " << __FILE__ << ", Line: " << __LINE__ << "): " << std::endl;
 	}
 
 	if (LogFile.is_open())
