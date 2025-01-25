@@ -6,6 +6,7 @@
 class Texture
 {
 public:
+	Texture();
 	explicit Texture(const char* Path);
 	explicit Texture(std::string&& Path);
 	explicit Texture(const std::string& Path);
@@ -14,10 +15,14 @@ public:
 
 	bool LoadTexture_RGB();
 	bool LoadTexture_RGBA();
+	bool LoadTextureFromMemory(unsigned char* data, unsigned int size);
+
 	void Apply() const;
 	void ClearTexture() const;
 
 private:
+	bool LoadTextureData(unsigned char* TextureData, unsigned int Channels = 4);
+
 	GLuint Id;
 
 	int Width;

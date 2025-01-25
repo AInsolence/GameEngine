@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 
 #include "Mesh.h"
-#include "StaticHelper.h"
+#include "Helper.h"
 #include "Texture.h"
 
 SkeletalMesh::SkeletalMesh(const std::string& FilePath)
@@ -25,7 +25,7 @@ bool SkeletalMesh::LoadModel(const std::string& FilePath)
 
 	if (!Scene)
 	{
-		printf("Model [%s] failed to load. Error: %s", FilePath.c_str(), Importer.GetErrorString());
+		printf("Model [%s] failed to load. Error: %s\n", FilePath.c_str(), Importer.GetErrorString());
 		return false;
 	}
 
@@ -122,40 +122,84 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 	for (unsigned int MaterialIndex = 0; MaterialIndex < Scene->mNumMaterials; ++MaterialIndex)
 	{
 		const aiMaterial* Material = Scene->mMaterials[MaterialIndex];
+		bool TextureLoaded = false;
 
-		if (Material->GetTextureCount(aiTextureType_DIFFUSE))
+		for (int textureType = aiTextureType_NONE; textureType <= aiTextureType_UNKNOWN; ++textureType)
 		{
-			aiString Path;
-
-			if (Material->GetTexture(aiTextureType_DIFFUSE, 0, &Path) == AI_SUCCESS)
+			for (unsigned int Index = 0; Index < Material->GetTextureCount(static_cast<aiTextureType>(textureType)); ++Index)
 			{
-				// printf("Original texture path: %s", Path.C_Str());
+				aiString Path;
 
-				const size_t Index = std::string(Path.C_Str()).rfind("/\\");
-				std::string FilePath = std::string(Path.C_Str()).substr(Index + 1);
-
-				std::string TexturePath = "Content/Textures/" + FilePath;
-
-				auto LoadedTexture = std::make_shared<Texture>(TexturePath);
-
-				if (!LoadedTexture->LoadTexture_RGBA() && !LoadedTexture->LoadTexture_RGB())
+				if (Material->GetTexture(static_cast<aiTextureType>(textureType), Index, &Path) == AI_SUCCESS)
 				{
-					PlaceholderTexture->LoadTexture_RGBA();
-					TextureUnits.emplace_back(PlaceholderTexture);
+					// printf("Original texture path (type %d): %s\n", textureType, Path.C_Str());
+
+					if (Path.C_Str()[0] == '*') // Embedded texture check
+					{
+						const unsigned int TextureIndex = atoi(Path.C_Str() + 1);
+						const aiTexture* EmbeddedTexture = Scene->mTextures[TextureIndex];
+
+						if (EmbeddedTexture)
+						{
+							//std::string EmbeddedTextureName = "EmbeddedTexture_" + std::to_string(TextureIndex);
+							//printf("Embedded texture found: %s\n", EmbeddedTextureName.c_str());
+
+							auto LoadedTexture = std::make_shared<Texture>();
+
+							if (EmbeddedTexture->pcData != nullptr && EmbeddedTexture->mWidth > 0 && EmbeddedTexture->mHeight > 0)
+							{
+								if (!LoadedTexture->LoadTextureFromMemory(reinterpret_cast<unsigned char*>(EmbeddedTexture->pcData),
+																		EmbeddedTexture->mWidth * EmbeddedTexture->mHeight * 4))
+								{
+									printf("Failed to load embedded texture.\n");
+									PlaceholderTexture->LoadTexture_RGBA();
+									TextureUnits.emplace_back(PlaceholderTexture);
+									continue;
+								}
+							}
+							else
+							{
+								PlaceholderTexture->LoadTexture_RGBA();
+								TextureUnits.emplace_back(PlaceholderTexture);
+								continue;
+							}
+
+							TextureUnits.emplace_back(std::move(LoadedTexture));
+							TextureLoaded = true;
+
+							continue;
+						}
+					}
+					else
+					{
+						const size_t Index = std::string(Path.C_Str()).find_last_of("/\\");
+						std::string FilePath = std::string(Path.C_Str()).substr(Index + 1);
+
+						std::string TexturePath = "Content/Textures/" + FilePath;
+						//printf("Resolved texture path: %s\n", TexturePath.c_str());
+
+						auto LoadedTexture = std::make_shared<Texture>(TexturePath);
+
+						if (!LoadedTexture->LoadTexture_RGBA() && !LoadedTexture->LoadTexture_RGB())
+						{
+							printf("Failed to load texture: %s\n", TexturePath.c_str());
+							PlaceholderTexture->LoadTexture_RGBA();
+							TextureUnits.emplace_back(PlaceholderTexture);
+						}
+						else
+						{
+							TextureUnits.emplace_back(std::move(LoadedTexture));
+						}
+
+						TextureLoaded = true;
+						continue;
+					}
 				}
-				else
-				{
-					TextureUnits.emplace_back(std::move(LoadedTexture));
-				}
-			}
-			else
-			{// load placeholder
-				PlaceholderTexture->LoadTexture_RGBA();
-				TextureUnits.emplace_back(PlaceholderTexture);
 			}
 		}
-		else
-		{// load placeholder
+
+		if (!TextureLoaded)
+		{
 			PlaceholderTexture->LoadTexture_RGBA();
 			TextureUnits.emplace_back(PlaceholderTexture);
 		}

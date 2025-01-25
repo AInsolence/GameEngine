@@ -8,7 +8,7 @@
 
 #include <GL/glew.h>
 
-#include "StaticHelper.h"
+#include "Helper.h"
 
 class SpotLight;
 class PointLight;
@@ -108,10 +108,10 @@ private:
 	
 	DirectionalLightUniforms DirectionalLightUniforms;
 
-	std::array<PointLightUniforms, StaticHelper::MAX_POINT_LIGHTS> PointLightsUniforms;
+	std::array<PointLightUniforms, Helper::MAX_POINT_LIGHTS> PointLightsUniforms;
 	GLint UniformPointLightsCount;
 
-	std::array<SpotLightUniforms, StaticHelper::MAX_SPOT_LIGHTS> SpotLightsUniforms;
+	std::array<SpotLightUniforms, Helper::MAX_SPOT_LIGHTS> SpotLightsUniforms;
 	GLint UniformSpotLightsCount;
 
 	GLint UniformMaterialSpecularIntensity;

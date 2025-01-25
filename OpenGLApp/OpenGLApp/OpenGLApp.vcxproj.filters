@@ -60,7 +60,7 @@
     <ClCompile Include="Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StaticHelper.cpp">
+    <ClCompile Include="Helper.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="PointLight.cpp">
@@ -107,7 +107,7 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StaticHelper.h">
+    <ClInclude Include="Helper.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="PointLight.h">

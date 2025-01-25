@@ -152,7 +152,7 @@
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="SpotLight.cpp" />
-    <ClCompile Include="StaticHelper.cpp" />
+    <ClCompile Include="Helper.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,7 +168,7 @@
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SpotLight.h" />
-    <ClInclude Include="StaticHelper.h" />
+    <ClInclude Include="Helper.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>

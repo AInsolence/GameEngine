@@ -23,7 +23,7 @@
 #include "SkeletalMesh.h"
 #include "Texture.h"
 
-#include "StaticHelper.h"
+#include "Helper.h"
 
 
 // Define main variables
@@ -145,7 +145,7 @@ void Create3DObjects()
 		 0.0f,  1.0,   0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f
 	};
 
-	StaticHelper::CalculateAverageNormals(Indices, Vertices, 8, 5);
+	Helper::CalculateAverageNormals(Indices, Vertices, 8, 5);
 
 	MeshList.emplace_back(std::make_unique<Mesh>(Vertices, Indices));
 	MeshList.emplace_back(std::make_unique<Mesh>(Vertices, Indices));
@@ -153,6 +153,7 @@ void Create3DObjects()
 	MeshList.emplace_back(std::make_unique<Mesh>(FloorVertices, FloorIndices));
 
 	SkeletalMeshList.emplace_back(std::make_unique<SkeletalMesh>("Content/Meshes/Pony_cartoon.obj"));
+	SkeletalMeshList.emplace_back(std::make_unique<SkeletalMesh>("Content/Meshes/scene.gltf"));
 }
 
 void RenderScene()
@@ -206,6 +207,18 @@ void RenderScene()
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		SkeletalMeshList.at(0)->Render();
+	}
+
+	if (!SkeletalMeshList.empty())
+	{
+		// Set Model Translations
+		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(1.0f, -1.05f, 3.0f)); // set translation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.006f, 0.006f, 0.006f)); // set scale
+		//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // set rotation
+
+		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		SkeletalMeshList.at(1)->Render();
 	}
 
 	if (!MeshList.empty())

@@ -1,6 +1,6 @@
 #include "OmniDirShadowMap.h"
 
-#include "StaticHelper.h"
+#include "Helper.h"
 
 bool OmniDirShadowMap::Init(GLint InitWidth, GLint InitHeight)
 {
@@ -28,16 +28,16 @@ bool OmniDirShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
-	ENSURE_GL("glBindFramebuffer");
+	Helper::EnsureGL("glBindFramebuffer");
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, Id, 0);
 
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	const GLenum FramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (FramebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+	const GLenum FBStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (FBStatus != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("[ShadowMap.cpp] Framebuffer error: %i, (%s, %d)\n", FramebufferStatus, __FILE__, __LINE__);
+		printf("[ShadowMap.cpp] Framebuffer error: %i, (%s, %d)\n", FBStatus, __FILE__, __LINE__);
 		return false;
 	}
 
@@ -50,11 +50,11 @@ void OmniDirShadowMap::Write()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO); // should be unbind
 
-	ENSURE_GL("glBindFramebuffer");
+	Helper::EnsureGL("glBindFramebuffer");
 
-	const GLenum FramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (FramebufferStatus != GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer is not complete: %x, (%s, %d)\n", FramebufferStatus, __FILE__, __LINE__);
+	const GLenum FBStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (FBStatus != GL_FRAMEBUFFER_COMPLETE) {
+		printf("Framebuffer is not complete: %x, (%s, %d)\n", FBStatus, __FILE__, __LINE__);
 	}
 }
 
@@ -62,5 +62,5 @@ void OmniDirShadowMap::Read(GLenum TextureUnit) const
 {
 	glActiveTexture(TextureUnit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, Id);
-	ENSURE_GL("glBindTexture");
+	Helper::EnsureGL("glBindTexture");
 }

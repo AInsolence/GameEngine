@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-#include "StaticHelper.h"
+#include "Helper.h"
 
 ShadowMap::ShadowMap()
 {
@@ -23,13 +23,13 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	ShadowHeight = InitHeight;
 
 	glGenFramebuffers(1, &FBO);
-	ENSURE_GL("glGenFramebuffers");
+	Helper::EnsureGL("glGenFramebuffers");
 
 	glGenTextures(1, &Id);
 	glBindTexture(GL_TEXTURE_2D, Id);
-	ENSURE_GL("glBindTexture");
+	Helper::EnsureGL("glBindTexture");
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowWidth, ShadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-	ENSURE_GL("glTexImage2D");
+	Helper::EnsureGL("glTexImage2D");
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -40,16 +40,16 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
-	ENSURE_GL("glBindFramebuffer");
+	Helper::EnsureGL("glBindFramebuffer");
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Id, 0);
 
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	const GLenum FramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (FramebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+	const GLenum FBStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (FBStatus != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("[ShadowMap.cpp] Framebuffer error: %i, (%s, %d)\n", FramebufferStatus, __FILE__, __LINE__);
+		printf("[ShadowMap.cpp] Framebuffer error: %i, (%s, %d)\n", FBStatus, __FILE__, __LINE__);
 		return false;
 	}
 
@@ -61,11 +61,11 @@ bool ShadowMap::Init(GLint InitWidth, GLint InitHeight)
 void ShadowMap::Write()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO); // should be unbind
-	ENSURE_GL("glBindFramebuffer");
+	Helper::EnsureGL("glBindFramebuffer");
 
-	const GLenum FramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (FramebufferStatus != GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer is not complete: %x, (%s, %d)\n", FramebufferStatus, __FILE__, __LINE__);
+	const GLenum FBStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (FBStatus != GL_FRAMEBUFFER_COMPLETE) {
+		printf("Framebuffer is not complete: %x, (%s, %d)\n", FBStatus, __FILE__, __LINE__);
 	}
 }
 
@@ -73,7 +73,7 @@ void ShadowMap::Read(GLenum TextureUnit) const
 {
 	glActiveTexture(TextureUnit);
 	glBindTexture(GL_TEXTURE_2D, Id);
-	ENSURE_GL("glBindTexture");
+	Helper::EnsureGL("glBindTexture");
 }
 
 void ShadowMap::Clear() const

@@ -7,7 +7,7 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
-#include "StaticHelper.h"
+#include "Helper.h"
 
 Shader::Shader(const char* VertexShaderPath,
 				const char* FragmentShaderPath)
@@ -107,8 +107,8 @@ void Shader::SetDirectionalLight(const DirectionalLight& DirectionalLight) const
 
 void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
 {
-	const int PointLightsCount = PointLights.size() > StaticHelper::MAX_POINT_LIGHTS
-											? StaticHelper::MAX_POINT_LIGHTS
+	const int PointLightsCount = PointLights.size() > Helper::MAX_POINT_LIGHTS
+											? Helper::MAX_POINT_LIGHTS
 											: PointLights.size();
 
 	glUniform1i(UniformPointLightsCount, PointLightsCount);
@@ -130,8 +130,8 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
 
 void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
 {
-	const int SpotLightsCount = SpotLights.size() > StaticHelper::MAX_SPOT_LIGHTS
-											? StaticHelper::MAX_SPOT_LIGHTS
+	const int SpotLightsCount = SpotLights.size() > Helper::MAX_SPOT_LIGHTS
+											? Helper::MAX_SPOT_LIGHTS
 											: SpotLights.size();
 
 	glUniform1i(UniformSpotLightsCount, SpotLightsCount);
@@ -237,7 +237,7 @@ void Shader::CompileProgram()
 
 	UniformPointLightsCount = glGetUniformLocation(Id, "PointLightsCount");
 
-	for (int PointLightIndex = 0; PointLightIndex < StaticHelper::MAX_POINT_LIGHTS; PointLightIndex++)
+	for (int PointLightIndex = 0; PointLightIndex < Helper::MAX_POINT_LIGHTS; PointLightIndex++)
 	{
 		char LocationsBuffer[100] = { '\0' };
 
@@ -274,7 +274,7 @@ void Shader::CompileProgram()
 
 	UniformSpotLightsCount = glGetUniformLocation(Id, "SpotLightsCount");
 
-	for (int SpotLightIndex = 0; SpotLightIndex < StaticHelper::MAX_SPOT_LIGHTS; SpotLightIndex++)
+	for (int SpotLightIndex = 0; SpotLightIndex < Helper::MAX_SPOT_LIGHTS; SpotLightIndex++)
 	{
 		char LocationsBuffer[100] = { '\0' };
 
