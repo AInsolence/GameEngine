@@ -30,7 +30,7 @@ public:
 				GLint OuterRadiusLocation,
 				GLint RadiusSharpnessLocation) const;
 
-	std::array<glm::mat4, 6>& CalculateLightSpaceTransform();
+	std::array<glm::mat4, 6> CalculateLightSpaceTransform();
 
 	GLfloat GetFarPlane() const { return Far; }
 	glm::vec3 GetPosition() const { return Position; }

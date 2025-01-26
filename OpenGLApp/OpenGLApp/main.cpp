@@ -153,7 +153,7 @@ void Create3DObjects()
 	MeshList.emplace_back(std::make_unique<Mesh>(FloorVertices, FloorIndices));
 
 	SkeletalMeshList.emplace_back(std::make_unique<SkeletalMesh>("Content/Meshes/Pony_cartoon.obj"));
-	SkeletalMeshList.emplace_back(std::make_unique<SkeletalMesh>("Content/Meshes/scene.gltf"));
+	//SkeletalMeshList.emplace_back(std::make_unique<SkeletalMesh>("Content/Meshes/scene.gltf"));
 }
 
 void RenderScene()
@@ -209,17 +209,17 @@ void RenderScene()
 		SkeletalMeshList.at(0)->Render();
 	}
 
-	if (!SkeletalMeshList.empty())
-	{
-		// Set Model Translations
-		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(1.0f, -1.05f, 3.0f)); // set translation
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.006f, 0.006f, 0.006f)); // set scale
-		//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // set rotation
+	//if (!SkeletalMeshList.empty())
+	//{
+	//	// Set Model Translations
+	//	ModelMatrix = 1.0f; // initialize module matrix as identity matrix
+	//	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(1.0f, -1.05f, 3.0f)); // set translation
+	//	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.006f, 0.006f, 0.006f)); // set scale
+	//	//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // set rotation
 
-		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		SkeletalMeshList.at(1)->Render();
-	}
+	//	glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+	//	SkeletalMeshList.at(1)->Render();
+	//}
 
 	if (!MeshList.empty())
 	{
@@ -289,6 +289,7 @@ void DirectionalShadowMapPass(DirectionalLight& SunLight)
 
 	DirectionalShadowShader->SetDirectionalLightSpaceTransform(SunLight.CalculateLightSpaceTransform());
 
+	DirectionalShadowShader->Validate();
 	RenderScene();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -312,6 +313,7 @@ void OmniDirectionalShadowMapPass(PointLight& Light)
 
 	OmniDirectionalShadowShader->SetLightMatrices(Light.CalculateLightSpaceTransform());
 
+	OmniDirectionalShadowShader->Validate();
 	RenderScene();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -343,19 +345,21 @@ void Render(const MainWindow& MainWindow,
 	glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera.GetPosition()));
 	
 	ShaderList[0]->SetDirectionalLight(SunLight);
-	ShaderList[0]->SetSpotLights(SpotLights);
-	ShaderList[0]->SetPointLights(PointLights);
 	ShaderList[0]->SetDirectionalLightSpaceTransform(SunLight.CalculateLightSpaceTransform());
 
-	SunLight.GetShadowMap()->Read(GL_TEXTURE1);
-	ShaderList.at(0)->SetTextureUnit(0);
-	ShaderList.at(0)->SetDirectionalShadowMap(1);
+	SunLight.GetShadowMap()->Read(GL_TEXTURE2);
+	ShaderList.at(0)->SetTextureUnit(1);
+	ShaderList.at(0)->SetDirectionalShadowMap(2);
+
+	ShaderList[0]->SetPointLights(PointLights, 3, 0);
+	ShaderList[0]->SetSpotLights(SpotLights, 3 + PointLights.size(), PointLights.size());
 
 	glm::vec3 HandsPosition = MainCamera.GetPosition();
 	HandsPosition.y -= 0.1f;
 
 	SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
 
+	ShaderList[0]->Validate();
 	RenderScene();
 }
 
@@ -378,31 +382,31 @@ int main()
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.2f, 
-									0.8f,
+									1.1f,
 									glm::normalize(glm::vec3(2.0f, -1.0f, 0.3f)),
 									2048, 2048);
 
 
 	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-							0.0f, 2.0f,
+							0.0f, 5.0f,
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							0.3f, 0.2f, 0.1f,
 							3.0f, 15.0f, 10.0f);
 
 	PointLights.emplace_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-							0.0f, 2.0f,
+							0.0f, 6.0f,
 							glm::vec3(8.0f, 0.8f, 3.0f),
 							0.3f, 0.2f, 0.1f,
-							5.0f, 5.0f, 15.0f);
+							5.0f, 15.0f, 15.0f);
 
 
 	SpotLights.emplace_back(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-							0.0f, 1.0f,
+							0.0f, 5.0f,
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							20.0f,
 							0.3f, 0.2f, 0.1f,
-							3.0f, 15.0f, 10.0f);;
+							4.0f, 10.0f, 10.0f);;
 
 	// Initialize projection matrix
 	glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(60.0f),
@@ -425,14 +429,14 @@ int main()
 
 		DirectionalShadowMapPass(SunLight);
 
-		for (auto& PointLight : PointLights)
+		for (auto& Light : PointLights)
 		{
-			OmniDirectionalShadowMapPass(PointLight);
+			OmniDirectionalShadowMapPass(Light);
 		}
 
-		for (auto& PointLight : SpotLights)
+		for (auto& Light : SpotLights)
 		{
-			OmniDirectionalShadowMapPass(PointLight);
+			OmniDirectionalShadowMapPass(Light);
 		}
 
 		Render(MainWindow, MainCamera, SunLight, ProjectionMatrix);

@@ -18,7 +18,7 @@ public:
 				GLint InitShadowWidth = 1024,
 				GLint InitShadowHeight = 1024,
 				GLfloat Near = 0,
-				GLfloat Far = 1);
+				GLfloat Far = 50);
 
 	void Apply(GLint ColorLocation,
 				GLint AmbientIntensityLocation,

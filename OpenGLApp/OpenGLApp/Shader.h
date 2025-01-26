@@ -57,6 +57,12 @@ struct SpotLightUniforms
 	GLint RadiusSharpness;
 };
 
+struct OmniShadowUniforms
+{
+	GLint ShadowMap;
+	GLint FarPlane;
+};
+
 class Shader
 {
 public:
@@ -88,14 +94,22 @@ public:
 	GLint GetUniformFarPlaneLocation() const;
 
 	void SetDirectionalLight(const DirectionalLight& DirectionalLight) const;
-	void SetPointLights(const std::vector<PointLight>& PointLights) const;
-	void SetSpotLights(const std::vector<SpotLight>& SpotLights) const;
+
+	void SetPointLights(const std::vector<PointLight>& PointLights,
+						unsigned int StartUnit,
+						unsigned int Offset) const;
+
+	void SetSpotLights(const std::vector<SpotLight>& SpotLights,
+						unsigned int StartUnit,
+						unsigned int Offset) const;
 
 	void SetTextureUnit(GLint TextureUnit) const;
 	void SetDirectionalShadowMap(GLint TextureUnit) const;
 	void SetDirectionalLightSpaceTransform(const glm::mat4& Transform) const;
+
 	void SetLightMatrices(const std::array<glm::mat4, 6>& LightMatrices) const;
 
+	void Validate() const;
 	void Use() const;
 	void Clear();
 
@@ -113,6 +127,8 @@ private:
 
 	std::array<SpotLightUniforms, Helper::MAX_SPOT_LIGHTS> SpotLightsUniforms;
 	GLint UniformSpotLightsCount;
+
+	std::array<OmniShadowUniforms, Helper::MAX_POINT_LIGHTS + Helper::MAX_SPOT_LIGHTS> OmniShadowMapsUniforms;
 
 	GLint UniformMaterialSpecularIntensity;
 	GLint UniformMaterialShininess;

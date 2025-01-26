@@ -8,6 +8,18 @@ in vec4 VertColor;
 in vec3 FragmentPosition;
 in vec4 DirectionalLightSpacePosition;
 
+const vec3 PoissonDisk[16] = vec3[]
+(
+	vec3(0.355, 0.355, 0.355), vec3(-0.355, -0.355, 0.355),
+	vec3(-0.355, 0.355, -0.355), vec3(0.355, -0.355, -0.355),
+	vec3(0.707, 0.000, 0.707), vec3(-0.707, 0.000, 0.707),
+	vec3(0.000, 0.707, -0.707), vec3(0.000, -0.707, -0.707),
+	vec3(0.500, 0.866, 0.000), vec3(-0.500, -0.866, 0.000),
+	vec3(0.866, -0.500, 0.000), vec3(-0.866, 0.500, 0.000),
+	vec3(0.000, 0.000, 1.000), vec3(0.000, 0.000, -1.000),
+	vec3(0.000, 1.000, 0.000), vec3(0.000, -1.000, 0.000)
+);
+
 const int MAX_POINT_LIGHTS = 10;
 const int MAX_SPOT_LIGHTS = 10;
 
@@ -54,6 +66,12 @@ struct FMaterial
 	float Shininess;
 };
 
+struct FOmniShadowMap
+{
+	samplerCube ShadowMap;
+	float FarPlane;
+};
+
 uniform FDirectionalLight SunLight;
 
 uniform FPointLight PointLights [MAX_POINT_LIGHTS];
@@ -64,6 +82,8 @@ uniform int SpotLightsCount;
 uniform sampler2D Texture;
 uniform sampler2D DirectionalShadowMap;
 uniform FMaterial Material;
+
+uniform FOmniShadowMap OmniShadowMaps[MAX_POINT_LIGHTS + MAX_SPOT_LIGHTS];
 
 uniform vec3 CameraPosition;
 
@@ -100,6 +120,34 @@ float CalculateDirLightShadowFactor(FDirectionalLight DirectionalLight)
 	return Shadow;
 }
 
+float CalculateOmniShadowFactor(FPointLight Light, int ShadowIndex)
+{
+	vec3 VectorToLight = FragmentPosition - Light.Position;	
+	float Current = length(VectorToLight);
+
+	float ShadowFactor = 0.0f;
+	float Bias = 0.05;
+	int Samples = 16;
+
+	float DiskRadius = 0.01;
+
+	for (int i = 0; i < Samples; i++)
+	{
+		vec3 SamplePosition = normalize(VectorToLight + PoissonDisk[i] * DiskRadius);
+		float Closest = texture(OmniShadowMaps[ShadowIndex].ShadowMap, SamplePosition).r;
+		Closest *= OmniShadowMaps[ShadowIndex].FarPlane;
+
+		if (Current - Bias > Closest)
+		{
+			ShadowFactor += 1.0f;
+		}
+	}
+
+	ShadowFactor /= float(Samples);
+
+	return ShadowFactor;
+}
+
 vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFactor)
 {
 	vec4 AmbientColor = Base.Color * Base.AmbientIntensity;
@@ -125,7 +173,7 @@ vec4 CalculateLightByDirection(FBaseLight Base, vec3 Direction, float ShadowFact
 	return (AmbientColor + (1.0f - ShadowFactor) * (DiffuseColor + SpecularColor));
 }
 
-vec4 CalculatePointLightColor(FPointLight PointLight)
+vec4 CalculatePointLightColor(FPointLight PointLight, int ShadowIndex)
 {
 	vec3 VectorToLight = PointLight.Position - FragmentPosition;
 	float Distance = length(VectorToLight);
@@ -140,10 +188,12 @@ vec4 CalculatePointLightColor(FPointLight PointLight)
 							PointLight.Linear * Distance +
 							PointLight.Constant,
 							0.0001f);
+	
+	float ShadowFactor = CalculateOmniShadowFactor(PointLight, ShadowIndex);
 
 	if (InnerRadius == OuterRadius)
 	{
-		vec4 Color = CalculateLightByDirection(PointLight.Base, Direction, 0.0f);
+		vec4 Color = CalculateLightByDirection(PointLight.Base, Direction, ShadowFactor);
 		return (Color / Attenuation);
 	}
 
@@ -152,12 +202,12 @@ vec4 CalculatePointLightColor(FPointLight PointLight)
 
 	//float SmoothEdgeAttenuation = clamp(1.0 - (Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0, 1.0);
 
-	vec4 Color = CalculateLightByDirection(PointLight.Base, Direction, 0.0f);
+	vec4 Color = CalculateLightByDirection(PointLight.Base, Direction, ShadowFactor);
 
 	return ((Color / Attenuation) * SmoothEdgeAttenuation);
 }
 
-vec4 CalculateSpotLightColor (FSpotLight SpotLight)
+vec4 CalculateSpotLightColor (FSpotLight SpotLight, int ShadowIndex)
 {
 	vec3 Direction = normalize(FragmentPosition - SpotLight.PointLight.Position);
 
@@ -168,7 +218,7 @@ vec4 CalculateSpotLightColor (FSpotLight SpotLight)
 		return vec4(0.0f);
 	}
 
-	vec4 Color = CalculatePointLightColor(SpotLight.PointLight);
+	vec4 Color = CalculatePointLightColor(SpotLight.PointLight, ShadowIndex);
 
 	return Color * (1.0f - (1.0f - SpotLightFactor) * (1.0f / (1.0f - SpotLight.CutOffAngleCos)));
 }
@@ -181,7 +231,7 @@ vec4 CalculateAllPointLightsColor()
 
 	for (int PointLightIndex = 0; PointLightIndex < LightsToProcess; PointLightIndex++)
 	{
-		PointLightColor += CalculatePointLightColor(PointLights[PointLightIndex]);
+		PointLightColor += CalculatePointLightColor(PointLights[PointLightIndex], PointLightIndex);
 	}
 
 	return PointLightColor;
@@ -195,7 +245,7 @@ vec4 CalculateAllSpotLightsColor()
 
 	for (int SpotLightIndex = 0; SpotLightIndex < LightsToProcess; SpotLightIndex++)
 	{
-		SpotLightColor += CalculateSpotLightColor(SpotLights[SpotLightIndex]);
+		SpotLightColor += CalculateSpotLightColor(SpotLights[SpotLightIndex], SpotLightIndex + PointLightsCount);
 	}
 
 	return SpotLightColor;

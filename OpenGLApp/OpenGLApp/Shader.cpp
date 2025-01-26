@@ -1,6 +1,7 @@
 #include "Shader.h"
 
 #include <iostream>
+#include <format> 
 #include <sstream>
 #include <gtc/type_ptr.hpp>
 
@@ -105,7 +106,9 @@ void Shader::SetDirectionalLight(const DirectionalLight& DirectionalLight) const
 							DirectionalLightUniforms.Direction);
 }
 
-void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
+void Shader::SetPointLights(const std::vector<PointLight>& PointLights,
+							unsigned int StartUnit,
+							unsigned int Offset) const
 {
 	const int PointLightsCount = PointLights.size() > Helper::MAX_POINT_LIGHTS
 											? Helper::MAX_POINT_LIGHTS
@@ -115,7 +118,7 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
 
 	for (int PointLightIndex = 0; PointLightIndex < PointLightsCount; PointLightIndex++)
 	{
-		PointLights[PointLightIndex].Apply(PointLightsUniforms[PointLightIndex].Color,
+		PointLights.at(PointLightIndex).Apply(PointLightsUniforms[PointLightIndex].Color,
 											PointLightsUniforms[PointLightIndex].AmbientIntensity,
 											PointLightsUniforms[PointLightIndex].DiffuseIntensity,
 											PointLightsUniforms[PointLightIndex].Position,
@@ -125,10 +128,18 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights) const
 											PointLightsUniforms[PointLightIndex].InnerRadius,
 											PointLightsUniforms[PointLightIndex].OuterRadius,
 											PointLightsUniforms[PointLightIndex].RadiusSharpness);
+
+		PointLights.at(PointLightIndex).GetShadowMap()->
+								Read(GL_TEXTURE0 + StartUnit + PointLightIndex);
+
+		glUniform1i(OmniShadowMapsUniforms.at(PointLightIndex + Offset).ShadowMap, PointLightIndex + StartUnit);
+		glUniform1f(OmniShadowMapsUniforms.at(PointLightIndex + Offset).FarPlane, PointLights.at(PointLightIndex).GetFarPlane());
 	}
 }
 
-void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
+void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights,
+							unsigned int StartUnit,
+							unsigned int Offset) const
 {
 	const int SpotLightsCount = SpotLights.size() > Helper::MAX_SPOT_LIGHTS
 											? Helper::MAX_SPOT_LIGHTS
@@ -138,7 +149,7 @@ void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
 
 	for (int SpotLightIndex = 0; SpotLightIndex < SpotLightsCount; SpotLightIndex++)
 	{
-		SpotLights[SpotLightIndex].Apply(SpotLightsUniforms[SpotLightIndex].Color,
+		SpotLights.at(SpotLightIndex).Apply(SpotLightsUniforms[SpotLightIndex].Color,
 											SpotLightsUniforms[SpotLightIndex].AmbientIntensity,
 											SpotLightsUniforms[SpotLightIndex].DiffuseIntensity,
 											SpotLightsUniforms[SpotLightIndex].Position,
@@ -150,6 +161,12 @@ void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights) const
 											SpotLightsUniforms[SpotLightIndex].InnerRadius,
 											SpotLightsUniforms[SpotLightIndex].OuterRadius,
 											SpotLightsUniforms[SpotLightIndex].RadiusSharpness);
+
+		SpotLights.at(SpotLightIndex).GetShadowMap()->
+								Read(GL_TEXTURE0 + StartUnit + SpotLightIndex);
+
+		glUniform1i(OmniShadowMapsUniforms.at(SpotLightIndex + Offset).ShadowMap, SpotLightIndex + StartUnit);
+		glUniform1f(OmniShadowMapsUniforms.at(SpotLightIndex + Offset).FarPlane, SpotLights.at(SpotLightIndex).GetFarPlane());
 	}
 }
 
@@ -200,6 +217,22 @@ GLuint Shader::GetId() const
 	return Id;
 }
 
+void Shader::Validate() const
+{
+	GLint Result = 0;
+	GLchar ELog[1024] = {0};
+
+	glValidateProgram(Id);
+	glGetProgramiv(Id, GL_VALIDATE_STATUS, &Result);
+
+	if (!Result)
+	{
+		glGetProgramInfoLog(Id, sizeof(ELog), nullptr, ELog);
+		printf("Error validating program: '%s'\n", ELog);
+		return;
+	}
+}
+
 void Shader::CompileProgram()
 {
 	GLint Result = 0;
@@ -212,16 +245,6 @@ void Shader::CompileProgram()
 	{
 		glGetProgramInfoLog(Id, sizeof(ELog), nullptr, ELog);
 		printf("Error linking program: '%s'\n", ELog);
-		return;
-	}
-
-	glValidateProgram(Id);
-	glGetProgramiv(Id, GL_VALIDATE_STATUS, &Result);
-
-	if (!Result)
-	{
-		glGetProgramInfoLog(Id, sizeof(ELog), nullptr, ELog);
-		printf("Error validating program: '%s'\n", ELog);
 		return;
 	}
 
@@ -239,80 +262,80 @@ void Shader::CompileProgram()
 
 	for (int PointLightIndex = 0; PointLightIndex < Helper::MAX_POINT_LIGHTS; PointLightIndex++)
 	{
-		char LocationsBuffer[100] = { '\0' };
+		std::string Location;
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Base.Color", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].Color = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Base.Color", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Color = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Base.AmbientIntensity", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].AmbientIntensity = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Base.AmbientIntensity", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].AmbientIntensity = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Base.DiffuseIntensity", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].DiffuseIntensity = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Base.DiffuseIntensity", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].DiffuseIntensity = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Position", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].Position = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Position", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Position = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Exponent", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].Exponent = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Exponent", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Exponent = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Linear", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].Linear = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Linear", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Linear = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].Constant", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].Constant = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].Constant", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].Constant = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].InnerRadius", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].InnerRadius = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].InnerRadius", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].InnerRadius = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].OuterRadius", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].OuterRadius = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].OuterRadius", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].OuterRadius = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "PointLights[%d].RadiusSharpness", PointLightIndex);
-		PointLightsUniforms[PointLightIndex].RadiusSharpness = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("PointLights[{}].RadiusSharpness", PointLightIndex);
+		PointLightsUniforms[PointLightIndex].RadiusSharpness = glGetUniformLocation(Id, Location.c_str());
 	}
 
 	UniformSpotLightsCount = glGetUniformLocation(Id, "SpotLightsCount");
 
 	for (int SpotLightIndex = 0; SpotLightIndex < Helper::MAX_SPOT_LIGHTS; SpotLightIndex++)
 	{
-		char LocationsBuffer[100] = { '\0' };
+		std::string Location;
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Base.Color", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].Color = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Base.Color", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Color = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Base.AmbientIntensity", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].AmbientIntensity = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Base.AmbientIntensity", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].AmbientIntensity = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Base.DiffuseIntensity", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].DiffuseIntensity = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Base.DiffuseIntensity", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].DiffuseIntensity = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Position", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].Position = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Position", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Position = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].Direction", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].Direction = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].Direction", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Direction = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].CutOffAngleCos", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].CutOffAngleCos = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].CutOffAngleCos", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].CutOffAngleCos = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Exponent", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].Exponent = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Exponent", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Exponent = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Linear", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].Linear = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Linear", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Linear = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.Constant", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].Constant = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.Constant", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].Constant = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.InnerRadius", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].InnerRadius = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.InnerRadius", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].InnerRadius = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.OuterRadius", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].OuterRadius = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.OuterRadius", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].OuterRadius = glGetUniformLocation(Id, Location.c_str());
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "SpotLights[%d].PointLight.RadiusSharpness", SpotLightIndex);
-		SpotLightsUniforms[SpotLightIndex].RadiusSharpness = glGetUniformLocation(Id, LocationsBuffer);
+		Location = std::format("SpotLights[{}].PointLight.RadiusSharpness", SpotLightIndex);
+		SpotLightsUniforms[SpotLightIndex].RadiusSharpness = glGetUniformLocation(Id, Location.c_str());
 	}
 
 	UniformCameraPosition = glGetUniformLocation(Id, "CameraPosition");
@@ -324,15 +347,24 @@ void Shader::CompileProgram()
 	UniformDirectionalShadowMap = glGetUniformLocation(Id, "DirectionalShadowMap");
 	UniformDirectionalLightSpaceTransform = glGetUniformLocation(Id, "DirectionalLightSpaceTransform");
 
-	UniformOmniLightPosition = glGetUniformLocation(Id, "LightPosition");
+	UniformOmniLightPosition = glGetUniformLocation(Id, "OmniLightPosition");
 	UniformFarPlane = glGetUniformLocation(Id, "FarPlane");
 
-	for (int Face = 0; Face < 6; ++Face)
+	for (int Index = 0; Index < 6; ++Index)
 	{
-		char LocationsBuffer[100] = { '\0' };
+		std::string Location = std::format("LightMatrices[{}]", Index);
+		UniformLightMatrices[Index] = glGetUniformLocation(Id, Location.c_str());
+	}
 
-		snprintf(LocationsBuffer, sizeof(LocationsBuffer), "LightMatrices[%d]", Face);
-		UniformLightMatrices[Face] = glGetUniformLocation(Id, LocationsBuffer);
+	for (int ShadowIndex = 0; ShadowIndex < Helper::MAX_POINT_LIGHTS + Helper::MAX_SPOT_LIGHTS; ++ShadowIndex)
+	{
+		std::string Location;
+
+		Location = std::format("OmniShadowMaps[{}].ShadowMap", ShadowIndex);
+		OmniShadowMapsUniforms[ShadowIndex].ShadowMap = glGetUniformLocation(Id, Location.c_str());
+
+		Location = std::format("OmniShadowMaps[{}].FarPlane", ShadowIndex);
+		OmniShadowMapsUniforms[ShadowIndex].FarPlane = glGetUniformLocation(Id, Location.c_str());
 	}
 }
 

@@ -73,9 +73,10 @@ void PointLight::Apply(GLint ColorLocation,
 	glUniform1f(RadiusSharpnessLocation, RadiusSharpness);
 }
 
-std::array<glm::mat4, 6>& PointLight::CalculateLightSpaceTransform()
+std::array<glm::mat4, 6> PointLight::CalculateLightSpaceTransform()
 {
 	std::array<glm::mat4, 6> LightMatrices;
+
 	// +x -x
 	LightMatrices.at(0) = LightProjectionMatrix * 
 								glm::lookAt(Position,

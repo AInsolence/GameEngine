@@ -72,10 +72,10 @@ bool Texture::LoadTextureFromMemory(unsigned char* Data, unsigned int Size)
 
 void Texture::Apply() const
 {
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, Id);
 
-	Helper::EnsureGL("glBindTexture");
+	Helper::EnsureGL("glBindTexture", __FILE__, __LINE__);
 }
 
 void Texture::ClearTexture() const
@@ -97,7 +97,7 @@ bool Texture::LoadTextureData(unsigned char* TextureData, unsigned int Channels)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//unsigned char dummyData[4] = { 255, 0, 0, 255 }; // Red pixel
@@ -123,7 +123,7 @@ bool Texture::LoadTextureData(unsigned char* TextureData, unsigned int Channels)
 		return false;
 	}
 
-	Helper::EnsureGL("glTexImage2D");
+	Helper::EnsureGL("glTexImage2D", __FILE__, __LINE__);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);

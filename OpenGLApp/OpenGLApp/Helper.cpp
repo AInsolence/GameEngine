@@ -8,7 +8,9 @@
 #include <geometric.hpp>
 #include <vec3.hpp>
 
-std::vector<GLenum> Helper::EnsureGL(const char* GL_FunctionName)
+std::vector<GLenum> Helper::EnsureGL(const char* GL_FunctionName,
+										const char* File,
+										unsigned int Line)
 {
 #if defined (DEBUG) || defined (_DEBUG)
 	GLenum Error;
@@ -57,7 +59,7 @@ std::vector<GLenum> Helper::EnsureGL(const char* GL_FunctionName)
 				break;
 		}
 
-		ErrorMessages << " (File: " << __FILE__ << ", Line: " << __LINE__ << "): " << std::endl;
+		ErrorMessages << " (File: " << File << ", Line: " << Line << "): " << std::endl;
 	}
 
 	if (LogFile.is_open())

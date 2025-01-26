@@ -133,7 +133,6 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 				if (Material->GetTexture(static_cast<aiTextureType>(textureType), Index, &Path) == AI_SUCCESS)
 				{
 					// printf("Original texture path (type %d): %s\n", textureType, Path.C_Str());
-
 					if (Path.C_Str()[0] == '*') // Embedded texture check
 					{
 						const unsigned int TextureIndex = atoi(Path.C_Str() + 1);
@@ -143,7 +142,6 @@ void SkeletalMesh::LoadMaterials(const aiScene* Scene)
 						{
 							//std::string EmbeddedTextureName = "EmbeddedTexture_" + std::to_string(TextureIndex);
 							//printf("Embedded texture found: %s\n", EmbeddedTextureName.c_str());
-
 							auto LoadedTexture = std::make_shared<Texture>();
 
 							if (EmbeddedTexture->pcData != nullptr && EmbeddedTexture->mWidth > 0 && EmbeddedTexture->mHeight > 0)
