@@ -155,6 +155,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="SkeletalMesh.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="stb_image.h" />

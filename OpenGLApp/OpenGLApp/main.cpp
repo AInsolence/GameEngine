@@ -24,9 +24,11 @@
 #include "Texture.h"
 
 #include "Helper.h"
+#include "Skybox.h"
 
 
 // Define main variables
+std::unique_ptr<Skybox> Sky;
 std::vector<std::unique_ptr<Mesh>> MeshList;
 std::vector<std::unique_ptr<SkeletalMesh>> SkeletalMeshList;
 std::vector<std::unique_ptr<Shader>> ShaderList;
@@ -35,6 +37,7 @@ std::unique_ptr<Shader> OmniDirectionalShadowShader;
 
 std::vector<PointLight> PointLights;
 std::vector<SpotLight> SpotLights;
+
 
 std::map<const char*, std::unique_ptr<Texture>> Textures;
 std::map<const char*, std::unique_ptr<Material>> Materials;
@@ -109,6 +112,20 @@ void LoadMaterials()
 {
 	Materials.emplace("Metal", std::make_unique<Material>(5.0f, 128.0f));
 	Materials.emplace("Mat", std::make_unique<Material>(0.5f, 1.0f));
+}
+
+void CreateSkybox()
+{
+	std::array<std::string, 6> FaceLocations;
+
+	FaceLocations.at(0) = "Content/Textures/Skybox/bluecloud_rt.jpg";
+	FaceLocations.at(1) = "Content/Textures/Skybox/bluecloud_lf.jpg";
+	FaceLocations.at(2) = "Content/Textures/Skybox/bluecloud_up.jpg";
+	FaceLocations.at(3) = "Content/Textures/Skybox/bluecloud_dn.jpg";
+	FaceLocations.at(4) = "Content/Textures/Skybox/bluecloud_bk.jpg";
+	FaceLocations.at(5) = "Content/Textures/Skybox/bluecloud_ft.jpg";
+
+	Sky = std::make_unique<Skybox>(FaceLocations);
 }
 
 void Create3DObjects()
@@ -324,19 +341,22 @@ void Render(const MainWindow& MainWindow,
 			DirectionalLight& SunLight,
 			const glm::mat4& ProjectionMatrix)
 {
+	glViewport(0, 0, MainWindow.GetBufferWidth(), MainWindow.GetBufferHeight());
+
+	// Clear window with black color
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Sky->DrawSky(ProjectionMatrix, MainCamera.GetViewMatrix());
+
 	///* Use shader program *///
 	ShaderList[0]->Use();
-	glViewport(0, 0, MainWindow.GetBufferWidth(), MainWindow.GetBufferHeight());
 	
 	UniformDirectionalLightSpecularIntensity = ShaderList[0]->GetDirectionalLightSpecularIntensityLocation();
 	UniformDirectionalLightShininess = ShaderList[0]->GetDirectionalLightShininessLocation();
 	UniformModelMatrix = ShaderList[0]->GetModelLocation();
 	UniformCameraPosition = ShaderList[0]->GetUniformCameraPositionLocation();
 	
-	// Clear window with black color
-	glClearColor(0.f, 0.f, 0.f, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	// Set Projection matrix
 	glUniformMatrix4fv(ShaderList[0]->GetProjectionLocation(), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 	// Set view matrix
@@ -347,12 +367,12 @@ void Render(const MainWindow& MainWindow,
 	ShaderList[0]->SetDirectionalLight(SunLight);
 	ShaderList[0]->SetDirectionalLightSpaceTransform(SunLight.CalculateLightSpaceTransform());
 
-	SunLight.GetShadowMap()->Read(GL_TEXTURE2);
-	ShaderList.at(0)->SetTextureUnit(1);
-	ShaderList.at(0)->SetDirectionalShadowMap(2);
+	SunLight.GetShadowMap()->Read(GL_TEXTURE3);
+	ShaderList.at(0)->SetTextureUnit(2);
+	ShaderList.at(0)->SetDirectionalShadowMap(3);
 
-	ShaderList[0]->SetPointLights(PointLights, 3, 0);
-	ShaderList[0]->SetSpotLights(SpotLights, 3 + PointLights.size(), PointLights.size());
+	ShaderList[0]->SetPointLights(PointLights, 4, 0);
+	ShaderList[0]->SetSpotLights(SpotLights, 4 + PointLights.size(), PointLights.size());
 
 	glm::vec3 HandsPosition = MainCamera.GetPosition();
 	HandsPosition.y -= 0.1f;
@@ -379,6 +399,8 @@ int main()
 
 	Create3DObjects();
 	CreateShaders();
+
+	CreateSkybox();
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.2f, 

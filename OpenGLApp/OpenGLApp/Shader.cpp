@@ -175,6 +175,11 @@ void Shader::SetTextureUnit(GLint TextureUnit) const
 	glUniform1i(UniformTexture, TextureUnit);
 }
 
+void Shader::SetSkyboxTextureUnit(GLint TextureUnit) const
+{
+	glUniform1i(UniformSkybox, TextureUnit);
+}
+
 void Shader::SetDirectionalShadowMap(GLint TextureUnit) const
 {
 	glUniform1i(UniformDirectionalShadowMap, TextureUnit);
@@ -366,6 +371,8 @@ void Shader::CompileProgram()
 		Location = std::format("OmniShadowMaps[{}].FarPlane", ShadowIndex);
 		OmniShadowMapsUniforms[ShadowIndex].FarPlane = glGetUniformLocation(Id, Location.c_str());
 	}
+
+	UniformSkybox = glGetUniformLocation(Id, "Skybox");
 }
 
 void Shader::CompileShaders(const char* VertexShaderCode,

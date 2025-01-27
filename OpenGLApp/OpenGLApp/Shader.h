@@ -104,6 +104,7 @@ public:
 						unsigned int Offset) const;
 
 	void SetTextureUnit(GLint TextureUnit) const;
+	void SetSkyboxTextureUnit(GLint TextureUnit) const;
 	void SetDirectionalShadowMap(GLint TextureUnit) const;
 	void SetDirectionalLightSpaceTransform(const glm::mat4& Transform) const;
 
@@ -134,6 +135,7 @@ private:
 	GLint UniformMaterialShininess;
 
 	GLint UniformCameraPosition;
+	GLint UniformSkybox;
 
 	// Shadows
 	GLint UniformTexture;
@@ -143,6 +145,8 @@ private:
 	GLint UniformOmniLightPosition;
 	GLint UniformFarPlane;
 	std::array<GLint, 6> UniformLightMatrices;
+
+	
 
 	void CompileProgram();
 

@@ -78,6 +78,9 @@
     <ClCompile Include="OmniDirShadowMap.cpp">
       <Filter>Source Files\Render</Filter>
     </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="OmniDirShadowMap.h">
+      <Filter>Header Files\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
   </ItemGroup>

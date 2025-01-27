@@ -72,7 +72,7 @@ bool Texture::LoadTextureFromMemory(unsigned char* Data, unsigned int Size)
 
 void Texture::Apply() const
 {
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, Id);
 
 	Helper::EnsureGL("glBindTexture", __FILE__, __LINE__);
