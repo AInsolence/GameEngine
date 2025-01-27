@@ -35,8 +35,11 @@ public:
 
 	void SetTransform(glm::vec3 InPosition, glm::vec3 InDirection);
 
+	// TODO only for debug. Should be moved to Controller from Renderer
+	void Toggle();
+	bool isOn = false;
+	
 protected:
 	glm::vec3 Direction;
 	float CutOffAngleCos;
 };
-

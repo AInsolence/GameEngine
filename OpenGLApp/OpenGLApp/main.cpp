@@ -427,6 +427,12 @@ int main()
 		MainCamera.KeyControl(MainWindow.GetKeys(), DeltaTime);
 		MainCamera.MouseControl(MainWindow.GetOffsetX(), MainWindow.GetOffsetY());
 
+		if (MainWindow.GetKeys()[GLFW_KEY_L])
+		{
+			SpotLights[0].Toggle();
+			MainWindow.GetKeys()[GLFW_KEY_L] = false;
+		}
+
 		DirectionalShadowMapPass(SunLight);
 
 		for (auto& Light : PointLights)

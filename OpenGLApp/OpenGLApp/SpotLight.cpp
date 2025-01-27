@@ -51,8 +51,17 @@ void SpotLight::Apply(GLint ColorLocation,
 {
 	glUniform4fv(ColorLocation, 1, glm::value_ptr(Color));
 
-	glUniform1f(AmbientIntensityLocation, AmbientIntensity);
-	glUniform1f(DiffuseIntensityLocation, DiffuseIntensity);
+	if (isOn)
+	{
+		glUniform1f(AmbientIntensityLocation, AmbientIntensity);
+		glUniform1f(DiffuseIntensityLocation, DiffuseIntensity);
+	}
+	else
+	{
+		glUniform1f(AmbientIntensityLocation, 0.0f);
+		glUniform1f(DiffuseIntensityLocation, 0.0f);
+	}
+
 
 	glUniform3fv(PositionLocation, 1, glm::value_ptr(Position));
 	glUniform3fv(DirectionLocation, 1, glm::value_ptr(Direction));
@@ -72,4 +81,9 @@ void SpotLight::SetTransform(glm::vec3 InPosition, glm::vec3 InDirection)
 {
 	Position = InPosition;
 	Direction = InDirection;
+}
+
+void SpotLight::Toggle()
+{
+	isOn = !isOn;
 }
