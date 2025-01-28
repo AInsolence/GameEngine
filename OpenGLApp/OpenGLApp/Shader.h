@@ -92,6 +92,7 @@ public:
 	GLint GetUniformCameraPositionLocation() const;
 	GLint GetUniformOmniLightPositionLocation() const;
 	GLint GetUniformFarPlaneLocation() const;
+	GLint GetGridColorLocation() const;
 
 	void SetDirectionalLight(const DirectionalLight& DirectionalLight) const;
 
@@ -146,7 +147,7 @@ private:
 	GLint UniformFarPlane;
 	std::array<GLint, 6> UniformLightMatrices;
 
-	
+	GLint UniformGridColor;
 
 	void CompileProgram();
 

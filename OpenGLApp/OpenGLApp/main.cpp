@@ -16,6 +16,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "DirectionalLight.h"
+#include "Grid.h"
 #include "PointLight.h"
 #include "SpotLight.h"
 #include "Material.h"
@@ -28,6 +29,7 @@
 
 
 // Define main variables
+std::unique_ptr<Grid> EditorGrid;
 std::unique_ptr<Skybox> Sky;
 std::vector<std::unique_ptr<Mesh>> MeshList;
 std::vector<std::unique_ptr<SkeletalMesh>> SkeletalMeshList;
@@ -130,6 +132,8 @@ void CreateSkybox()
 
 void Create3DObjects()
 {
+	EditorGrid = std::make_unique<Grid>(100, 50);
+
 	// Define floor vertices
 	std::vector<GLfloat> FloorVertices = {
 	//	   x      y      z      u      v     nx     ny    nz
@@ -349,6 +353,8 @@ void Render(const MainWindow& MainWindow,
 
 	Sky->DrawSky(ProjectionMatrix, MainCamera.GetViewMatrix());
 
+	EditorGrid->Draw(ProjectionMatrix, MainCamera.GetViewMatrix());
+
 	///* Use shader program *///
 	ShaderList[0]->Use();
 	
@@ -380,6 +386,7 @@ void Render(const MainWindow& MainWindow,
 	SpotLights[0].SetTransform(HandsPosition, MainCamera.GetDirection());
 
 	ShaderList[0]->Validate();
+
 	RenderScene();
 }
 
@@ -403,10 +410,10 @@ int main()
 	CreateSkybox();
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-									0.2f, 
-									1.1f,
+									0.1f, 
+									0.8f,
 									glm::normalize(glm::vec3(2.0f, -1.0f, 0.3f)),
-									2048, 2048);
+									4096, 4096);
 
 
 	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
@@ -435,6 +442,7 @@ int main()
 										static_cast<float>(MainWindow.GetBufferWidth()) / 
 													static_cast<float>(MainWindow.GetBufferHeight()),
 													0.1f, 100.0f);
+
 	// Render loop
 	while (!MainWindow.GetShouldClose())
 	{

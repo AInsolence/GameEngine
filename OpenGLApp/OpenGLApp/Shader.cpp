@@ -98,6 +98,11 @@ GLint Shader::GetUniformFarPlaneLocation() const
 	return UniformFarPlane;
 }
 
+GLint Shader::GetGridColorLocation() const
+{
+	return UniformGridColor;
+}
+
 void Shader::SetDirectionalLight(const DirectionalLight& DirectionalLight) const
 {
 	DirectionalLight.Apply(DirectionalLightUniforms.Color,
@@ -373,6 +378,7 @@ void Shader::CompileProgram()
 	}
 
 	UniformSkybox = glGetUniformLocation(Id, "Skybox");
+	UniformGridColor = glGetUniformLocation(Id, "EditorGridColor");
 }
 
 void Shader::CompileShaders(const char* VertexShaderCode,

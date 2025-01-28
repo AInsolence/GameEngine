@@ -15,5 +15,5 @@ BaseLight::BaseLight(glm::vec4 InitColor,
 	ShadowMapTex = std::make_unique<ShadowMap>();
 	ShadowMapTex->Init(InitShadowWidth, InitShadowHeight);
 
-	LightProjectionMatrix = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 0.1f, 100.0f);
+	LightProjectionMatrix = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 100.0f);
 }
