@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Public/Engine;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Public/Engine;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Public/Engine;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../../External Libs/ASSIMP/include;$(SolutionDir)/../../External Libs/GLM;$(SolutionDir)/../../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Public/Engine;$(SolutionDir)/../../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -143,42 +143,55 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseLight.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="DirectionalLight.cpp" />
-    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="OmniDirShadowMap.cpp" />
-    <ClCompile Include="PointLight.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="ShadowMap.cpp" />
-    <ClCompile Include="SkeletalMesh.cpp" />
-    <ClCompile Include="Skybox.cpp" />
-    <ClCompile Include="SpotLight.cpp" />
-    <ClCompile Include="Helper.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Source\Private\Editor\Components\Grid.cpp" />
+    <ClCompile Include="Source\Private\Engine\Components\Material.cpp" />
+    <ClCompile Include="Source\Private\Engine\Components\Mesh.cpp" />
+    <ClCompile Include="Source\Private\Engine\Components\SkeletalMesh.cpp" />
+    <ClCompile Include="Source\Private\Engine\Components\Skybox.cpp" />
+    <ClCompile Include="Source\Private\Engine\Components\Texture.cpp" />
+    <ClCompile Include="Source\Private\Engine\Core\MainWindow.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\BaseLight.cpp" />
+    <ClCompile Include="Source\Private\Engine\Components\Camera.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\DirectionalLight.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\OmniDirShadowMap.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\PointLight.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\Shader.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\ShadowMap.cpp" />
+    <ClCompile Include="Source\Private\Engine\Render\SpotLight.cpp" />
+    <ClCompile Include="Source\Private\Engine\Utilities\Helper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseLight.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="DirectionalLight.h" />
-    <ClInclude Include="Grid.h" />
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="OmniDirShadowMap.h" />
-    <ClInclude Include="PointLight.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShadowMap.h" />
-    <ClInclude Include="SkeletalMesh.h" />
-    <ClInclude Include="Skybox.h" />
-    <ClInclude Include="SpotLight.h" />
-    <ClInclude Include="Helper.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Source\Public\Editor\Components\Grid.h" />
+    <ClInclude Include="Source\Public\Engine\Components\Material.h" />
+    <ClInclude Include="Source\Public\Engine\Components\Mesh.h" />
+    <ClInclude Include="Source\Public\Engine\Components\SkeletalMesh.h" />
+    <ClInclude Include="Source\Public\Engine\Components\Skybox.h" />
+    <ClInclude Include="Source\Public\Engine\Render\SpotLight.h" />
+    <ClInclude Include="Source\Public\Engine\Components\Texture.h" />
+    <ClInclude Include="Source\Public\Engine\Core\MainWindow.h" />
+    <ClInclude Include="Source\Public\Engine\Render\BaseLight.h" />
+    <ClInclude Include="Source\Public\Engine\Components\Camera.h" />
+    <ClInclude Include="Source\Public\Engine\Render\DirectionalLight.h" />
+    <ClInclude Include="Source\Public\Engine\Render\OmniDirShadowMap.h" />
+    <ClInclude Include="Source\Public\Engine\Render\PointLight.h" />
+    <ClInclude Include="Source\Public\Engine\Render\Shader.h" />
+    <ClInclude Include="Source\Public\Engine\Render\ShadowMap.h" />
+    <ClInclude Include="Source\Public\Engine\Utilities\Helper.h" />
+    <ClInclude Include="Source\Public\Engine\Utilities\stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Public\Engine\Render\Shaders\directional_shadow_map_shader.frag" />
+    <None Include="Source\Public\Engine\Render\Shaders\directional_shadow_map_shader.vert" />
+    <None Include="Source\Public\Engine\Render\Shaders\grid_shader.frag" />
+    <None Include="Source\Public\Engine\Render\Shaders\grid_shader.vert" />
+    <None Include="Source\Public\Engine\Render\Shaders\omni_shadow_map_shader.frag" />
+    <None Include="Source\Public\Engine\Render\Shaders\omni_shadow_map_shader.geom" />
+    <None Include="Source\Public\Engine\Render\Shaders\omni_shadow_map_shader.vert" />
+    <None Include="Source\Public\Engine\Render\Shaders\shader.frag" />
+    <None Include="Source\Public\Engine\Render\Shaders\shader.vert" />
+    <None Include="Source\Public\Engine\Render\Shaders\skybox_shader.frag" />
+    <None Include="Source\Public\Engine\Render\Shaders\skybox_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

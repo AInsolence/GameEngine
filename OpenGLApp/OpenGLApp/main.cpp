@@ -12,20 +12,22 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-#include "MainWindow.h"
-#include "Mesh.h"
-#include "Camera.h"
-#include "DirectionalLight.h"
-#include "Grid.h"
-#include "PointLight.h"
-#include "SpotLight.h"
-#include "Material.h"
-#include "Shader.h"
-#include "SkeletalMesh.h"
-#include "Texture.h"
+#include "Core/MainWindow.h"
 
-#include "Helper.h"
-#include "Skybox.h"
+#include "Render/Shader.h"
+#include "Render/SpotLight.h"
+#include "Render/PointLight.h"
+#include "Render/DirectionalLight.h"
+
+#include "Components/Mesh.h"
+#include "Components/Camera.h"
+#include "Components/Skybox.h"
+#include "Components/Texture.h"
+#include "Components/Material.h"
+#include "Components/SkeletalMesh.h"
+
+#include "Utilities/Helper.h"
+#include "../Editor/Components/Grid.h"
 
 
 // Define main variables
@@ -63,15 +65,15 @@ bool ScaleDirection = true;
 
 
 // Main Shader code
-static const char* VertexShaderPath = "Shaders/shader.vert";
-static const char* FragmentShaderPath = "Shaders/shader.frag";
+static const char* VertexShaderPath = "Source/Public/Engine/Render/Shaders/shader.vert";
+static const char* FragmentShaderPath = "Source/Public/Engine/Render/Shaders/shader.frag";
 // Shadow Shader code
-static const char* VertDirShadowShaderPath = "Shaders/directional_shadow_map_shader.vert";
-static const char* FragDirShadowShaderPath = "Shaders/directional_shadow_map_shader.frag";
+static const char* VertDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/directional_shadow_map_shader.vert";
+static const char* FragDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/directional_shadow_map_shader.frag";
 // Omni Shadow shader
-static const char* VertOmniDirShadowShaderPath = "Shaders/omni_shadow_map_shader.vert";
-static const char* GeomOmniDirShadowShaderPath = "Shaders/omni_shadow_map_shader.geom";
-static const char* FragOmniDirShadowShaderPath = "Shaders/omni_shadow_map_shader.frag";
+static const char* VertOmniDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/omni_shadow_map_shader.vert";
+static const char* GeomOmniDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/omni_shadow_map_shader.geom";
+static const char* FragOmniDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/omni_shadow_map_shader.frag";
 
 GLint UniformModelMatrix;
 GLint UniformDirectionalLightSpecularIntensity;
@@ -120,12 +122,12 @@ void CreateSkybox()
 {
 	std::array<std::string, 6> FaceLocations;
 
-	FaceLocations.at(0) = "Content/Textures/Skybox/bluecloud_rt.jpg";
-	FaceLocations.at(1) = "Content/Textures/Skybox/bluecloud_lf.jpg";
-	FaceLocations.at(2) = "Content/Textures/Skybox/bluecloud_up.jpg";
-	FaceLocations.at(3) = "Content/Textures/Skybox/bluecloud_dn.jpg";
-	FaceLocations.at(4) = "Content/Textures/Skybox/bluecloud_bk.jpg";
-	FaceLocations.at(5) = "Content/Textures/Skybox/bluecloud_ft.jpg";
+	FaceLocations.at(0) = "Content/Textures/Skybox/sky_36/pz.png";
+	FaceLocations.at(1) = "Content/Textures/Skybox/sky_36/nz.png";
+	FaceLocations.at(2) = "Content/Textures/Skybox/sky_36/py.png";
+	FaceLocations.at(3) = "Content/Textures/Skybox/sky_36/ny.png";
+	FaceLocations.at(4) = "Content/Textures/Skybox/sky_36/nx.png";
+	FaceLocations.at(5) = "Content/Textures/Skybox/sky_36/px.png";
 
 	Sky = std::make_unique<Skybox>(FaceLocations);
 }
@@ -412,7 +414,7 @@ int main()
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 									0.1f, 
 									0.8f,
-									glm::normalize(glm::vec3(2.0f, -1.0f, 0.3f)),
+									glm::normalize(glm::vec3(-2.0f, -1.0f, 0.3f)),
 									4096, 4096);
 
 
