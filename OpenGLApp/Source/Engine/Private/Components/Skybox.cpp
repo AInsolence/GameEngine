@@ -11,8 +11,8 @@
 
 Skybox::Skybox(std::array<std::string, 6> FaceLocations)
 {
-	SkyShader = std::make_unique<Shader>("Source/Public/Engine/Render/Shaders/skybox_shader.vert",
-											"Source/Public/Engine/Render/Shaders/skybox_shader.frag");
+	SkyShader = std::make_unique<Shader>("Source/Engine/Public/Render/Shaders/skybox_shader.vert",
+											"Source/Engine/Public/Render/Shaders/skybox_shader.frag");
 
 	UniformProjectionMatrix = SkyShader->GetProjectionLocation();
 	UniformViewMatrix = SkyShader->GetViewLocation();

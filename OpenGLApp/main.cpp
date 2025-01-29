@@ -27,7 +27,7 @@
 #include "Components/SkeletalMesh.h"
 
 #include "Utilities/Helper.h"
-#include "../Editor/Components/Grid.h"
+#include "Components/Grid.h"
 
 
 // Define main variables

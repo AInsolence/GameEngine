@@ -1,4 +1,4 @@
-#include "../Editor/Components/Grid.h"
+#include "Components/Grid.h"
 
 #include <gtc/type_ptr.hpp>
 
@@ -41,8 +41,8 @@ void Grid::Draw(glm::mat4 ProjectionMatrix, glm::mat4 ViewMatrix)
 
 void Grid::SetupGrid()
 {
-	GridShader = std::make_unique<Shader>("Source/Public/Engine/Render/Shaders/grid_shader.vert",
-											"Source/Public/Engine/Render/Shaders/grid_shader.frag");
+	GridShader = std::make_unique<Shader>("Source/Engine/Public/Render/Shaders/grid_shader.vert",
+											"Source/Engine/Public/Render/Shaders/grid_shader.frag");
 
 	UniformViewMatrix = GridShader->GetViewLocation();
 	UniformGridColorLocation = GridShader->GetGridColorLocation();
