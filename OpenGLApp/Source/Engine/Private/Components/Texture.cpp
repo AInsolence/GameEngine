@@ -85,7 +85,7 @@ bool Texture::LoadTextureData(unsigned char* TextureData, unsigned int Channels)
 {
 	if (!TextureData)
 	{
-		printf("[Texture.cpp] Failed to load RGBA texture from path: %s\n ", FilePath.c_str());
+		printf("[Texture.cpp] Failed to load texture from path: %s\n ", FilePath.c_str());
 		return false;
 	}
 

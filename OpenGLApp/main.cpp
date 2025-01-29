@@ -413,8 +413,8 @@ int main()
 	CreateSkybox();
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-									0.5f, 
-									1.0f,
+									0.3f, 
+									0.8f,
 									glm::normalize(glm::vec3(-2.0f, -1.0f, 0.3f)),
 									4096, 4096);
 
