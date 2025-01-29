@@ -65,15 +65,15 @@ bool ScaleDirection = true;
 
 
 // Main Shader code
-static const char* VertexShaderPath = "Source/Public/Engine/Render/Shaders/shader.vert";
-static const char* FragmentShaderPath = "Source/Public/Engine/Render/Shaders/shader.frag";
+static const char* VertexShaderPath = "Source/Engine/Public/Render/Shaders/shader.vert";
+static const char* FragmentShaderPath = "Source/Engine/Public/Render/Shaders/shader.frag";
 // Shadow Shader code
-static const char* VertDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/directional_shadow_map_shader.vert";
-static const char* FragDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/directional_shadow_map_shader.frag";
+static const char* VertDirShadowShaderPath = "Source/Engine/Public/Render/Shaders/directional_shadow_map_shader.vert";
+static const char* FragDirShadowShaderPath = "Source/Engine/Public/Render/Shaders/directional_shadow_map_shader.frag";
 // Omni Shadow shader
-static const char* VertOmniDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/omni_shadow_map_shader.vert";
-static const char* GeomOmniDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/omni_shadow_map_shader.geom";
-static const char* FragOmniDirShadowShaderPath = "Source/Public/Engine/Render/Shaders/omni_shadow_map_shader.frag";
+static const char* VertOmniDirShadowShaderPath = "Source/Engine/Public/Render/Shaders/omni_shadow_map_shader.vert";
+static const char* GeomOmniDirShadowShaderPath = "Source/Engine/Public/Render/Shaders/omni_shadow_map_shader.geom";
+static const char* FragOmniDirShadowShaderPath = "Source/Engine/Public/Render/Shaders/omni_shadow_map_shader.frag";
 
 GLint UniformModelMatrix;
 GLint UniformDirectionalLightSpecularIntensity;
@@ -105,6 +105,7 @@ void LoadTextures()
 	Textures.emplace("Sand", std::make_unique<Texture>("Content/Textures/sand.png"));
 	Textures.emplace("Gold", std::make_unique<Texture>("Content/Textures/gold.jpg"));
 	Textures.emplace("Grid", std::make_unique<Texture>("Content/Textures/small_grid.png"));
+	Textures.emplace("Plain", std::make_unique<Texture>("Content/Textures/plain.png"));
 
 	for (const auto& Texture : Textures)
 	{
@@ -226,7 +227,7 @@ void RenderScene()
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(4.0f, -1.05f, 3.0f)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, -1.05f, -3.0f)); // set translation
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		SkeletalMeshList.at(0)->Render();
@@ -248,7 +249,7 @@ void RenderScene()
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f;
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -0.05f, 0.0f)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(8.0f, 0.0f, 0.0f)); // set translation
 
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		Textures.at("Brick")->Apply();
@@ -274,7 +275,7 @@ void RenderScene()
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f;
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(8.0f, 0.0f, 0.0f)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -0.05f, 0.0f)); // set translation
 		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
 
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
@@ -412,27 +413,27 @@ int main()
 	CreateSkybox();
 
 	auto SunLight = DirectionalLight(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-									0.1f, 
-									0.8f,
+									0.5f, 
+									1.0f,
 									glm::normalize(glm::vec3(-2.0f, -1.0f, 0.3f)),
 									4096, 4096);
 
 
 	PointLights.emplace_back(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-							0.0f, 5.0f,
-							glm::vec3(0.0f, 0.8f, 3.0f),
+							0.0f, 4.0f,
+							glm::vec3(0.0f, 0.8f, -4.0f),
 							0.3f, 0.2f, 0.1f,
 							3.0f, 15.0f, 10.0f);
 
 	PointLights.emplace_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-							0.0f, 6.0f,
-							glm::vec3(8.0f, 0.8f, 3.0f),
+							0.0f, 4.0f,
+							glm::vec3(8.0f, 0.8f, -4.0f),
 							0.3f, 0.2f, 0.1f,
 							5.0f, 15.0f, 15.0f);
 
 
 	SpotLights.emplace_back(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-							0.0f, 5.0f,
+							0.0f, 2.0f,
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							glm::vec3(0.0f, 0.8f, 3.0f),
 							20.0f,
