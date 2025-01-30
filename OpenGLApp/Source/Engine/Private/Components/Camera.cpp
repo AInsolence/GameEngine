@@ -18,15 +18,7 @@ Camera::Camera(glm::vec3 InitPosition,
 
 	Direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
-	MoveSpeed = InitMoveSpeed;
-	TurnSpeed = InitTurnSpeed;
-
-	Update();
-}
-
-Camera::~Camera()
-{
-
+	Update(glm::vec3({Yaw, Pitch, Roll}));
 }
 
 glm::vec3 Camera::GetPosition() const
@@ -39,55 +31,36 @@ glm::vec3 Camera::GetDirection() const
 	return glm::normalize(Direction);
 }
 
+glm::vec3 Camera::GetRotation() const
+{
+	return glm::vec3{Yaw, Pitch, Roll};
+}
+
+
+void Camera::MoveForward(GLfloat Velocity)
+{
+	Position += Direction * Velocity;
+}
+
+void Camera::TurnRight(GLfloat Velocity)
+{
+	Position += RightVector * Velocity;
+}
+
 glm::mat4 Camera::GetViewMatrix() const
 {
 	return glm::lookAt(Position, Position + Direction, UpVector);
 }
 
-void Camera::KeyControl(bool* Keys, GLfloat DeltaTime)
+void Camera::Update(glm::vec3 Rotation)
 {
-	const GLfloat Velocity = MoveSpeed * DeltaTime;
-
-	if (Keys[GLFW_KEY_W])
-	{
-		Position += Direction * Velocity;
-	}
-
-	if (Keys[GLFW_KEY_S])
-	{
-		Position -= Direction * Velocity;
-	}
-
-	if (Keys[GLFW_KEY_A])
-	{
-		Position -= RightVector * Velocity;
-	}
-
-	if (Keys[GLFW_KEY_D])
-	{
-		Position += RightVector * Velocity;
-	}
-}
-
-void Camera::MouseControl(GLfloat OffsetX, GLfloat OffsetY)
-{
-	OffsetX *= TurnSpeed;
-	OffsetY *= TurnSpeed;
-
-	Yaw += OffsetX;
-	Pitch = glm::clamp(Pitch + OffsetY, -89.0f, 89.0f);
-
-	Update();
-}
-
-void Camera::Update()
-{
-	Direction.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	Direction.y = sin(glm::radians(Pitch));
-	Direction.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	Direction.x = cos(glm::radians(Rotation.x)) * cos(glm::radians(Pitch));
+	Direction.y = sin(glm::radians(Rotation.y));
+	Direction.z = sin(glm::radians(Rotation.x)) * cos(glm::radians(Pitch));
 
 	Direction = glm::normalize(Direction);
 
 	RightVector = glm::normalize(glm::cross(Direction, WorldUpVector));
 	UpVector = glm::normalize(glm::cross(RightVector, Direction));
 }
+

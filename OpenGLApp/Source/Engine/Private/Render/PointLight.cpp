@@ -42,7 +42,7 @@ PointLight::PointLight(glm::vec4 InitColor,
 
 	LightProjectionMatrix = glm::perspective(glm::radians(90.0f), Aspect, Near, Far);
 
-	ShadowMapTex = std::make_unique<OmniDirShadowMap>();
+	ShadowMapTex = std::make_shared<OmniDirShadowMap>();
 	ShadowMapTex->Init(InitShadowWidth, InitShadowHeight);
 }
 

@@ -143,6 +143,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Private\Core\World.cpp" />
+    <ClCompile Include="Source\Engine\Private\Render\SceneRenderer.cpp" />
+    <ClCompile Include="Source\Engine\Private\Core\PlayerController.cpp" />
+    <ClCompile Include="Source\Engine\Private\Core\GameEngine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Source\Editor\Private\Components\Grid.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\Camera.cpp" />
@@ -162,6 +166,11 @@
     <ClCompile Include="Source\Engine\Private\Utilities\Helper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Public\Core\World.h" />
+    <ClInclude Include="Source\Engine\Public\Render\SceneRenderer.h" />
+    <ClInclude Include="Source\Engine\Public\Core\PlayerController.h" />
+    <ClInclude Include="Source\Engine\Public\Core\IInputController.h" />
+    <ClInclude Include="Source\Engine\Public\Core\GameEngine.h" />
     <ClInclude Include="Source\Editor\Public\Components\Grid.h" />
     <ClInclude Include="Source\Engine\Public\Components\Camera.h" />
     <ClInclude Include="Source\Engine\Public\Components\Material.h" />

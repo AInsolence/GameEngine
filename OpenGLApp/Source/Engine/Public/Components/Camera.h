@@ -16,15 +16,15 @@ public:
 			GLfloat InitMoveSpeed,
 			GLfloat InitTurnSpeed);
 
-	~Camera();
-
 	glm::vec3 GetPosition() const;
 	glm::vec3 GetDirection() const;
+	glm::vec3 GetRotation() const;
+
+	void Update(glm::vec3 Rotation);
+	void MoveForward(GLfloat Velocity);
+	void TurnRight(GLfloat Velocity);
 
 	glm::mat4 GetViewMatrix() const;
-
-	void KeyControl(bool* Keys, GLfloat DeltaTime);
-	void MouseControl(GLfloat OffsetX, GLfloat OffsetY);
 
 private:
 	glm::vec3 Position;
@@ -38,11 +38,5 @@ private:
 	GLfloat Yaw;
 	GLfloat Pitch;
 	GLfloat Roll;
-
-	// TODO: move to character class
-	GLfloat MoveSpeed;
-	GLfloat TurnSpeed;
-
-	void Update();
 };
 

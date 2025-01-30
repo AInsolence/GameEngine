@@ -111,7 +111,7 @@ void SkeletalMesh::LoadMesh(const aiMesh* InitMesh, const aiScene* Scene)
 		}
 	}
 
-	MeshUnits.push_back(std::make_unique<Mesh>(Vertices, Indices));
+	MeshUnits.push_back(std::make_shared<Mesh>(Vertices, Indices));
 	MaterialIndices.push_back(InitMesh->mMaterialIndex);
 }
 

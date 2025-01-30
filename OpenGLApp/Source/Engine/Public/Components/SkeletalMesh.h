@@ -26,7 +26,7 @@ private:
 	void LoadMesh(const aiMesh* InitMesh, const aiScene* Scene);
 	void LoadMaterials(const aiScene* Scene);
 
-	std::vector<std::unique_ptr<Mesh>> MeshUnits;
+	std::vector<std::shared_ptr<Mesh>> MeshUnits;
 	std::vector<std::shared_ptr<Texture>> TextureUnits;
 	std::vector<unsigned int> MaterialIndices;
 };

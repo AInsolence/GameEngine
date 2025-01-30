@@ -103,15 +103,15 @@ GLint Shader::GetGridColorLocation() const
 	return UniformGridColor;
 }
 
-void Shader::SetDirectionalLight(const DirectionalLight& DirectionalLight) const
+void Shader::SetDirectionalLight(const std::shared_ptr<DirectionalLight>& DirectionalLight) const
 {
-	DirectionalLight.Apply(DirectionalLightUniforms.Color,
+	DirectionalLight->Apply(DirectionalLightUniforms.Color,
 							DirectionalLightUniforms.AmbientIntensity,
 							DirectionalLightUniforms.DiffuseIntensity,
 							DirectionalLightUniforms.Direction);
 }
 
-void Shader::SetPointLights(const std::vector<PointLight>& PointLights,
+void Shader::SetPointLights(const std::vector<std::shared_ptr<PointLight>>& PointLights,
 							unsigned int StartUnit,
 							unsigned int Offset) const
 {
@@ -123,7 +123,7 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights,
 
 	for (int PointLightIndex = 0; PointLightIndex < PointLightsCount; PointLightIndex++)
 	{
-		PointLights.at(PointLightIndex).Apply(PointLightsUniforms[PointLightIndex].Color,
+		PointLights.at(PointLightIndex)->Apply(PointLightsUniforms[PointLightIndex].Color,
 											PointLightsUniforms[PointLightIndex].AmbientIntensity,
 											PointLightsUniforms[PointLightIndex].DiffuseIntensity,
 											PointLightsUniforms[PointLightIndex].Position,
@@ -134,15 +134,15 @@ void Shader::SetPointLights(const std::vector<PointLight>& PointLights,
 											PointLightsUniforms[PointLightIndex].OuterRadius,
 											PointLightsUniforms[PointLightIndex].RadiusSharpness);
 
-		PointLights.at(PointLightIndex).GetShadowMap()->
+		PointLights.at(PointLightIndex)->GetShadowMap()->
 								Read(GL_TEXTURE0 + StartUnit + PointLightIndex);
 
 		glUniform1i(OmniShadowMapsUniforms.at(PointLightIndex + Offset).ShadowMap, PointLightIndex + StartUnit);
-		glUniform1f(OmniShadowMapsUniforms.at(PointLightIndex + Offset).FarPlane, PointLights.at(PointLightIndex).GetFarPlane());
+		glUniform1f(OmniShadowMapsUniforms.at(PointLightIndex + Offset).FarPlane, PointLights.at(PointLightIndex)->GetFarPlane());
 	}
 }
 
-void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights,
+void Shader::SetSpotLights(const std::vector<std::shared_ptr<SpotLight>>& SpotLights,
 							unsigned int StartUnit,
 							unsigned int Offset) const
 {
@@ -154,7 +154,7 @@ void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights,
 
 	for (int SpotLightIndex = 0; SpotLightIndex < SpotLightsCount; SpotLightIndex++)
 	{
-		SpotLights.at(SpotLightIndex).Apply(SpotLightsUniforms[SpotLightIndex].Color,
+		SpotLights.at(SpotLightIndex)->Apply(SpotLightsUniforms[SpotLightIndex].Color,
 											SpotLightsUniforms[SpotLightIndex].AmbientIntensity,
 											SpotLightsUniforms[SpotLightIndex].DiffuseIntensity,
 											SpotLightsUniforms[SpotLightIndex].Position,
@@ -167,11 +167,11 @@ void Shader::SetSpotLights(const std::vector<SpotLight>& SpotLights,
 											SpotLightsUniforms[SpotLightIndex].OuterRadius,
 											SpotLightsUniforms[SpotLightIndex].RadiusSharpness);
 
-		SpotLights.at(SpotLightIndex).GetShadowMap()->
+		SpotLights.at(SpotLightIndex)->GetShadowMap()->
 								Read(GL_TEXTURE0 + StartUnit + SpotLightIndex);
 
 		glUniform1i(OmniShadowMapsUniforms.at(SpotLightIndex + Offset).ShadowMap, SpotLightIndex + StartUnit);
-		glUniform1f(OmniShadowMapsUniforms.at(SpotLightIndex + Offset).FarPlane, SpotLights.at(SpotLightIndex).GetFarPlane());
+		glUniform1f(OmniShadowMapsUniforms.at(SpotLightIndex + Offset).FarPlane, SpotLights.at(SpotLightIndex)->GetFarPlane());
 	}
 }
 

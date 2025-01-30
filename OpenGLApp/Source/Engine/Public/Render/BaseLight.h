@@ -24,7 +24,7 @@ public:
 				GLint InitShadowWidth,
 				GLint InitShadowHeight);
 
-	const std::unique_ptr<ShadowMap>& GetShadowMap() const { return ShadowMapTex; }
+	const std::shared_ptr<ShadowMap>& GetShadowMap() const { return ShadowMapTex; }
 
 protected:
 	glm::vec4 Color;
@@ -34,5 +34,5 @@ protected:
 
 	glm::mat4 LightProjectionMatrix;
 
-	std::unique_ptr<ShadowMap> ShadowMapTex;
+	std::shared_ptr<ShadowMap> ShadowMapTex;
 };

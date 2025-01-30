@@ -94,13 +94,13 @@ public:
 	GLint GetUniformFarPlaneLocation() const;
 	GLint GetGridColorLocation() const;
 
-	void SetDirectionalLight(const DirectionalLight& DirectionalLight) const;
+	void SetDirectionalLight(const std::shared_ptr<DirectionalLight>& DirectionalLight) const;
 
-	void SetPointLights(const std::vector<PointLight>& PointLights,
+	void SetPointLights(const std::vector<std::shared_ptr<PointLight>>& PointLights,
 						unsigned int StartUnit,
 						unsigned int Offset) const;
 
-	void SetSpotLights(const std::vector<SpotLight>& SpotLights,
+	void SetSpotLights(const std::vector<std::shared_ptr<SpotLight>>& SpotLights,
 						unsigned int StartUnit,
 						unsigned int Offset) const;
 
