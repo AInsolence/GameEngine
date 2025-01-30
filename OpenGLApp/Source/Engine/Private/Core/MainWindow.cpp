@@ -174,15 +174,13 @@ void MainWindow::HandleMouse(GLFWwindow* Window, double XPos, double YPos)
 		AppWindow->LastX = XPos;
 		AppWindow->LastY = YPos;
 
-		printf("x: %.6f, y: %.6f\n", AppWindow->OffsetX, AppWindow->OffsetY);
+		//printf("x: %.6f, y: %.6f\n", AppWindow->OffsetX, AppWindow->OffsetY);
 	}
 }
 
 void MainWindow::HandleKeys(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mode)
 {
 	const auto AppWindow = static_cast<MainWindow*>(glfwGetWindowUserPointer(Window));
-
-	printf("HANDLE KEYS");
 
 	if (AppWindow)
 	{

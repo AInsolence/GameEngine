@@ -8,11 +8,11 @@ class GameEngine
 {
 public:
 
-	static GameEngine& GetInstance()
+	static GameEngine& Get()
 	{
-		static GameEngine EngineInstance;
+		static GameEngine Engine;
 
-		return EngineInstance;
+		return Engine;
 	}
 
 	void Run();

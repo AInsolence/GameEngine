@@ -2,9 +2,7 @@
 
 int main()
 {
-	//// Render loop while (!MainWindow.GetShouldClose())
-
-	GameEngine::GetInstance().Run();
+	GameEngine::Get().Run();
 
 	return 0;
 }
