@@ -209,7 +209,7 @@ void MainWindow::HandleKeys(GLFWwindow* Window, int Key, int ScanCode, int Actio
 	}
 }
 
-void MainWindow::ShowFPS()
+void MainWindow::ShowFPS() const
 {
 	static double LastTime = glfwGetTime();
 	static int Frames = 0;
