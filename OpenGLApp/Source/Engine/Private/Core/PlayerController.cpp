@@ -81,8 +81,13 @@ void PlayerController::MouseControl(GLfloat OffsetX, GLfloat OffsetY)
 	OffsetX *= MouseSpeed;
 	OffsetY *= MouseSpeed;
 
-	Yaw += OffsetX;
+	Yaw -= OffsetX;
 	Pitch = glm::clamp(Pitch + OffsetY, -89.0f, 89.0f);
 
-	PlayerCamera->Update(glm::vec3{Yaw, Pitch, Roll});
+	glm::quat RotationQuat = glm::quat(glm::vec3(glm::radians(Pitch),
+														glm::radians(Yaw),
+														glm::radians(Roll)));
+
+
+	PlayerCamera->SetRotation(RotationQuat);
 }

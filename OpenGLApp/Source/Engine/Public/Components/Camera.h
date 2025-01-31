@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include <glm.hpp>
+#include <detail/type_quat.hpp>
 #include <gtc/matrix_transform.hpp>
 
 class Camera
@@ -12,31 +13,24 @@ public:
 			glm::vec3 InitWorldUp,
 			GLfloat InitYaw,
 			GLfloat InitPitch,
-			GLfloat InitRoll,
-			GLfloat InitMoveSpeed,
-			GLfloat InitTurnSpeed);
+			GLfloat InitRoll);
 
 	glm::vec3 GetPosition() const;
 	glm::vec3 GetDirection() const;
-	glm::vec3 GetRotation() const;
+	glm::quat GetRotation() const;
 
-	void Update(glm::vec3 Rotation);
 	void MoveForward(GLfloat Velocity);
 	void TurnRight(GLfloat Velocity);
+	void SetRotation(const glm::quat& Rotation);
 
 	glm::mat4 GetViewMatrix() const;
 
 private:
 	glm::vec3 Position;
-	glm::vec3 Direction;
+	glm::quat RotationQuat;
 	glm::vec3 UpVector;
+	glm::vec3 Direction;
 	glm::vec3 RightVector;
-
-	//TODO: move to world class ot utility class
 	glm::vec3 WorldUpVector;
-
-	GLfloat Yaw;
-	GLfloat Pitch;
-	GLfloat Roll;
 };
 
