@@ -88,7 +88,6 @@ void World::Initialize()
 	}
 
 	RegisterController(FirstPlayerController);
-	
 }
 
 bool World::IsGameOver()
@@ -376,6 +375,8 @@ void World::RenderScene()
 	}
 
 	RenderPass(GameWindow, PlayerCamera, SunLight, ProjectionMatrix);
+
+	GameWindow->ShowFPS();
 
 	glUseProgram(0);
 	///* END of draw triangle *///

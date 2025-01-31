@@ -23,6 +23,8 @@ public:
 	GLdouble GetOffsetX();
 	GLdouble GetOffsetY();
 
+	void ShowFPS() const;
+
 private:
 	GLFWwindow* MainWindowPtr;
 

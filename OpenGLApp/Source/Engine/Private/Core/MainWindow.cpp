@@ -1,6 +1,7 @@
 #include "Core/MainWindow.h"
 
 #include <cstdio>
+#include <format>
 
 MainWindow::MainWindow(GLint WinWidth, GLint WinHeight)
 {
@@ -205,5 +206,23 @@ void MainWindow::HandleKeys(GLFWwindow* Window, int Key, int ScanCode, int Actio
 				printf("Unknown key pressed with ScanCode: %d\n", ScanCode);
 			}
 		}
+	}
+}
+
+void MainWindow::ShowFPS()
+{
+	static double LastTime = glfwGetTime();
+	static int Frames = 0;
+
+	double Now = glfwGetTime();
+	Frames++;
+
+	if (Now - LastTime >= 1.0)
+	{
+		const double FPS = Frames / (Now - LastTime);
+		LastTime = Now;
+		Frames = 0;
+
+		glfwSetWindowTitle(MainWindowPtr, std::format("FPS: {}", static_cast<int>(std::floor(FPS))).c_str());
 	}
 }

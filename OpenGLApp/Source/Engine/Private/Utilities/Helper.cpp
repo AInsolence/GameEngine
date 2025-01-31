@@ -10,8 +10,8 @@
 #include <GL/glew.h>
 
 std::vector<GLenum> Helper::EnsureGL(const char* GL_FunctionName,
-                                     const char* File,
-                                     unsigned int Line)
+									const char* File,
+									unsigned int Line)
 {
 #if defined (DEBUG) || defined (_DEBUG)
 	GLenum Error;
