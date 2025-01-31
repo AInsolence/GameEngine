@@ -34,42 +34,7 @@ void World::Initialize()
 	CreateShaders();
 
 	CreateSkybox();
-
-	SunLight = std::make_shared<DirectionalLight>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-													0.3f, 
-													0.8f,
-													glm::normalize(glm::vec3(-2.0f, -1.0f, 0.3f)),
-													4096, 4096);
-
-
-	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-							 0.0f, 4.0f,
-							 glm::vec3(0.0f, 0.8f, -4.0f),
-							 0.3f, 0.2f, 0.1f,
-							 3.0f, 15.0f, 10.0f));
-
-	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-							0.0f, 4.0f,
-							glm::vec3(8.0f, 0.8f, -4.0f),
-							0.3f, 0.2f, 0.1f,
-							5.0f, 15.0f, 15.0f));
-
-
-	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
-							0.0f, 4.0f,
-							glm::vec3(4.0f, 0.8f, -4.0f),
-							0.3f, 0.2f, 0.1f,
-							6.0f, 15.0f, 15.0f));
-
-	SpotLights.emplace_back(std::make_shared<SpotLight>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-							0.0f, 2.0f,
-							glm::vec3(0.0f, 0.8f, 3.0f),
-							glm::vec3(0.0f, 0.0f, 0.0f),
-							20.0f,
-							0.3f, 0.2f, 0.1f,
-							4.0f, 10.0f, 10.0f));
-
-	
+	CreateLight();
 
 	// Initialize projection matrix
 	ProjectionMatrix = glm::perspective(glm::radians(60.0f),
@@ -191,8 +156,49 @@ void World::Create3DObjects()
 	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices));
 	MeshList.emplace_back(std::make_shared<Mesh>(FloorVertices, FloorIndices));
 
-	SkeletalMeshList.emplace_back(std::make_shared<SkeletalMesh>("Content/Meshes/Pony_cartoon.obj"));
-	//SkeletalMeshList.emplace_back(std::make_shared<SkeletalMesh>("Content/Meshes/scene.gltf"));
+	PonyCar = std::make_shared<SkeletalMesh>("Content/Meshes/Pony_cartoon.obj");
+
+	// Add sphere for each texture for demo
+	for (auto& Texture : Textures)
+	{
+		SkeletalMeshList.emplace_back(std::make_shared<SkeletalMesh>("Content/Meshes/sphere.obj"));
+	}
+}
+
+void World::CreateLight()
+{
+	SunLight = std::make_shared<DirectionalLight>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+													0.3f, 
+													0.8f,
+													glm::normalize(glm::vec3(-2.0f, -2.0f, 0.3f)),
+													4096, 4096);
+
+	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+							 0.0f, 5.0f,
+							 glm::vec3(0.0f, 0.8f, 0.0f),
+							 0.3f, 0.2f, 0.1f,
+							 3.0f, 15.0f, 10.0f));
+
+	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+							0.0f, 5.0f,
+							glm::vec3(10.0f, 0.8f, 0.0f),
+							0.3f, 0.2f, 0.1f,
+							5.0f, 15.0f, 15.0f));
+
+
+	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+							0.0f, 5.0f,
+							glm::vec3(5.0f, 0.8f, 0.0f),
+							0.3f, 0.2f, 0.1f,
+							6.0f, 15.0f, 15.0f));
+
+	SpotLights.emplace_back(std::make_shared<SpotLight>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+							0.0f, 2.0f,
+							glm::vec3(0.0f, 0.8f, 3.0f),
+							glm::vec3(0.0f, 0.0f, 0.0f),
+							20.0f,
+							0.3f, 0.2f, 0.1f,
+							4.0f, 10.0f, 10.0f));
 }
 
 void World::RenderStaticMeshes()
@@ -213,7 +219,7 @@ void World::RenderStaticMeshes()
 	}
 
 	// Rotation logic
-	RotationDegree += 0.5f;
+	RotationDegree += RotationStep;
 
 	if (RotationDegree >= 360.f)
 	{
@@ -242,30 +248,53 @@ void World::RenderStaticMeshes()
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, -1.05f, -3.0f)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -1.05f, -2.0f)); // set translation
+		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		SkeletalMeshList.at(0)->Render();
+		PonyCar->Render();
 	}
 
-	//if (!SkeletalMeshList.empty())
-	//{
-	//	// Set Model Translations
-	//	ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-	//	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(1.0f, -1.05f, 3.0f)); // set translation
-	//	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.006f, 0.006f, 0.006f)); // set scale
-	//	//ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // set rotation
+	std::vector<std::shared_ptr<Texture>> TextureVec;
+	for (auto& Tex : Textures)
+	{
+		TextureVec.push_back(Tex.second);
+	}
 
-	//	glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-	//	SkeletalMeshList.at(1)->Render();
-	//}
+	for (int Index = 0; Index < SkeletalMeshList.size(); ++Index)
+	{
+		glm::vec3 PivotOffset = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// Set Model Translations
+		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f + static_cast<float>(Index) * 2, 0.05f, 5.0f)); // set translation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
+
+		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		Materials.at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+
+		SkeletalMeshList.at(Index)->RenderWithTexture(TextureVec.at(Index));
+	}
+
+	for (int Index = 0; Index < SkeletalMeshList.size(); ++Index)
+	{
+		glm::vec3 PivotOffset = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// Set Model Translations
+		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f + static_cast<float>(Index) * 2, -1.05f, 4.0f)); // set translation
+		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
+
+		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+		Materials.at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+
+		SkeletalMeshList.at(Index)->RenderWithTexture(TextureVec.at(Index));
+	}
 
 	if (!MeshList.empty())
 	{
-		// Set Model Translations
 		ModelMatrix = 1.0f;
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(8.0f, 0.0f, 0.0f)); // set translation
-
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(9.0f, -0.05f, -5.0f));
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		Textures.at("Brick")->Apply();
 		Materials.at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
@@ -275,10 +304,8 @@ void World::RenderStaticMeshes()
 
 	if (MeshList.size() > 1)
 	{
-		// Set Model Translations
 		ModelMatrix = 1.0f;
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f + ShapeOffset, 2.0f, 0.0f)); // set translation
-		
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f + ShapeOffset, 2.0f, -5.0f));
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		Textures.at("Rock")->Apply();
 		Materials.at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
@@ -288,11 +315,9 @@ void World::RenderStaticMeshes()
 
 	if (MeshList.size() > 2)
 	{
-		// Set Model Translations
 		ModelMatrix = 1.0f;
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -0.05f, 0.0f)); // set translation
-		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f)); // set rotation
-
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3.0f, -0.05f, -5.0f));
+		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 		Textures.at("Metal")->Apply();
 		Materials.at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);

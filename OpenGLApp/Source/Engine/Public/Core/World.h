@@ -34,6 +34,7 @@ private:
 	void CreateSkybox();
 	void CreateShaders();
 	void Create3DObjects();
+	void CreateLight();
 
 	void RenderStaticMeshes();
 	void RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
@@ -53,6 +54,7 @@ private:
 
 	std::vector<std::shared_ptr<Mesh>> MeshList;
 	std::vector<std::shared_ptr<SkeletalMesh>> SkeletalMeshList;
+	std::shared_ptr<SkeletalMesh> PonyCar;
 
 	std::vector<std::unique_ptr<Shader>> ShaderList;
 	std::unique_ptr<Shader> DirectionalShadowShader;
@@ -70,7 +72,7 @@ private:
 	bool Direction = true;
 	float ShapeOffset = 0.0f;
 	float ShapeMaxOffset = 3.5f;
-	float ShapeOffsetStep = 0.005f;
+	float ShapeOffsetStep = 0.002f;
 
 	float RotationDegree = 0.0f;
 
@@ -78,6 +80,7 @@ private:
 	float MinScaleRatio = 0.1f;
 	float MaxScaleRatio = 0.3f;
 	float ScaleRatioStep = 0.001f;
+	float RotationStep = 0.2f;
 	bool ScaleDirection = true;
 
 	// Main Shader code

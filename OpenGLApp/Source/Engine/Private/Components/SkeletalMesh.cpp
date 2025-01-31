@@ -51,6 +51,21 @@ void SkeletalMesh::Render() const
 	}
 }
 
+void SkeletalMesh::RenderWithTexture(std::shared_ptr<Texture> CustomTexture) const
+{
+	for (unsigned int Index = 0; Index < MeshUnits.size(); ++Index)
+	{
+		const auto MaterialIndex = MaterialIndices.at(Index);
+
+		if (MaterialIndex < TextureUnits.size() && TextureUnits.at(MaterialIndex))
+		{
+			CustomTexture->Apply();
+		}
+
+		MeshUnits.at(Index)->Render();
+	}
+}
+
 void SkeletalMesh::Clear()
 {
 	MeshUnits.clear();

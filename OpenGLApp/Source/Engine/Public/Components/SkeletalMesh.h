@@ -19,6 +19,7 @@ public:
 
 	bool LoadModel(const std::string& FilePath);
 	void Render() const;
+	void RenderWithTexture(std::shared_ptr<Texture> CustomTexture) const;
 	void Clear();
 
 private:

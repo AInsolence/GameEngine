@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GL/glew.h>
-
 #include <GLFW/glfw3.h>
 
 class MainWindow
@@ -41,7 +40,6 @@ private:
 
 	static void HandleMouse(GLFWwindow* Window, GLdouble XPos, GLdouble YPos);
 
-	// Keyboard input handling
 	bool Keys[1024];
 	static void HandleKeys(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mode);
 };

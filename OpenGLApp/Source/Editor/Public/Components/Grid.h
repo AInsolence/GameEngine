@@ -1,7 +1,7 @@
 #pragma once
 #include <fwd.hpp>
+#include <memory>
 #include <GL/glew.h>
-#include <iostream>
 
 class Shader;
 

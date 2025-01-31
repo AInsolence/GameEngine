@@ -21,4 +21,3 @@ protected:
 	GLuint FBO, Id;
 	GLint ShadowWidth, ShadowHeight;
 };
-
