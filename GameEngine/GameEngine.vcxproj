@@ -24,6 +24,7 @@
     <ProjectGuid>{f81bf473-63ce-4714-a544-acfd55d4da0e}</ProjectGuid>
     <RootNamespace>OpenGLApp</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>GameEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -76,7 +77,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Editor/Public;$(SolutionDir)/OpenGLApp/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/GameEngine/Source/Editor/Public;$(SolutionDir)/GameEngine/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -94,7 +95,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Editor/Public;$(SolutionDir)/OpenGLApp/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/GameEngine/Source/Editor/Public;$(SolutionDir)/GameEngine/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -112,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Editor/Public;$(SolutionDir)/OpenGLApp/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/GameEngine/Source/Editor/Public;$(SolutionDir)/GameEngine/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/OpenGLApp/Source/Editor/Public;$(SolutionDir)/OpenGLApp/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../External Libs/ASSIMP/include;$(SolutionDir)/../External Libs/GLM;$(SolutionDir)/../External Libs/GLFW/include;$(SolutionDir)/GameEngine/Source/Editor/Public;$(SolutionDir)/GameEngine/Source/Engine/Public;$(SolutionDir)/../External Libs/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

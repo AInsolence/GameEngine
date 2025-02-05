@@ -13,8 +13,8 @@ class PlayerController : public IInputController
 public:
 	PlayerController(std::shared_ptr<MainWindow> InitGameWindow,
 						std::shared_ptr<Camera> InitPlayerCamera,
-						GLfloat InitMoveSpeed = 3.0f,
-						GLfloat InitTurnSpeed = 3.0f,
+						GLfloat InitMoveSpeed = 5.0f,
+						GLfloat InitTurnSpeed = 5.0f,
 						GLfloat InitMouseSpeed = 0.2f);
 
 	void HandleInput(GLfloat DeltaTime) override;

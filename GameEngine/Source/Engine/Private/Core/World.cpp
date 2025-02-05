@@ -248,7 +248,7 @@ void World::RenderStaticMeshes()
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -1.05f, -2.0f)); // set translation
+		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -1.02f, -2.0f)); // set translation
 		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
