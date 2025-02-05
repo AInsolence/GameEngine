@@ -8,7 +8,7 @@
 
 #include <GL/glew.h>
 
-#include "Utilities/Helper.h"
+#include "Helper.h"
 
 class SpotLight;
 class PointLight;

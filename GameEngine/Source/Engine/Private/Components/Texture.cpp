@@ -1,9 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "Utilities/stb_image.h"
+#include "stb_image.h"
 
 #include "Components/Texture.h"
 
-#include "Utilities/Helper.h"
+#include "Helper.h"
 
 Texture::Texture() : Id(0), Width(0), Height(0), BitDepth(0), FilePath("")
 {

@@ -6,8 +6,8 @@
 #include "Render/Shader.h"
 #include "Components/Mesh.h"
 
-#include "Utilities/Helper.h"
-#include "Utilities/stb_image.h"
+#include "Helper.h"
+#include "stb_image.h"
 
 Skybox::Skybox(std::array<std::string, 6> FaceLocations)
 {

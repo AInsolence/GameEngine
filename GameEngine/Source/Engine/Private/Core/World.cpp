@@ -3,7 +3,7 @@
 #include <array>
 #include <gtc/type_ptr.hpp>
 
-#include "Utilities/Helper.h"
+#include "Helper.h"
 
 World::World()
 {

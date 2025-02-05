@@ -8,7 +8,6 @@
 #include "Render/DirectionalLight.h"
 #include "Render/PointLight.h"
 #include "Render/SpotLight.h"
-#include "Utilities/Helper.h"
 
 Shader::Shader(const char* VertexShaderPath,
 				const char* FragmentShaderPath)

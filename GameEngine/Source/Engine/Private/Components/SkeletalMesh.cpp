@@ -9,7 +9,7 @@
 #include "Components/Mesh.h"
 #include "Components/Texture.h"
 
-#include "Utilities/Helper.h"
+#include "Helper.h"
 
 SkeletalMesh::SkeletalMesh(const std::string& FilePath)
 {

@@ -1,6 +1,6 @@
 #include "Render/OmniDirShadowMap.h"
 
-#include "Utilities/Helper.h"
+#include "Helper.h"
 
 bool OmniDirShadowMap::Init(GLint InitWidth, GLint InitHeight)
 {

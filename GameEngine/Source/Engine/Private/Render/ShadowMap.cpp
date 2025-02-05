@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-#include "Utilities/Helper.h"
+#include "Helper.h"
 
 ShadowMap::ShadowMap()
 {
