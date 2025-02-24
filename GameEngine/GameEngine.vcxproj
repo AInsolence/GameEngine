@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Private\Core\Level.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\SceneComponent.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\Component.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\Actor.cpp" />
@@ -171,6 +172,7 @@
     <ClCompile Include="Source\Engine\Private\Core\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Public\Core\Level.h" />
     <ClInclude Include="Source\Engine\Public\Core\SceneComponent.h" />
     <ClInclude Include="Source\Engine\Public\Core\RenderableComponent.h" />
     <ClInclude Include="Source\Engine\Public\Core\Component.h" />

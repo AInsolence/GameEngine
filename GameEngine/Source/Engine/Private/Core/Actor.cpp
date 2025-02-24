@@ -4,6 +4,10 @@
 #include "Core/RenderableComponent.h"
 
 
+Actor::Actor() : RootComponent(nullptr)
+{
+}
+
 void Actor::SetRootComponent(std::shared_ptr<SceneComponent> Root)
 {
 	RootComponent = Root;
@@ -31,11 +35,11 @@ std::shared_ptr<Component> Actor::GetComponent(const std::string& Name)
 	return (Comp != Components.end()) ? Comp->second : nullptr;
 }
 
-void Actor::Update()
+void Actor::Update(float DeltaTime)
 {
 	for (auto& Pair : Components)
 	{
-		Pair.second->Update();
+		Pair.second->Update(DeltaTime);
 	}
 }
 
@@ -45,4 +49,19 @@ void Actor::Render()
 	{
 		RenderComp->Render();
 	}
+}
+
+void Actor::SetName(const std::string& InName)
+{
+	Name = InName;
+}
+
+void Actor::SetName(std::string&& InName)
+{
+	Name = std::move(InName);
+}
+
+std::string Actor::GetName()
+{
+	return Name;
 }

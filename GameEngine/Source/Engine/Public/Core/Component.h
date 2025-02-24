@@ -9,7 +9,7 @@ public:
 
 	virtual ~Component() = default;
 
-	virtual void Update() {}
+	virtual void Update(float DeltaTime) {}
 	std::string GetName() const;
 
 private:
