@@ -13,7 +13,7 @@
 #include "Components/Material.h"
 #include "Core/PlayerController.h"
 #include "Render/DirectionalLight.h"
-#include "Components/SkeletalMesh.h"
+#include "Components/SkeletalMeshComponent.h"
 
 class World
 {
@@ -53,8 +53,8 @@ private:
 	std::unique_ptr<Grid> EditorGrid;
 
 	std::vector<std::shared_ptr<Mesh>> MeshList;
-	std::vector<std::shared_ptr<SkeletalMesh>> SkeletalMeshList;
-	std::shared_ptr<SkeletalMesh> PonyCar;
+	std::vector<std::shared_ptr<SkeletalMeshComponent>> SkeletalMeshList;
+	std::shared_ptr<SkeletalMeshComponent> PonyCar;
 
 	std::vector<std::unique_ptr<Shader>> ShaderList;
 	std::unique_ptr<Shader> DirectionalShadowShader;

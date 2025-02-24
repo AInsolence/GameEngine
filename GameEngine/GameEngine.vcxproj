@@ -144,6 +144,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Private\Core\SceneComponent.cpp" />
+    <ClCompile Include="Source\Engine\Private\Core\Component.cpp" />
+    <ClCompile Include="Source\Engine\Private\Core\Actor.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\World.cpp" />
     <ClCompile Include="Source\Engine\Private\Render\SceneRenderer.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\PlayerController.cpp" />
@@ -153,7 +156,7 @@
     <ClCompile Include="Source\Engine\Private\Components\Camera.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\Material.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\Mesh.cpp" />
-    <ClCompile Include="Source\Engine\Private\Components\SkeletalMesh.cpp" />
+    <ClCompile Include="Source\Engine\Private\Components\SkeletalMeshComponent.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\Skybox.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\Texture.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\MainWindow.cpp" />
@@ -165,8 +168,13 @@
     <ClCompile Include="Source\Engine\Private\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\Engine\Private\Render\SpotLight.cpp" />
     <ClCompile Include="Source\Engine\Private\Utilities\Helper.cpp" />
+    <ClCompile Include="Source\Engine\Private\Core\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Public\Core\SceneComponent.h" />
+    <ClInclude Include="Source\Engine\Public\Core\RenderableComponent.h" />
+    <ClInclude Include="Source\Engine\Public\Core\Component.h" />
+    <ClInclude Include="Source\Engine\Public\Core\Actor.h" />
     <ClInclude Include="Source\Engine\Public\Utilities\Events.h" />
     <ClInclude Include="Source\Engine\Public\Core\World.h" />
     <ClInclude Include="Source\Engine\Public\Render\SceneRenderer.h" />
@@ -177,7 +185,7 @@
     <ClInclude Include="Source\Engine\Public\Components\Camera.h" />
     <ClInclude Include="Source\Engine\Public\Components\Material.h" />
     <ClInclude Include="Source\Engine\Public\Components\Mesh.h" />
-    <ClInclude Include="Source\Engine\Public\Components\SkeletalMesh.h" />
+    <ClInclude Include="Source\Engine\Public\Components\SkeletalMeshComponent.h" />
     <ClInclude Include="Source\Engine\Public\Components\Skybox.h" />
     <ClInclude Include="Source\Engine\Public\Components\Texture.h" />
     <ClInclude Include="Source\Engine\Public\Core\MainWindow.h" />
@@ -190,6 +198,7 @@
     <ClInclude Include="Source\Engine\Public\Render\SpotLight.h" />
     <ClInclude Include="Source\Engine\Public\Utilities\Helper.h" />
     <ClInclude Include="Source\Engine\Public\Utilities\stb_image.h" />
+    <ClInclude Include="Source\Engine\Public\Core\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Public\Render\Shaders\directional_shadow_map_shader.frag" />

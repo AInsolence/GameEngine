@@ -156,12 +156,12 @@ void World::Create3DObjects()
 	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices));
 	MeshList.emplace_back(std::make_shared<Mesh>(FloorVertices, FloorIndices));
 
-	PonyCar = std::make_shared<SkeletalMesh>("Content/Meshes/Pony_cartoon.obj");
+	//PonyCar = std::make_shared<SkeletalMeshComponent>("Content/Meshes/Pony_cartoon.obj");
 
 	// Add sphere for each texture for demo
 	for (auto& Texture : Textures)
 	{
-		SkeletalMeshList.emplace_back(std::make_shared<SkeletalMesh>("Content/Meshes/sphere.obj"));
+		//SkeletalMeshList.emplace_back(std::make_shared<SkeletalMeshComponent>("Content/Meshes/sphere.obj"));
 	}
 }
 

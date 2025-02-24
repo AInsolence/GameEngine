@@ -1,4 +1,4 @@
-#include "Components/SkeletalMesh.h"
+#include "Components/SkeletalMeshComponent.h"
 
 #include <memory>
 #include <assimp/Importer.hpp>
@@ -11,12 +11,7 @@
 
 #include "Helper.h"
 
-SkeletalMesh::SkeletalMesh(const std::string& FilePath)
-{
-	LoadModel(FilePath);
-}
-
-bool SkeletalMesh::LoadModel(const std::string& FilePath)
+bool SkeletalMeshComponent::LoadModel(const std::string& FilePath)
 {
 	Assimp::Importer Importer;
 	const aiScene* Scene = Importer.ReadFile(FilePath, aiProcess_Triangulate |
@@ -36,7 +31,10 @@ bool SkeletalMesh::LoadModel(const std::string& FilePath)
 	return true;
 }
 
-void SkeletalMesh::Render() const
+SkeletalMeshComponent::SkeletalMeshComponent(std::string&& Name, std::string&& MeshName)
+							: RenderableComponent(std::move(Name)), MeshName(std::move(MeshName)){}
+
+void SkeletalMeshComponent::Render() const
 {
 	for (unsigned int Index = 0; Index < MeshUnits.size(); ++Index)
 	{
@@ -51,7 +49,7 @@ void SkeletalMesh::Render() const
 	}
 }
 
-void SkeletalMesh::RenderWithTexture(std::shared_ptr<Texture> CustomTexture) const
+void SkeletalMeshComponent::RenderWithTexture(std::shared_ptr<Texture> CustomTexture) const
 {
 	for (unsigned int Index = 0; Index < MeshUnits.size(); ++Index)
 	{
@@ -66,14 +64,14 @@ void SkeletalMesh::RenderWithTexture(std::shared_ptr<Texture> CustomTexture) con
 	}
 }
 
-void SkeletalMesh::Clear()
+void SkeletalMeshComponent::Clear()
 {
 	MeshUnits.clear();
 	TextureUnits.clear();
 	MaterialIndices.clear();
 }
 
-void SkeletalMesh::LoadNode(const aiNode* Node, const aiScene* Scene)
+void SkeletalMeshComponent::LoadNode(const aiNode* Node, const aiScene* Scene)
 {
 	for (unsigned int NodeIndex = 0; NodeIndex < Node->mNumMeshes; ++NodeIndex)
 	{
@@ -86,7 +84,7 @@ void SkeletalMesh::LoadNode(const aiNode* Node, const aiScene* Scene)
 	}
 }
 
-void SkeletalMesh::LoadMesh(const aiMesh* InitMesh, const aiScene* Scene)
+void SkeletalMeshComponent::LoadMesh(const aiMesh* InitMesh, const aiScene* Scene)
 {
 	std::vector<GLfloat> Vertices;
 	std::vector<unsigned int> Indices;
@@ -130,7 +128,7 @@ void SkeletalMesh::LoadMesh(const aiMesh* InitMesh, const aiScene* Scene)
 	MaterialIndices.push_back(InitMesh->mMaterialIndex);
 }
 
-void SkeletalMesh::LoadMaterials(const aiScene* Scene)
+void SkeletalMeshComponent::LoadMaterials(const aiScene* Scene)
 {
 	TextureUnits.clear();
 	TextureUnits.reserve(Scene->mNumMaterials);
