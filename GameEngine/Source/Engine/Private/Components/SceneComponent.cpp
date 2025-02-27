@@ -1,4 +1,4 @@
-#include "Core/SceneComponent.h"
+#include "Components/SceneComponent.h"
 
 SceneComponent::SceneComponent(std::string&& Name, float X, float Y, float Z)
 		: Component(std::move(Name))

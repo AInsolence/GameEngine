@@ -1,4 +1,4 @@
-#include "Core/Component.h"
+#include "Components/Component.h"
 
 std::string Component::GetName() const
 {

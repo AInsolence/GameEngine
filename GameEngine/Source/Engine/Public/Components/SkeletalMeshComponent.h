@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "Core/RenderableComponent.h"
+#include "Components/RenderableComponent.h"
 
 class Mesh;
 class Texture;

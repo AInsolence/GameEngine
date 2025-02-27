@@ -145,8 +145,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Private\Core\Level.cpp" />
-    <ClCompile Include="Source\Engine\Private\Core\SceneComponent.cpp" />
-    <ClCompile Include="Source\Engine\Private\Core\Component.cpp" />
+    <ClCompile Include="Source\Engine\Private\Components\SceneComponent.cpp" />
+    <ClCompile Include="Source\Engine\Private\Components\Component.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\Actor.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\World.cpp" />
     <ClCompile Include="Source\Engine\Private\Render\SceneRenderer.cpp" />
@@ -169,13 +169,13 @@
     <ClCompile Include="Source\Engine\Private\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\Engine\Private\Render\SpotLight.cpp" />
     <ClCompile Include="Source\Engine\Private\Utilities\Helper.cpp" />
-    <ClCompile Include="Source\Engine\Private\Core\Transform.cpp" />
+    <ClCompile Include="Source\Engine\Private\Components\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Public\Core\Level.h" />
-    <ClInclude Include="Source\Engine\Public\Core\SceneComponent.h" />
-    <ClInclude Include="Source\Engine\Public\Core\RenderableComponent.h" />
-    <ClInclude Include="Source\Engine\Public\Core\Component.h" />
+    <ClInclude Include="Source\Engine\Public\Components\SceneComponent.h" />
+    <ClInclude Include="Source\Engine\Public\Components\RenderableComponent.h" />
+    <ClInclude Include="Source\Engine\Public\Components\Component.h" />
     <ClInclude Include="Source\Engine\Public\Core\Actor.h" />
     <ClInclude Include="Source\Engine\Public\Utilities\Events.h" />
     <ClInclude Include="Source\Engine\Public\Core\World.h" />
@@ -200,7 +200,7 @@
     <ClInclude Include="Source\Engine\Public\Render\SpotLight.h" />
     <ClInclude Include="Source\Engine\Public\Utilities\Helper.h" />
     <ClInclude Include="Source\Engine\Public\Utilities\stb_image.h" />
-    <ClInclude Include="Source\Engine\Public\Core\Transform.h" />
+    <ClInclude Include="Source\Engine\Public\Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Public\Render\Shaders\directional_shadow_map_shader.frag" />
