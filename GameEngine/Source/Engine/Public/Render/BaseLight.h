@@ -1,8 +1,10 @@
 #pragma once
 
-#include <glm.hpp>
 #include <memory>
 #include <GL/glew.h>
+
+#include "vec4.hpp"
+#include "mat4x4.hpp"
 
 #include "ShadowMap.h"
 
@@ -10,7 +12,7 @@ struct BaseLightParams
 {
 	glm::vec4 InitColor {1.0f};
 	GLfloat InitAmbientIntensity = 0.1f;
-	GLfloat InitDiffuseIntensit = 1.0f;
+	GLfloat InitDiffuseIntensity = 1.0f;
 	GLint InitShadowWidth = 1024;
 	GLint InitShadowHeight = 1024;
 };

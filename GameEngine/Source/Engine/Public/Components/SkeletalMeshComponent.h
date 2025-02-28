@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "SceneComponent.h"
 #include "Components/RenderableComponent.h"
 
 class Mesh;
@@ -14,7 +15,7 @@ struct aiScene;
 struct aiNode;
 
 
-class SkeletalMeshComponent : public RenderableComponent
+class SkeletalMeshComponent : public SceneComponent, public RenderableComponent
 {
 public:
 	SkeletalMeshComponent(std::string&& Name, std::string&& MeshName);

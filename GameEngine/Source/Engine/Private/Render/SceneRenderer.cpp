@@ -4,9 +4,23 @@
 #include <ext/matrix_clip_space.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include "Helper.h"
+#include "Core/Actor.h"
+#include "Components/Camera.h"
+#include "Components/Grid.h"
+#include "Components/Material.h"
+#include "Components/Mesh.h"
+#include "Render/Shader.h"
+#include "Render/DirectionalLight.h"
+#include "Components/SceneComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/Skybox.h"
+
+#include "Core/MainWindow.h"
+#include "Render/SpotLight.h"
+
 SceneRenderer::SceneRenderer(std::shared_ptr<Level> LevelIns)  : LevelInstance(LevelIns)
 {
-	
 }
 
 void SceneRenderer::Initialize(const std::shared_ptr<MainWindow>& InGameWindow)
@@ -19,10 +33,6 @@ void SceneRenderer::Initialize(const std::shared_ptr<MainWindow>& InGameWindow)
 	Create3DObjects();
 	CreateShaders();
 
-	CreateSkybox();
-	CreateLight();
-
-	// Initialize projection matrix
 	ProjectionMatrix = glm::perspective(glm::radians(60.0f),
 										static_cast<float>(GameWindow->GetBufferWidth()) / 
 										static_cast<float>(GameWindow->GetBufferHeight()),
@@ -65,24 +75,8 @@ void SceneRenderer::LoadMaterials()
 	Materials.emplace("Mat", std::make_shared<Material>(0.5f, 1.0f));
 }
 
-void SceneRenderer::CreateSkybox()
-{
-	std::array<std::string, 6> FaceLocations;
-
-	FaceLocations.at(0) = "Content/Textures/Skybox/sky_36/pz.png";
-	FaceLocations.at(1) = "Content/Textures/Skybox/sky_36/nz.png";
-	FaceLocations.at(2) = "Content/Textures/Skybox/sky_36/py.png";
-	FaceLocations.at(3) = "Content/Textures/Skybox/sky_36/ny.png";
-	FaceLocations.at(4) = "Content/Textures/Skybox/sky_36/nx.png";
-	FaceLocations.at(5) = "Content/Textures/Skybox/sky_36/px.png";
-
-	Sky = std::make_unique<Skybox>(FaceLocations);
-}
-
 void SceneRenderer::Create3DObjects()
 {
-	EditorGrid = std::make_unique<Grid>(100, 50);
-
 	// Define floor vertices
 	std::vector<GLfloat> FloorVertices = {
 	//	   x      y      z      u      v     nx     ny    nz
@@ -129,42 +123,6 @@ void SceneRenderer::Create3DObjects()
 	{
 		//SkeletalMeshList.emplace_back(std::make_shared<SkeletalMeshComponent>("Content/Meshes/sphere.obj"));
 	}
-}
-
-void SceneRenderer::CreateLight()
-{
-	SunLight = std::make_shared<DirectionalLight>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-													0.3f, 
-													0.8f,
-													glm::normalize(glm::vec3(-2.0f, -2.0f, 0.3f)),
-													4096, 4096);
-
-	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
-							 0.0f, 5.0f,
-							 glm::vec3(0.0f, 0.8f, 0.0f),
-							 0.3f, 0.2f, 0.1f,
-							 3.0f, 15.0f, 10.0f));
-
-	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-							0.0f, 5.0f,
-							glm::vec3(10.0f, 0.8f, 0.0f),
-							0.3f, 0.2f, 0.1f,
-							5.0f, 15.0f, 15.0f));
-
-
-	PointLights.emplace_back(std::make_shared<PointLight>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-							0.0f, 5.0f,
-							glm::vec3(5.0f, 0.8f, 0.0f),
-							0.3f, 0.2f, 0.1f,
-							6.0f, 15.0f, 15.0f));
-
-	SpotLights.emplace_back(std::make_shared<SpotLight>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-							0.0f, 2.0f,
-							glm::vec3(0.0f, 0.8f, 3.0f),
-							glm::vec3(0.0f, 0.0f, 0.0f),
-							20.0f,
-							0.3f, 0.2f, 0.1f,
-							4.0f, 10.0f, 10.0f));
 }
 
 void SceneRenderer::RenderStaticMeshes()
@@ -303,6 +261,51 @@ void SceneRenderer::RenderStaticMeshes()
 
 		MeshList[3]->Render();
 	}
+
+	for (const auto& Actor : LevelInstance->GetAllActors())
+	{
+		if (!Actor) continue;
+
+		const std::shared_ptr<SceneComponent> Root = Actor->GetRootComponent();
+
+		if (!Root) continue;
+
+		glm::mat4 ModelMatrix = glm::mat4(1.0f);
+
+		ModelMatrix = glm::translate(ModelMatrix, Root->GetLocation());
+		ModelMatrix *= glm::mat4_cast(Root->GetRotation());
+		ModelMatrix = glm::scale(ModelMatrix, Root->GetScale());
+
+		for (const auto& ComponentPair : Actor->GetAllRenderableComponents()) 
+		{
+			auto RenderComponent = std::dynamic_pointer_cast<RenderableComponent>(ComponentPair);
+			if (!RenderComponent) continue;
+
+			// We take into account the offset if we have a child scene component
+			glm::mat4 ComponentModelMatrix = ModelMatrix;
+
+			const auto SceneComp = std::dynamic_pointer_cast<SceneComponent>(RenderComponent);
+
+			if (std::dynamic_pointer_cast<SceneComponent>(RenderComponent)) 
+			{
+				ComponentModelMatrix = glm::translate(ComponentModelMatrix, SceneComp->GetLocation());
+				ComponentModelMatrix *= glm::mat4_cast(SceneComp->GetRotation());
+				ComponentModelMatrix = glm::scale(ComponentModelMatrix, SceneComp->GetScale());
+			}
+
+			glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ComponentModelMatrix));
+
+			/* TODO: update material if possible into engine
+			 
+			 auto Material = RenderComponent->GetMaterial();
+
+			if (Material)
+			{
+				Material->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+			}*/
+			RenderComponent->Render();
+		}
+	}
 }
 
 void SceneRenderer::GenerateDirectionalShadowMaps(const std::shared_ptr<DirectionalLight>& Light)
@@ -351,19 +354,19 @@ void SceneRenderer::GenerateOmniDirShadowMaps(const std::shared_ptr<PointLight>&
 
 void SceneRenderer::RenderScene(const std::shared_ptr<Camera>& PlayerCamera)
 {
-	GenerateDirectionalShadowMaps(SunLight);
+	GenerateDirectionalShadowMaps(LevelInstance->GetSunLight());
 
-	for (auto& Light : PointLights)
+	for (auto& Light : LevelInstance->GetPointLights())
 	{
 		GenerateOmniDirShadowMaps(Light);
 	}
 
-	for (auto& Light : SpotLights)
+	for (auto& Light : LevelInstance->GetSpotLights())
 	{
 		GenerateOmniDirShadowMaps(Light);
 	}
 
-	RenderPass(GameWindow, PlayerCamera, SunLight, ProjectionMatrix);
+	RenderPass(GameWindow, PlayerCamera, LevelInstance->GetSunLight(), ProjectionMatrix);
 
 	GameWindow->ShowFPS();
 
@@ -383,9 +386,9 @@ void SceneRenderer::RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
 	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Sky->DrawSky(ProjectionMatrix, MainCamera->GetViewMatrix());
+	LevelInstance->GetSkybox()->DrawSky(ProjectionMatrix, MainCamera->GetViewMatrix());
 
-	EditorGrid->Draw(ProjectionMatrix, MainCamera->GetViewMatrix());
+	LevelInstance->GetEditorGrid()->Draw(ProjectionMatrix, MainCamera->GetViewMatrix());
 
 	///* Use shader program *///
 	ShaderList[0]->Use();
@@ -402,22 +405,22 @@ void SceneRenderer::RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
 	// Set Camera Position
 	glUniform3fv(UniformCameraPosition, 1, glm::value_ptr(MainCamera->GetPosition()));
 	
-	ShaderList[0]->SetDirectionalLight(SunLight);
-	ShaderList[0]->SetDirectionalLightSpaceTransform(SunLight->CalculateLightSpaceTransform());
+	ShaderList[0]->SetDirectionalLight(LevelInstance->GetSunLight());
+	ShaderList[0]->SetDirectionalLightSpaceTransform(LevelInstance->GetSunLight()->CalculateLightSpaceTransform());
 
-	SunLight->GetShadowMap()->Read(GL_TEXTURE3);
+	LevelInstance->GetSunLight()->GetShadowMap()->Read(GL_TEXTURE3);
 	ShaderList.at(0)->SetTextureUnit(2);
 	ShaderList.at(0)->SetDirectionalShadowMap(3);
 
-	ShaderList.at(0)->SetPointLights(PointLights, 4, 0);
-	ShaderList.at(0)->SetSpotLights(SpotLights, 4 + PointLights.size(), PointLights.size());
+	ShaderList.at(0)->SetPointLights(LevelInstance->GetPointLights(), 4, 0);
+	ShaderList.at(0)->SetSpotLights(LevelInstance->GetSpotLights(), 4 + LevelInstance->GetPointLights().size(), LevelInstance->GetPointLights().size());
 
 	glm::vec3 HandsPosition = MainCamera->GetPosition();
 	HandsPosition.y -= 0.1f;
 
-	if (!SpotLights.empty())
+	if (!LevelInstance->GetSpotLights().empty())
 	{
-		SpotLights.at(0)->SetTransform(HandsPosition, MainCamera->GetDirection());
+		LevelInstance->GetSpotLights().at(0)->SetTransform(HandsPosition, MainCamera->GetDirection());
 	}
 
 	ShaderList.at(0)->Validate();

@@ -27,6 +27,8 @@ public:
 	void SetName(std::string&& InName);
 	void SetName(const std::string& InName);
 
+	std::vector<std::shared_ptr<RenderableComponent>>& GetAllRenderableComponents();
+
 private:
 	std::string Name = "Actor";
 

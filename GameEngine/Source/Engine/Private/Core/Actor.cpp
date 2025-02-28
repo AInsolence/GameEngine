@@ -21,6 +21,14 @@ std::shared_ptr<SceneComponent> Actor::GetRootComponent() const
 
 void Actor::AddComponent(std::shared_ptr<Component> Component)
 {
+	std::string CompName = Component->GetName();
+
+	if (Components.contains(CompName))
+	{
+		CompName += "_" + std::to_string(Components.size());
+		Component->SetName(CompName);
+	}
+
 	Components[Component->GetName()] = Component;
 
 	if (const auto& RenderComp = std::dynamic_pointer_cast<RenderableComponent>(Component))
@@ -54,6 +62,11 @@ void Actor::Render()
 void Actor::SetName(const std::string& InName)
 {
 	Name = InName;
+}
+
+std::vector<std::shared_ptr<RenderableComponent>>& Actor::GetAllRenderableComponents()
+{
+	return RenderableComponents;
 }
 
 void Actor::SetName(std::string&& InName)

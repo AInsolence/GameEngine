@@ -4,7 +4,6 @@
 #include <gtc/type_ptr.hpp>
 
 #include "Render/Shader.h"
-#include "Components/Mesh.h"
 
 #include "Helper.h"
 #include "stb_image.h"

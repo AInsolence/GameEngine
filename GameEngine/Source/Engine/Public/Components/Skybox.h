@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "GL/glew.h"
+#include "Components/Mesh.h"
 
 class Shader;
-class Mesh;
 
 class Skybox
 {

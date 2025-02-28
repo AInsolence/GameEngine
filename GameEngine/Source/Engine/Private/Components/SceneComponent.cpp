@@ -1,13 +1,11 @@
 #include "Components/SceneComponent.h"
 
-SceneComponent::SceneComponent(std::string&& Name, float X, float Y, float Z)
-		: Component(std::move(Name))
+SceneComponent::SceneComponent() : Component("NONE")
 {
-	SceneTransform.Location.x = X;
-	SceneTransform.Location.y = Y;
-	SceneTransform.Location.z = Z;
+}
 
-	SceneTransform.Rotation = glm::quat();
+SceneComponent::SceneComponent(std::string&& Name) : Component(std::move(Name))
+{
 }
 
 void SceneComponent::SetTransform(const Transform& InitTransform)

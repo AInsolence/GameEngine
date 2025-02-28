@@ -10,7 +10,8 @@
 class SceneComponent : public Component
 {
 public:
-	SceneComponent(std::string&& Name, float X = 0.0f, float Y = 0.0f, float Z = 0.0f);
+	SceneComponent();
+	SceneComponent(std::string&& Name);
 
 	void SetTransform(const Transform& InitTransform);
 

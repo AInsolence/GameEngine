@@ -3,22 +3,22 @@
 #include <fwd.hpp>
 #include <map>
 #include <memory>
+#include <vector>
 
 #include "GL/glew.h"
 #include "mat4x4.hpp"
 
 #include "Core/Level.h"
-#include "Render/Shader.h"
-#include "Components/Camera.h"
-#include "Components/Grid.h"
-#include "Components/Material.h"
-#include "Components/Mesh.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Components/Skybox.h"
-#include "Core/MainWindow.h"
-#include "Render/DirectionalLight.h"
-#include "Render/PointLight.h"
-#include "Render/SpotLight.h"
+
+class Mesh;
+class Texture;
+class Shader;
+class PointLight;
+class DirectionalLight;
+class Material;
+class SkeletalMeshComponent;
+class Camera;
+class MainWindow;
 
 class SceneRenderer
 {
@@ -42,10 +42,8 @@ private:
 	void LoadTextures();
 	void LoadMaterials();
 
-	void CreateSkybox();
 	void CreateShaders();
 	void Create3DObjects();
-	void CreateLight();
 
 	void RenderStaticMeshes();
 	void RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
@@ -56,9 +54,6 @@ private:
 	void GenerateDirectionalShadowMaps(const std::shared_ptr<DirectionalLight>& Light);
 	void GenerateOmniDirShadowMaps(const std::shared_ptr<PointLight>& Light);
 
-	std::unique_ptr<Skybox> Sky;
-	std::unique_ptr<Grid> EditorGrid;
-
 	std::vector<std::shared_ptr<Mesh>> MeshList;
 	std::vector<std::shared_ptr<SkeletalMeshComponent>> SkeletalMeshList;
 	std::shared_ptr<SkeletalMeshComponent> PonyCar;
@@ -66,10 +61,6 @@ private:
 	std::vector<std::unique_ptr<Shader>> ShaderList;
 	std::unique_ptr<Shader> DirectionalShadowShader;
 	std::shared_ptr<Shader> OmniDirectionalShadowShader;
-
-	std::shared_ptr<DirectionalLight> SunLight;
-	std::vector<std::shared_ptr<PointLight>> PointLights;
-	std::vector<std::shared_ptr<SpotLight>> SpotLights;
 
 	std::map<const char*, std::shared_ptr<Texture>> Textures;
 	std::map<const char*, std::shared_ptr<Material>> Materials;
