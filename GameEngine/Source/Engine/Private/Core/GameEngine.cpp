@@ -1,5 +1,7 @@
 #include "Core/GameEngine.h"
+
 #include <chrono>
+#include <GLFW/glfw3.h>
 
 void GameEngine::Run()
 {

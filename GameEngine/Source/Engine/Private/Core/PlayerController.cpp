@@ -7,8 +7,8 @@
 #include "Core/MainWindow.h"
 #include "Render/SpotLight.h"
 
-PlayerController::PlayerController(std::shared_ptr<MainWindow> InitGameWindow,
-									std::shared_ptr<Camera> InitPlayerCamera,
+PlayerController::PlayerController(std::shared_ptr<MainWindow>& InitGameWindow,
+									std::shared_ptr<Camera>& InitPlayerCamera,
 									GLfloat InitMoveSpeed,
 									GLfloat InitTurnSpeed,
 									GLfloat InitMouseSpeed)
