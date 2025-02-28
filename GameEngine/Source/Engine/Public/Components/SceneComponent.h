@@ -20,23 +20,17 @@ public:
 	void SetRotation(float Pitch, float Yaw, float Roll);
 	void SetRotation(glm::quat&& Rotation);
 
-	void GetLocation(float& OutX, float& OutY, float& OutZ) const
-	{
-		OutX = SceneTransform.Location.x;
-		OutY = SceneTransform.Location.y;
-		OutZ = SceneTransform.Location.z;
-	}
+	void SetScale(float X, float Y, float Z);
+	void SetScale(glm::vec3&& Position);
 
-	glm::quat GetRotation();
+	glm::vec3 GetScale() const;
+	void GetScale(float& OutX, float& OutY, float& OutZ) const;
 
-	// Rotation getter (in degrees)
-	void GetRotation(float& OutPitch, float& OutYaw, float& OutRoll) const
-	{
-		const glm::vec3 euler = glm::degrees(glm::eulerAngles(SceneTransform.Rotation));
-		OutPitch = euler.x;
-		OutYaw = euler.y;
-		OutRoll = euler.z;
-	}
+	glm::vec3 GetLocation() const;
+	void GetLocation(float& OutX, float& OutY, float& OutZ) const;
+
+	glm::quat GetRotation() const;
+	void GetRotation(float& OutPitch, float& OutYaw, float& OutRoll) const; // Rotation getter (in degrees)
 
 private:
 	Transform SceneTransform;

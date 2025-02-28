@@ -1,7 +1,7 @@
 #include "Core/Actor.h"
 
-#include "Core/SceneComponent.h"
-#include "Core/RenderableComponent.h"
+#include "Components/SceneComponent.h"
+#include "Components/RenderableComponent.h"
 
 
 Actor::Actor() : RootComponent(nullptr)
