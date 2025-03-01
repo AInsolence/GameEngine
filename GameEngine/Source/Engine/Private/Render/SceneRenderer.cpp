@@ -375,10 +375,15 @@ void SceneRenderer::RenderScene(const std::shared_ptr<Camera>& PlayerCamera)
 	GameWindow->SwapBuffers();
 }
 
+std::shared_ptr<Level> SceneRenderer::GetLevelInstance() const
+{
+	return LevelInstance;
+}
+
 void SceneRenderer::RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
-							const std::shared_ptr<Camera>& MainCamera,
-							std::shared_ptr<DirectionalLight>& SunLight,
-							const glm::mat4& ProjectionMatrix)
+								const std::shared_ptr<Camera>& MainCamera,
+								std::shared_ptr<DirectionalLight>& SunLight,
+								const glm::mat4& ProjectionMatrix)
 {
 	glViewport(0, 0, MainWindow->GetBufferWidth(), MainWindow->GetBufferHeight());
 

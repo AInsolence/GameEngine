@@ -35,6 +35,8 @@ public:
 	//	}
 	//}
 
+	std::shared_ptr<Level> GetLevelInstance() const;
+
 private:
 	std::shared_ptr<MainWindow> GameWindow;
 	std::shared_ptr<Level> LevelInstance;

@@ -32,19 +32,27 @@ void World::Initialize()
 
 	FirstPlayerController = std::make_shared<PlayerController>(GameWindow, PlayerCamera);
 
-	// TODO: temp for debug purposes
-	/*if (!SpotLights.empty())
-	{
-		FirstPlayerController->SetFlashLight(SpotLights.at(0));
-	}*/
-
-	RegisterController(FirstPlayerController);
-
 	//TODO substitute to real Level
 	std::shared_ptr<Level> TestLevel = std::make_shared<Level>();
 
 	WorldSceneRenderer = std::make_shared<SceneRenderer>(TestLevel);
 	WorldSceneRenderer->Initialize(GameWindow);
+
+	// TODO: temp for debug purposes
+	if (WorldSceneRenderer)
+	{
+		if (WorldSceneRenderer->GetLevelInstance())
+		{
+			auto& Spots = WorldSceneRenderer->GetLevelInstance()->GetSpotLights();
+
+			if (!Spots.empty())
+			{
+				FirstPlayerController->SetFlashLight(Spots.at(0));
+			}
+		}
+	}
+
+	RegisterController(FirstPlayerController);
 }
 
 bool World::IsGameOver()
