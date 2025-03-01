@@ -9,7 +9,7 @@
 #include "Components/Camera.h"
 #include "Components/Grid.h"
 #include "Components/Material.h"
-#include "Components/Mesh.h"
+
 #include "Render/Shader.h"
 #include "Render/DirectionalLight.h"
 #include "Components/SceneComponent.h"
@@ -27,10 +27,6 @@ void SceneRenderer::Initialize(const std::shared_ptr<MainWindow>& InGameWindow)
 {
 	GameWindow = InGameWindow;
 
-	LoadTextures();
-	LoadMaterials();
-
-	Create3DObjects();
 	CreateShaders();
 
 	ProjectionMatrix = glm::perspective(glm::radians(60.0f),
@@ -49,80 +45,6 @@ void SceneRenderer::CreateShaders()
 	OmniDirectionalShadowShader = std::make_shared<Shader>(VertOmniDirShadowShaderPath, 
 															GeomOmniDirShadowShaderPath, 
 															FragOmniDirShadowShaderPath);
-}
-
-void SceneRenderer::LoadTextures()
-{
-	PlaceholderTexture->LoadTexture_RGBA();
-
-	Textures.emplace("Brick", std::make_shared<Texture>("Content/Textures/brick.jpg"));
-	Textures.emplace("Rock", std::make_shared<Texture>("Content/Textures/rock.jpg"));
-	Textures.emplace("Metal", std::make_shared<Texture>("Content/Textures/metal.jpg"));
-	Textures.emplace("Sand", std::make_shared<Texture>("Content/Textures/sand.png"));
-	Textures.emplace("Gold", std::make_shared<Texture>("Content/Textures/gold.jpg"));
-	Textures.emplace("Grid", std::make_shared<Texture>("Content/Textures/small_grid.png"));
-	Textures.emplace("Plain", std::make_shared<Texture>("Content/Textures/plain.png"));
-
-	for (const auto& Texture : Textures | std::views::values)
-	{
-		Texture->LoadTexture_RGBA();
-	}
-}
-
-void SceneRenderer::LoadMaterials()
-{
-	Materials.emplace("Metal", std::make_shared<Material>(5.0f, 128.0f));
-	Materials.emplace("Mat", std::make_shared<Material>(0.5f, 1.0f));
-}
-
-void SceneRenderer::Create3DObjects()
-{
-	// Define floor vertices
-	std::vector<GLfloat> FloorVertices = {
-	//	   x      y      z      u      v     nx     ny    nz
-		-10.0f, 0.0f, -10.0f,  0.0f,  0.0f, 0.0f, 1.0f, 0.0f,
-		 10.0f, 0.0f, -10.0f, 10.0f,  0.0f, 0.0f, 1.0f, 0.0f,
-		-10.0f, 0.0f,  10.0f,  0.0f, 10.0f, 0.0f, 1.0f, 0.0f,
-		 10.0f, 0.0f,  10.0f, 10.0f, 10.0f, 0.0f, 1.0f, 0.0f
-	};
-
-	std::vector<unsigned int> FloorIndices = {
-		0, 2, 1,
-		1, 2, 3
-	};
-
-	//TODO move to mesh with calculate normals method or use compute shader
-	// Represents faces created from further represented vertices
-	std::vector<unsigned int> Indices = {
-		0, 3, 1,
-		1, 3, 2,
-		2, 3, 0,
-		0, 1, 2
-	};
-
-	// Define triangle's vertices
-	std::vector<GLfloat> Vertices = {
-	//	  x      y      z     u     v     nx    ny    nz
-		-1.0f, -1.0f, -0.6f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		 0.0f, -1.0f,  1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, -0.6f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		 0.0f,  1.0,   0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f
-	};
-
-	Helper::CalculateAverageNormals(Indices, Vertices, 8, 5);
-
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices));
-	MeshList.emplace_back(std::make_shared<Mesh>(Vertices, Indices));
-	MeshList.emplace_back(std::make_shared<Mesh>(FloorVertices, FloorIndices));
-
-	//PonyCar = std::make_shared<SkeletalMeshComponent>("Content/Meshes/Pony_cartoon.obj");
-
-	// Add sphere for each texture for demo
-	for (auto& Texture : Textures)
-	{
-		//SkeletalMeshList.emplace_back(std::make_shared<SkeletalMeshComponent>("Content/Meshes/sphere.obj"));
-	}
 }
 
 void SceneRenderer::RenderStaticMeshes()
@@ -168,98 +90,58 @@ void SceneRenderer::RenderStaticMeshes()
 	// Set Model Translations
 	glm::mat4 ModelMatrix (1.0f); // initialize module matrix as identity matrix
 
-	if (!SkeletalMeshList.empty())
-	{
-		// Set Model Translations
-		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -1.02f, -2.0f)); // set translation
-		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.004f, 0.004f, 0.004f)); // set scale
-		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		PonyCar->Render();
-	}
-
+	
 	std::vector<std::shared_ptr<Texture>> TextureVec;
-	for (auto& Tex : Textures | std::views::values)
+	for (auto& Tex : LevelInstance->GetTextures() | std::views::values)
 	{
 		TextureVec.push_back(Tex);
 	}
 
-	for (int Index = 0; Index < SkeletalMeshList.size(); ++Index)
-	{
-		glm::vec3 PivotOffset = glm::vec3(0.0f, 0.0f, 0.0f);
-
-		// Set Model Translations
-		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f + static_cast<float>(Index) * 2, 0.05f, 5.0f)); // set translation
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
-
-		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		Materials.at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
-
-		SkeletalMeshList.at(Index)->RenderWithTexture(TextureVec.at(Index));
-	}
-
-	for (int Index = 0; Index < SkeletalMeshList.size(); ++Index)
-	{
-		glm::vec3 PivotOffset = glm::vec3(0.0f, 0.0f, 0.0f);
-
-		// Set Model Translations
-		ModelMatrix = 1.0f; // initialize module matrix as identity matrix
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f + static_cast<float>(Index) * 2, -1.05f, 4.0f)); // set translation
-		ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f)); // set scale
-
-		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		Materials.at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
-
-		SkeletalMeshList.at(Index)->RenderWithTexture(TextureVec.at(Index));
-	}
-
-	if (!MeshList.empty())
+	if (!LevelInstance->GetMeshList().empty())
 	{
 		ModelMatrix = 1.0f;
 		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(9.0f, -0.05f, -5.0f));
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		Textures.at("Brick")->Apply();
-		Materials.at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+		LevelInstance->GetTextures().at("Brick")->Apply();
+		LevelInstance->GetMaterials().at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
-		MeshList[0]->Render();
+		LevelInstance->GetMeshList()[0]->Render();
 	}
 
-	if (MeshList.size() > 1)
+	if (LevelInstance->GetMeshList().size() > 1)
 	{
 		ModelMatrix = 1.0f;
 		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f + ShapeOffset, 2.0f, -5.0f));
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		Textures.at("Rock")->Apply();
-		Materials.at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+		LevelInstance->GetTextures().at("Rock")->Apply();
+		LevelInstance->GetMaterials().at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
-		MeshList[1]->Render();
+		LevelInstance->GetMeshList()[1]->Render();
 	}
 
-	if (MeshList.size() > 2)
+	if (LevelInstance->GetMeshList().size() > 2)
 	{
 		ModelMatrix = 1.0f;
 		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3.0f, -0.05f, -5.0f));
 		ModelMatrix = glm::rotate(ModelMatrix, glm::radians(RotationDegree), glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		Textures.at("Metal")->Apply();
-		Materials.at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+		LevelInstance->GetTextures().at("Metal")->Apply();
+		LevelInstance->GetMaterials().at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
-		MeshList[2]->Render();
+		LevelInstance->GetMeshList()[2]->Render();
 	}
 
-	if (MeshList.size() > 3)
+	if (LevelInstance->GetMeshList().size() > 3)
 	{
 		// Set Model Translations
 		ModelMatrix = 1.0f;
 		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5.0f, -1.0f, 0.0f)); // set translation
 		
 		glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-		Textures.at("Grid")->Apply();
-		Materials.at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
+		LevelInstance->GetTextures().at("Grid")->Apply();
+		LevelInstance->GetMaterials().at("Mat")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
-		MeshList[3]->Render();
+		LevelInstance->GetMeshList()[3]->Render();
 	}
 
 	for (const auto& Actor : LevelInstance->GetAllActors())
@@ -295,14 +177,9 @@ void SceneRenderer::RenderStaticMeshes()
 
 			glUniformMatrix4fv(UniformModelMatrix, 1, GL_FALSE, glm::value_ptr(ComponentModelMatrix));
 
-			/* TODO: update material if possible into engine
-			 
-			 auto Material = RenderComponent->GetMaterial();
+			// TODO: switch to proper material instance applying
+			LevelInstance->GetMaterials().at("Metal")->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
 
-			if (Material)
-			{
-				Material->Apply(UniformDirectionalLightSpecularIntensity, UniformDirectionalLightShininess);
-			}*/
 			RenderComponent->Render();
 		}
 	}

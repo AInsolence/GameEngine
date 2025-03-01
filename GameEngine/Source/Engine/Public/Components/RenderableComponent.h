@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 
-class RenderableComponent : public Component
+class RenderableComponent : virtual public Component
 {
 public:
 	RenderableComponent(std::string&& Name) : Component(std::move(Name)) {}

@@ -11,6 +11,20 @@
 
 #include "Helper.h"
 
+SkeletalMeshComponent::SkeletalMeshComponent(std::string&& FilePath)
+							: RenderableComponent("NONE")
+{
+	// TODO split download logic
+	LoadModel(FilePath);
+}
+
+SkeletalMeshComponent::SkeletalMeshComponent(std::string&& Name, std::string&& FilePath)
+							: RenderableComponent(std::move(Name))
+{
+	// TODO split download logic
+	LoadModel(FilePath);
+}
+
 bool SkeletalMeshComponent::LoadModel(const std::string& FilePath)
 {
 	Assimp::Importer Importer;
@@ -31,8 +45,15 @@ bool SkeletalMeshComponent::LoadModel(const std::string& FilePath)
 	return true;
 }
 
-SkeletalMeshComponent::SkeletalMeshComponent(std::string&& Name, std::string&& MeshName)
-							: RenderableComponent(std::move(Name)), MeshName(std::move(MeshName)){}
+void SkeletalMeshComponent::SetCustomTexture(const std::shared_ptr<Texture>& Texture)
+{
+	CustomTexture = Texture;
+}
+
+void SkeletalMeshComponent::ClearCustomTexture()
+{
+	CustomTexture.reset();
+}
 
 void SkeletalMeshComponent::Render() const
 {
@@ -42,22 +63,15 @@ void SkeletalMeshComponent::Render() const
 
 		if (MaterialIndex < TextureUnits.size() && TextureUnits.at(MaterialIndex))
 		{
-			TextureUnits.at(MaterialIndex)->Apply();
-		}
-
-		MeshUnits.at(Index)->Render();
-	}
-}
-
-void SkeletalMeshComponent::RenderWithTexture(std::shared_ptr<Texture> CustomTexture) const
-{
-	for (unsigned int Index = 0; Index < MeshUnits.size(); ++Index)
-	{
-		const auto MaterialIndex = MaterialIndices.at(Index);
-
-		if (MaterialIndex < TextureUnits.size() && TextureUnits.at(MaterialIndex))
-		{
-			CustomTexture->Apply();
+			// TODO for debug, delete custom render
+			if (CustomTexture)
+			{
+				CustomTexture->Apply();
+			}
+			else
+			{
+				TextureUnits.at(MaterialIndex)->Apply();
+			}
 		}
 
 		MeshUnits.at(Index)->Render();

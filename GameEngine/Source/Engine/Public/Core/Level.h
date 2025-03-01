@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -12,6 +13,8 @@
 #include "Components/Grid.h"
 #include "Components/Skybox.h"
 
+class Material;
+class SkeletalMeshComponent;
 class Actor;
 class SpotLight;
 class PointLight;
@@ -78,17 +81,30 @@ public:
 	std::unique_ptr<Skybox>& GetSkybox();
 	std::unique_ptr<Grid>& GetEditorGrid();
 
-private:
+	std::vector<std::shared_ptr<Mesh>>& GetMeshList();
+	std::map<const char*, std::shared_ptr<Texture>>& GetTextures();
+	std::map<const char*, std::shared_ptr<Material>>& GetMaterials();
+
+private:	
+	void LoadTextures();
+	void LoadMaterials();
+
 	void CreateSkybox();
+	void Create3DObjects();
 
 	std::vector<std::shared_ptr<Actor>> Actors;
 	std::unordered_map<std::string, std::shared_ptr<Actor>> ActorMap;
-
+	// TODO: substitute with Actors
+	std::vector<std::shared_ptr<Mesh>> MeshList;
+	//
 	std::shared_ptr<DirectionalLight> SunLight;
 	std::vector<std::shared_ptr<PointLight>> PointLights;
 	std::vector<std::shared_ptr<SpotLight>> SpotLights;
 
 	std::unique_ptr<Skybox> Sky;
 	std::unique_ptr<Grid> EditorGrid;
+
+	std::map<const char*, std::shared_ptr<Texture>> Textures;
+	std::map<const char*, std::shared_ptr<Material>> Materials;
 };
 

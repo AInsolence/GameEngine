@@ -11,6 +11,7 @@ class Actor
 {
 public:
 	Actor();
+	Actor(std::string&& Name);
 
 	void SetRootComponent(std::shared_ptr<SceneComponent> Root);
 
@@ -20,7 +21,8 @@ public:
 
 	std::shared_ptr<Component> GetComponent(const std::string& Name);
 
-	void Update(float DeltaTime);
+	virtual void Initialize();
+	virtual void Update(float DeltaTime);
 	void Render();
 
 	std::string GetName();

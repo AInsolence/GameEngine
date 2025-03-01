@@ -1,10 +1,16 @@
 #include "Core/Actor.h"
 
+#include <ranges>
+
 #include "Components/SceneComponent.h"
 #include "Components/RenderableComponent.h"
 
 
 Actor::Actor() : RootComponent(nullptr)
+{
+}
+
+Actor::Actor(std::string&& Name) :  Name(std::move(Name)), RootComponent(nullptr)
 {
 }
 
@@ -43,11 +49,19 @@ std::shared_ptr<Component> Actor::GetComponent(const std::string& Name)
 	return (Comp != Components.end()) ? Comp->second : nullptr;
 }
 
+void Actor::Initialize()
+{
+	for (const auto& Comp : Components | std::views::values)
+	{
+		Comp->Initialize();
+	}
+}
+
 void Actor::Update(float DeltaTime)
 {
-	for (auto& Pair : Components)
+	for (const auto& Comp : Components | std::views::values)
 	{
-		Pair.second->Update(DeltaTime);
+		Comp->Update(DeltaTime);
 	}
 }
 

@@ -10,13 +10,9 @@
 
 #include "Core/Level.h"
 
-class Mesh;
-class Texture;
 class Shader;
 class PointLight;
 class DirectionalLight;
-class Material;
-class SkeletalMeshComponent;
 class Camera;
 class MainWindow;
 
@@ -28,12 +24,6 @@ public:
 	void Initialize(const std::shared_ptr<MainWindow>& InGameWindow);
 
 	void RenderScene(const std::shared_ptr<Camera>& PlayerCamera);
-	//{
-	//	for (const auto& Actor : LevelInstance->GetAllActors())
-	//	{
-	//		Actor->Render();
-	//	}
-	//}
 
 	std::shared_ptr<Level> GetLevelInstance() const;
 
@@ -41,11 +31,7 @@ private:
 	std::shared_ptr<MainWindow> GameWindow;
 	std::shared_ptr<Level> LevelInstance;
 
-	void LoadTextures();
-	void LoadMaterials();
-
 	void CreateShaders();
-	void Create3DObjects();
 
 	void RenderStaticMeshes();
 	void RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
@@ -56,16 +42,9 @@ private:
 	void GenerateDirectionalShadowMaps(const std::shared_ptr<DirectionalLight>& Light);
 	void GenerateOmniDirShadowMaps(const std::shared_ptr<PointLight>& Light);
 
-	std::vector<std::shared_ptr<Mesh>> MeshList;
-	std::vector<std::shared_ptr<SkeletalMeshComponent>> SkeletalMeshList;
-	std::shared_ptr<SkeletalMeshComponent> PonyCar;
-
 	std::vector<std::unique_ptr<Shader>> ShaderList;
 	std::unique_ptr<Shader> DirectionalShadowShader;
 	std::shared_ptr<Shader> OmniDirectionalShadowShader;
-
-	std::map<const char*, std::shared_ptr<Texture>> Textures;
-	std::map<const char*, std::shared_ptr<Material>> Materials;
 
 	glm::mat4 ProjectionMatrix;
 

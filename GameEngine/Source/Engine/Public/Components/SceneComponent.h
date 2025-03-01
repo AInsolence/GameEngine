@@ -7,7 +7,7 @@
 #include "Component.h"
 #include "Transform.h"
 
-class SceneComponent : public Component
+class SceneComponent : virtual public Component
 {
 public:
 	SceneComponent();

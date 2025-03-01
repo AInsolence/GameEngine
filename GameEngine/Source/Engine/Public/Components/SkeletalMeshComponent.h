@@ -18,18 +18,19 @@ struct aiNode;
 class SkeletalMeshComponent : public SceneComponent, public RenderableComponent
 {
 public:
-	SkeletalMeshComponent(std::string&& Name, std::string&& MeshName);
+	SkeletalMeshComponent(std::string&& FilePath);
+	SkeletalMeshComponent(std::string&& Name, std::string&& FilePath);
 
 	void Render() const override;
-	void RenderWithTexture(std::shared_ptr<Texture> CustomTexture) const;
 
 	void Clear();
 
 	bool LoadModel(const std::string& FilePath);
 
-private:
-	std::string MeshName;
+	void SetCustomTexture(const std::shared_ptr<Texture>& Texture);
+	void ClearCustomTexture();
 
+private:
 	void LoadNode(const aiNode* Node, const aiScene* Scene);
 	void LoadMesh(const aiMesh* InitMesh, const aiScene* Scene);
 	void LoadMaterials(const aiScene* Scene);
@@ -37,4 +38,6 @@ private:
 	std::vector<std::shared_ptr<Mesh>> MeshUnits;
 	std::vector<std::shared_ptr<Texture>> TextureUnits;
 	std::vector<unsigned int> MaterialIndices;
+
+	std::shared_ptr<Texture> CustomTexture = nullptr;
 };
