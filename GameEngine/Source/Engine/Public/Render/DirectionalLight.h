@@ -17,6 +17,8 @@ public:
 				GLint DirectionLocation) const;
 
 	glm::mat4 CalculateLightSpaceTransform();
+	glm::vec3 GetDirection() const { return Direction; }
+	void SetDirection(glm::vec3&& InDirection) { Direction = InDirection; }
 
 private:
 	glm::vec3 Direction;

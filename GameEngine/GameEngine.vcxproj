@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Private\Utilities\LevelSerializer.cpp" />
     <ClCompile Include="Source\Engine\Private\Core\Level.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\SceneComponent.cpp" />
     <ClCompile Include="Source\Engine\Private\Components\Component.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="Source\Engine\Private\Components\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Public\Utilities\LevelSerializer.h" />
     <ClInclude Include="Source\Engine\Public\Core\Level.h" />
     <ClInclude Include="Source\Engine\Public\Components\SceneComponent.h" />
     <ClInclude Include="Source\Engine\Public\Components\RenderableComponent.h" />

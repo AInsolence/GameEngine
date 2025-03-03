@@ -33,8 +33,8 @@ public:
 
 	void Update(float DeltaTime);
 
-	void SaveScene(const std::string& FilePath);
-	void LoadScene(const std::string& FilePath);
+	void AddPointLight(std::shared_ptr<PointLight>&& PointLight);
+	void AddSpotLight(std::shared_ptr<SpotLight>&& SpotLight);
 
 	void AddPointLight
 	(
@@ -74,18 +74,24 @@ public:
 		GLfloat InitFar = 50.0f   // Default far plane for shadows
 	);
 
-	std::shared_ptr<DirectionalLight>& GetSunLight();
-	std::vector<std::shared_ptr<PointLight>>& GetPointLights();
-	std::vector<std::shared_ptr<SpotLight>>& GetSpotLights();
+	void SetGrid (std::unique_ptr<Grid>&& InGrid) { EditorGrid = std::move(InGrid); }
+	void SetSkybox (std::string&& InSkyboxPath) { SkyboxPath = std::move(InSkyboxPath); }
+	void SetSunLight(std::shared_ptr<DirectionalLight>&& DirectionalLight) { SunLight = std::move(DirectionalLight); }
+
+	const std::shared_ptr<DirectionalLight>& GetSunLight() const;
+	const std::vector<std::shared_ptr<PointLight>>& GetPointLights() const;
+	const std::vector<std::shared_ptr<SpotLight>>& GetSpotLights() const;
 	
-	std::unique_ptr<Skybox>& GetSkybox();
-	std::unique_ptr<Grid>& GetEditorGrid();
+	const std::unique_ptr<Skybox>& GetSkybox() const;
+	const std::unique_ptr<Grid>& GetEditorGrid() const;
 
 	std::vector<std::shared_ptr<Mesh>>& GetMeshList();
 	std::map<const char*, std::shared_ptr<Texture>>& GetTextures();
 	std::map<const char*, std::shared_ptr<Material>>& GetMaterials();
 
-private:	
+	const std::string& GetSkyboxPath() const { return SkyboxPath; }
+
+private:
 	void LoadTextures();
 	void LoadMaterials();
 
@@ -101,6 +107,7 @@ private:
 	std::vector<std::shared_ptr<PointLight>> PointLights;
 	std::vector<std::shared_ptr<SpotLight>> SpotLights;
 
+	std::string SkyboxPath = "sky_36";
 	std::unique_ptr<Skybox> Sky;
 	std::unique_ptr<Grid> EditorGrid;
 

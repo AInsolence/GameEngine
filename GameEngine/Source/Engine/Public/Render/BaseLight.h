@@ -28,6 +28,16 @@ public:
 
 	const std::shared_ptr<ShadowMap>& GetShadowMap() const { return ShadowMapTex; }
 
+	// Getters
+	glm::vec4 GetColor() const { return Color; }
+	GLfloat GetAmbientIntensity() const { return AmbientIntensity; }
+	GLfloat GetDiffuseIntensity() const { return DiffuseIntensity; }
+
+	// Setters
+	void SetColor(glm::vec4&& InColor) { Color = InColor; }
+	void SetAmbientIntensity(GLfloat InAmbientIntensity) { AmbientIntensity = InAmbientIntensity; }
+	void SetDiffuseIntensity(GLfloat InDiffuseIntensity) { DiffuseIntensity = InDiffuseIntensity; }
+
 protected:
 	glm::vec4 Color;
 

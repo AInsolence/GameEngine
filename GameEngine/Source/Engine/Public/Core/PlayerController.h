@@ -20,7 +20,7 @@ public:
 	void HandleInput(GLfloat DeltaTime) override;
 
 	// TODO: temp for checking flashlight functionality
-	void SetFlashLight(std::shared_ptr<::SpotLight>& InitSpotLight);
+	void SetFlashLight(const std::shared_ptr<::SpotLight>& InitSpotLight);
 	
 private:
 	std::shared_ptr<SpotLight> Flashlight;

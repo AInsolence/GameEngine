@@ -1,5 +1,6 @@
 #include "Core/Level.h"
 
+#include <format>
 #include <ranges>
 #include <geometric.hpp>
 
@@ -99,10 +100,20 @@ void Level::Update(float DeltaTime)
 	}
 }
 
+void Level::AddPointLight(std::shared_ptr<PointLight>&& PointLight)
+{
+	PointLights.emplace_back(std::move(PointLight));
+}
+
+void Level::AddSpotLight(std::shared_ptr<SpotLight>&& SpotLight)
+{
+	SpotLights.emplace_back(std::move(SpotLight));
+}
+
 void Level::AddPointLight(glm::vec4 InitColor, GLfloat InitAmbientIntensity, GLfloat InitDiffuseIntensity,
-	glm::vec3 InitPosition, GLfloat InitExponent, GLfloat InitLinear, GLfloat InitConstant, GLfloat InitInnerRadius,
-	GLfloat InitOuterRadius, GLfloat InitRadiusSharpness, GLint InitShadowWidth, GLint InitShadowHeight,
-	GLfloat InitNear, GLfloat InitFar)
+						glm::vec3 InitPosition, GLfloat InitExponent, GLfloat InitLinear, GLfloat InitConstant, GLfloat InitInnerRadius,
+						GLfloat InitOuterRadius, GLfloat InitRadiusSharpness, GLint InitShadowWidth, GLint InitShadowHeight,
+						GLfloat InitNear, GLfloat InitFar)
 {
 	PointLights.emplace_back(std::make_shared<PointLight>(
 		InitColor, 
@@ -147,17 +158,17 @@ void Level::AddSpotLight(glm::vec4 InitColor, GLfloat InitAmbientIntensity, GLfl
 	));
 }
 
-std::shared_ptr<DirectionalLight>& Level::GetSunLight()
+const std::shared_ptr<DirectionalLight>& Level::GetSunLight() const
 {
 	return SunLight;
 }
 
-std::vector<std::shared_ptr<PointLight>>& Level::GetPointLights()
+const std::vector<std::shared_ptr<PointLight>>& Level::GetPointLights() const
 {
 	return PointLights;
 }
 
-std::vector<std::shared_ptr<SpotLight>>& Level::GetSpotLights()
+const std::vector<std::shared_ptr<SpotLight>>& Level::GetSpotLights() const
 {
 	return SpotLights;
 }
@@ -166,22 +177,22 @@ void Level::CreateSkybox()
 {
 	std::array<std::string, 6> FaceLocations;
 
-	FaceLocations.at(0) = "Content/Textures/Skybox/sky_36/pz.png";
-	FaceLocations.at(1) = "Content/Textures/Skybox/sky_36/nz.png";
-	FaceLocations.at(2) = "Content/Textures/Skybox/sky_36/py.png";
-	FaceLocations.at(3) = "Content/Textures/Skybox/sky_36/ny.png";
-	FaceLocations.at(4) = "Content/Textures/Skybox/sky_36/nx.png";
-	FaceLocations.at(5) = "Content/Textures/Skybox/sky_36/px.png";
+	FaceLocations.at(0) = std::format("Content/Textures/Skybox/{}/pz.png", SkyboxPath);
+	FaceLocations.at(1) = std::format("Content/Textures/Skybox/{}/nz.png", SkyboxPath);
+	FaceLocations.at(2) = std::format("Content/Textures/Skybox/{}/py.png", SkyboxPath);
+	FaceLocations.at(3) = std::format("Content/Textures/Skybox/{}/ny.png", SkyboxPath);
+	FaceLocations.at(4) = std::format("Content/Textures/Skybox/{}/nx.png", SkyboxPath);
+	FaceLocations.at(5) = std::format("Content/Textures/Skybox/{}/px.png", SkyboxPath);
 
 	Sky = std::make_unique<Skybox>(FaceLocations);
 }
 
-std::unique_ptr<Skybox>& Level::GetSkybox()
+const std::unique_ptr<Skybox>& Level::GetSkybox() const
 {
 	return Sky;
 }
 
-std::unique_ptr<Grid>& Level::GetEditorGrid()
+const std::unique_ptr<Grid>& Level::GetEditorGrid() const
 {
 	return EditorGrid;
 }

@@ -36,10 +36,13 @@ public:
 
 	void SetTransform(glm::vec3 InPosition, glm::vec3 InDirection);
 
+	glm::vec3 GetDirection() const { return Direction; }
+	float GetCutOffAngleCos() const { return CutOffAngleCos; }
+
 	// TODO only for debug. Should be moved to Controller from Renderer
 	void Toggle();
 	bool isOn = false;
-	
+
 protected:
 	glm::vec3 Direction;
 	float CutOffAngleCos;

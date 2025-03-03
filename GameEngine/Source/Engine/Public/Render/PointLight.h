@@ -32,8 +32,27 @@ public:
 
 	std::array<glm::mat4, 6> CalculateLightSpaceTransform();
 
-	GLfloat GetFarPlane() const { return Far; }
+	// Getters
 	glm::vec3 GetPosition() const { return Position; }
+	GLfloat GetExponent() const { return Exponent; }
+	GLfloat GetLinear() const { return Linear; }
+	GLfloat GetConstant() const { return Constant; }
+	GLfloat GetInnerRadius() const { return InnerRadius; }
+	GLfloat GetOuterRadius() const { return OuterRadius; }
+	GLfloat GetRadiusSharpness() const { return RadiusSharpness; }
+	GLfloat GetNear() const { return Near; }
+	GLfloat GetFarPlane() const { return Far; }
+
+	// Setters
+	void SetPosition(glm::vec3&& InPosition) { Position = InPosition; }
+	void SetExponent(GLfloat InExponent) { Exponent = InExponent; }
+	void SetLinear(GLfloat InLinear) { Linear = InLinear; }
+	void SetConstant(GLfloat InConstant) { Constant = InConstant; }
+	void SetInnerRadius(GLfloat InInnerRadius) { InnerRadius = InInnerRadius; }
+	void SetOuterRadius(GLfloat InOuterRadius) { OuterRadius = InOuterRadius; }
+	void SetRadiusSharpness(GLfloat InRadiusSharpness) { RadiusSharpness = InRadiusSharpness; }
+	void SetNear(GLfloat InNear) { Near = InNear; }
+	void SetFar(GLfloat InFar) { Far = InFar; }
 
 protected:
 	glm::vec3 Position;

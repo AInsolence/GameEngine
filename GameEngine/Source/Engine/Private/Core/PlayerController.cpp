@@ -44,7 +44,7 @@ void PlayerController::HandleInput(GLfloat DeltaTime)
 	}
 }
 
-void PlayerController::SetFlashLight(std::shared_ptr<::SpotLight>& InitSpotLight)
+void PlayerController::SetFlashLight(const std::shared_ptr<::SpotLight>& InitSpotLight)
 {
 	//TODO: temp solution for debug
 	Flashlight = InitSpotLight;

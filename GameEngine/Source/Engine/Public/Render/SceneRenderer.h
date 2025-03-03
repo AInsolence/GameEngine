@@ -36,7 +36,7 @@ private:
 	void RenderStaticMeshes();
 	void RenderPass(const std::shared_ptr<MainWindow>& MainWindow,
 					const std::shared_ptr<Camera>& MainCamera,
-					std::shared_ptr<DirectionalLight>& SunLight,
+					const std::shared_ptr<DirectionalLight>& SunLight,
 					const glm::mat4& ProjectionMatrix);
 
 	void GenerateDirectionalShadowMaps(const std::shared_ptr<DirectionalLight>& Light);
